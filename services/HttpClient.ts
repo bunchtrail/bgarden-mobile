@@ -36,6 +36,22 @@ class HttpClient {
     this.defaultTimeout = defaultTimeout;
   }
 
+  /**
+   * Устанавливает заголовок по умолчанию для всех запросов
+   * @param name Имя заголовка
+   * @param value Значение заголовка
+   */
+  public setDefaultHeader(name: string, value: string): void {
+    this.defaultHeaders[name] = value;
+  }
+
+  /**
+   * Возвращает текущие заголовки по умолчанию
+   */
+  public getDefaultHeaders(): Record<string, string> {
+    return { ...this.defaultHeaders };
+  }
+
   // Проверка подключения к интернету
   private async checkNetworkConnectivity(): Promise<boolean> {
     const netInfoState = await NetInfo.fetch();

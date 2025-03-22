@@ -6,6 +6,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Button } from '@/components/Button';
+import { Header } from '@/components/Header';
+import { AuthButton } from '@/components/AuthButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
@@ -49,11 +51,11 @@ export default function Index() {
       <Stack.Screen options={{ headerShown: false }} />
       
       {/* Хедер с логотипом */}
-      <ThemedView style={styles.header} lightColor="#4A8F6D" darkColor="#1D3D28">
-        <Image source={require('@/assets/images/splash-icon.png')} style={styles.logo} />
-        <ThemedText type="title" style={styles.headerTitle}>
-          Ботанический сад ВятГУ
-        </ThemedText>
+      <ThemedView style={styles.headerContainer} lightColor="#4A8F6D" darkColor="#1D3D28">
+        <Header 
+          titleColor="white" 
+          logoStyle={styles.headerLogo} 
+        />
       </ThemedView>
       
       {/* Основной контент */}
@@ -117,16 +119,10 @@ export default function Index() {
         
         {/* Кнопки авторизации */}
         <ThemedView style={styles.authButtons}>
-          <Button 
-            title="Войти" 
-            onPress={() => router.push('/(auth)/login')}
-            style={styles.authButton}
-          />
-          <Button 
-            title="Регистрация" 
-            onPress={() => router.push('/(auth)/register')}
-            style={styles.authButton}
-            variant="secondary"
+          <AuthButton 
+            showLogin={true} 
+            showRegister={true} 
+            variant="primary"
           />
         </ThemedView>
       </Animated.View>
@@ -141,21 +137,15 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingBottom: 32,
   },
-  header: {
-    alignItems: 'center',
+  headerContainer: {
     paddingTop: 60,
     paddingBottom: 30,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
   },
-  logo: {
+  headerLogo: {
     width: 120,
     height: 120,
-    resizeMode: 'contain',
-  },
-  headerTitle: {
-    color: 'white',
-    marginTop: 16,
   },
   mainContent: {
     padding: 16,

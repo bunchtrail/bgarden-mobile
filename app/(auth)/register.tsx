@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   StyleSheet,
-  TextInput,
   View,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Button } from '@/components/Button';
+import { Input } from '@/components/ui/Input';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -60,7 +60,6 @@ export default function RegisterScreen() {
       }
     } catch (err) {
       setError('Ошибка регистрации');
-      console.error('Ошибка при регистрации', err);
     }
   };
 
@@ -82,82 +81,39 @@ export default function RegisterScreen() {
           </View>
 
           <View style={styles.formContainer}>
-            <View style={styles.inputContainer}>
-              <ThemedText>Имя пользователя</ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: inputBackground,
-                    color: textColor,
-                    borderColor: borderColor,
-                  },
-                ]}
-                placeholder="Введите имя пользователя"
-                placeholderTextColor={borderColor}
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-              />
-            </View>
+            <Input
+              label="Имя пользователя"
+              value={username}
+              onChangeText={setUsername}
+              placeholder="Введите имя пользователя"
+              autoCapitalize="none"
+            />
 
-            <View style={styles.inputContainer}>
-              <ThemedText>Email</ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: inputBackground,
-                    color: textColor,
-                    borderColor: borderColor,
-                  },
-                ]}
-                placeholder="Введите email"
-                placeholderTextColor={borderColor}
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-            </View>
+            <Input
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Введите email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
-            <View style={styles.inputContainer}>
-              <ThemedText>Пароль</ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: inputBackground,
-                    color: textColor,
-                    borderColor: borderColor,
-                  },
-                ]}
-                placeholder="Введите пароль"
-                placeholderTextColor={borderColor}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-            </View>
+            <Input
+              label="Пароль"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Введите пароль"
+              secureTextEntry
+            />
 
-            <View style={styles.inputContainer}>
-              <ThemedText>Подтверждение пароля</ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: inputBackground,
-                    color: textColor,
-                    borderColor: borderColor,
-                  },
-                ]}
-                placeholder="Подтвердите пароль"
-                placeholderTextColor={borderColor}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-              />
-            </View>
+            <Input
+              label="Подтверждение пароля"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Повторите пароль"
+              secureTextEntry
+              error={password !== confirmPassword && confirmPassword ? "Пароли не совпадают" : ""}
+            />
 
             {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
 
@@ -165,13 +121,13 @@ export default function RegisterScreen() {
               title="Зарегистрироваться"
               onPress={handleRegister}
               loading={isLoading}
-              style={styles.button}
+              style={styles.buttonContainer}
             />
 
-            <View style={styles.linkContainer}>
-              <ThemedText>Уже есть аккаунт?</ThemedText>
+            <View style={styles.footerContainer}>
+              <ThemedText style={styles.footerText}>Уже есть аккаунт?</ThemedText>
               <TouchableWithoutFeedback onPress={goToLogin}>
-                <ThemedText style={[styles.link, { color: linkColor }]}>Войти</ThemedText>
+                <ThemedText style={[styles.linkText, { color: linkColor }]}>Войти</ThemedText>
               </TouchableWithoutFeedback>
             </View>
           </View>
@@ -188,44 +144,36 @@ const styles = StyleSheet.create({
   inner: {
     flex: 1,
     padding: 24,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   titleContainer: {
-    marginBottom: 40,
+    marginTop: 20,
+    marginBottom: 36,
     alignItems: 'center',
   },
   title: {
     marginBottom: 8,
   },
   formContainer: {
-    width: '100%',
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
-    marginTop: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
-  },
-  button: {
-    marginTop: 16,
+    marginBottom: 24,
   },
   errorText: {
-    color: '#FF3B30',
-    marginBottom: 16,
+    color: '#E53E3E',
+    marginTop: 8,
   },
-  linkContainer: {
+  buttonContainer: {
+    marginTop: 12,
+  },
+  footerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 24,
-    gap: 8,
   },
-  link: {
-    fontWeight: '600',
+  footerText: {
+    marginRight: 8,
+  },
+  linkText: {
+    fontWeight: 'bold',
   },
 });

@@ -25,7 +25,6 @@ export default function ProfileScreen() {
           try {
             await logout();
           } catch (error) {
-            console.error('Ошибка при выходе', error);
             Alert.alert('Ошибка', 'Не удалось выйти из системы');
           } finally {
             setIsLoggingOut(false);
@@ -92,6 +91,12 @@ export default function ProfileScreen() {
           icon="settings"
           title="Настройки"
           onPress={() => Alert.alert('Информация', 'Здесь будут настройки приложения')}
+        />
+
+        <ProfileMenuItem
+          icon="server"
+          title="Тестирование хранилищ"
+          onPress={() => router.push('/storage-test')}
         />
 
         <View style={styles.separator} />

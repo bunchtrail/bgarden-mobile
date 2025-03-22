@@ -1,10 +1,9 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons';
-
 import { TabBarBackground } from '@/components/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function TabLayout() {

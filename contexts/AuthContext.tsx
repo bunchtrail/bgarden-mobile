@@ -41,14 +41,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!isLoading) {
       const inAuthGroup = segments[0] === '(auth)';
       const inTabsGroup = segments[0] === '(tabs)';
+      const isRootPath = !segments ||segments.join('') === '';
 
       if (!user && !inAuthGroup && !inTabsGroup) {
-        // Если пользователь не аутентифицирован и не на странице авторизации и не на главной странице,
-        // перенаправляем на главную страницу
         router.replace('/(tabs)');
-      } else if (user && (inAuthGroup || !segments || segments.join('') === '')) {
-        // Если пользователь аутентифицирован и на странице авторизации или индексной странице,
-        // перенаправляем на главную страницу приложения
+      } else if (user && (inAuthGroup || isRootPath)) {
         router.replace('/(tabs)');
       }
     }
@@ -60,17 +57,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const authData = await authStorage.getAuthData();
 
-        if (authData && authData.token && authData.expiresAt) {
+        if (authData && authData.accessToken && authData.expiration) {
           // Проверяем, истек ли срок действия токена
-          const isExpired = authStorage.isTokenExpired(authData.expiresAt);
+          const isExpired = authStorage.isTokenExpired(authData.expiration);
 
           if (!isExpired) {
             // Валидируем токен на сервере
             try {
-              const response = await api.auth.validateToken(authData.token);
+              const response = await api.auth.validateToken(authData.accessToken);
 
-              if (response.data) {
+              if (response.data && response.data.valid === true) {
                 setUser(authData);
+                setIsLoading(false);
+                
+                // useEffect сработает после изменения состояния
               } else {
                 // Если токен недействителен, пытаемся обновить его
                 await refreshAuthToken();
@@ -82,10 +82,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
             // Если токен истек, пытаемся обновить его
             await refreshAuthToken();
           }
+        } else {
+          setIsLoading(false);
         }
       } catch (error) {
         // Ошибка при загрузке данных аутентификации
-      } finally {
         setIsLoading(false);
       }
     }
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (response.data) {
           await authStorage.storeAuthData(response.data);
           setUser(response.data);
+          setIsLoading(false);
           return true;
         }
       }
@@ -111,10 +113,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Если не удалось обновить токен, очищаем данные аутентификации
       await authStorage.clearAuthData();
       setUser(null);
+      setIsLoading(false);
       return false;
     } catch (error) {
       await authStorage.clearAuthData();
       setUser(null);
+      setIsLoading(false);
       return false;
     }
   }
@@ -125,7 +129,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await api.auth.login(credentials);
 
       if (response.data) {
+        if (!response.data.accessToken) {
+          Alert.alert('Ошибка входа', 'Токен авторизации не получен');
+          return false;
+        }
+        
+        // Настраиваем заголовок авторизации для HTTP клиента
+        api.setAuthHeader(response.data.accessToken);
+        
+        // Сохраняем данные авторизации
         await authStorage.storeAuthData(response.data);
+        
+        // Проверяем, что токен сохранился
+        const storedToken = await authStorage.getAuthToken();
+        
+        if (!storedToken) {
+          Alert.alert('Ошибка входа', 'Не удалось сохранить данные авторизации');
+          return false;
+        }
+        
         setUser(response.data);
         return true;
       } else {
@@ -133,7 +155,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return false;
       }
     } catch (error) {
-      console.error('Ошибка входа', error);
       return false;
     }
   };
@@ -155,7 +176,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return false;
       }
     } catch (error) {
-      console.error('Ошибка регистрации', error);
       return false;
     }
   };
@@ -165,7 +185,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await api.auth.logout();
     } catch (error) {
-      console.error('Ошибка при выходе', error);
+      // Игнорируем ошибку
     } finally {
       await authStorage.clearAuthData();
       setUser(null);

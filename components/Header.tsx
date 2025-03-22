@@ -1,12 +1,19 @@
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View, ViewStyle, StyleProp, TextStyle, ImageStyle } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 
-export function Header() {
+interface HeaderProps {
+  style?: StyleProp<ViewStyle>;
+  logoStyle?: StyleProp<ImageStyle>;
+  titleStyle?: StyleProp<TextStyle>;
+  titleColor?: string;
+}
+
+export function Header({ style, logoStyle, titleStyle, titleColor }: HeaderProps) {
   return (
-    <View style={styles.header}>
-      <Image source={require('@/assets/images/splash-icon.png')} style={styles.logo} />
-      <ThemedText type="title" style={styles.title}>
+    <View style={[styles.header, style]}>
+      <Image source={require('@/assets/images/splash-icon.png')} style={[styles.logo, logoStyle]} />
+      <ThemedText type="title" style={[styles.title, titleStyle]} lightColor={titleColor} darkColor={titleColor}>
         Ботанический сад ВятГУ
       </ThemedText>
     </View>

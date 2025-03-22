@@ -10,11 +10,12 @@ const API_BASE_URL = Platform.select({
 
 // Типы для аутентификации
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
   refreshToken: string;
-  expiresAt: string;
-  userId: string;
+  expiration: string;
+  tokenType: string;
   username: string;
+  requiresTwoFactor: boolean;
 }
 
 export interface LoginCredentials {
@@ -79,18 +80,26 @@ const apiClient = new HttpClient(API_BASE_URL, {
 
 // Экспортируем API методы
 export const api = {
+  // Метод для установки заголовка авторизации
+  setAuthHeader: (token: string) => {
+    apiClient.setDefaultHeader('Authorization', `Bearer ${token}`);
+  },
+
   // Аутентификация
   auth: {
     login: async (credentials: LoginCredentials) => {
-      return apiClient.post<AuthResponse>('/api/auth/login', credentials);
+      const response = await apiClient.post<AuthResponse>('/api/auth/login', credentials as unknown as Record<string, unknown>);
+      return response;
     },
 
     register: async (userData: LoginCredentials & { email: string }) => {
-      return apiClient.post<AuthResponse>('/api/auth/register', userData);
+      const response = await apiClient.post<AuthResponse>('/api/auth/register', userData as unknown as Record<string, unknown>);
+      return response;
     },
 
     refreshToken: async (refreshToken: string) => {
-      return apiClient.post<AuthResponse>('/api/auth/refresh', { refreshToken });
+      const response = await apiClient.post<AuthResponse>('/api/User/refresh', { refreshToken } as Record<string, unknown>);
+      return response;
     },
 
     logout: async () => {
@@ -98,17 +107,18 @@ export const api = {
     },
 
     validateToken: async (token: string) => {
-      return apiClient.get<boolean>('/api/auth/validate', {
+      const response = await apiClient.get<TokenValidationResponse>('/api/User/validate', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      return response;
     },
 
     resetPassword: async (data: PasswordResetRequest) => {
-      return apiClient.post<{ success: boolean }>('/api/auth/reset-password', data);
+      return apiClient.post<{ success: boolean }>('/api/auth/reset-password', data as unknown as Record<string, unknown>);
     },
 
     completeReset: async (data: PasswordResetComplete) => {
-      return apiClient.post<{ success: boolean }>('/api/auth/complete-reset', data);
+      return apiClient.post<{ success: boolean }>('/api/auth/complete-reset', data as unknown as Record<string, unknown>);
     },
   },
 
@@ -131,12 +141,12 @@ export const api = {
 
   // Пример метода для добавления нового растения
   createPlant: async (plantData: PlantCreateDto) => {
-    return apiClient.post<Plant>('/plants', plantData);
+    return apiClient.post<Plant>('/plants', plantData as unknown as Record<string, unknown>);
   },
 
   // Пример метода для обновления информации о растении
   updatePlant: async (id: string, plantData: Partial<PlantCreateDto>) => {
-    return apiClient.put<Plant>(`/plants/${id}`, plantData);
+    return apiClient.put<Plant>(`/plants/${id}`, plantData as unknown as Record<string, unknown>);
   },
 
   // Пример метода для удаления растения
@@ -151,7 +161,7 @@ export const api = {
     },
 
     updateProfile: async (data: Partial<User>) => {
-      return apiClient.put<User>('/api/users/profile', data);
+      return apiClient.put<User>('/api/users/profile', data as unknown as Record<string, unknown>);
     },
 
     deleteAccount: async () => {

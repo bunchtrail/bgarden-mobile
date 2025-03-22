@@ -19,6 +19,7 @@ export const Colors = {
     primary: '#4A8F6D',
     secondary: '#E0E0E0',
     card: '#F8F8F8',
+    border: '#E2E8F0',
   },
   dark: {
     text: '#ECEDEE',
@@ -32,5 +33,6 @@ export const Colors = {
     primary: '#6AAC87',
     secondary: '#2C2C2C',
     card: '#1E1E1E',
+    border: '#2A2A2A',
   },
 };
