@@ -8,6 +8,20 @@ const API_BASE_URL = Platform.select({
   default: 'http://localhost:7254',
 });
 
+// Типы для аутентификации
+export interface AuthResponse {
+  token: string;
+  refreshToken: string;
+  expiresAt: string;
+  userId: string;
+  username: string;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
 // Создаем инстанс HTTP клиента
 const apiClient = new HttpClient(API_BASE_URL, {
   'Accept': 'application/json, text/plain',
@@ -16,6 +30,31 @@ const apiClient = new HttpClient(API_BASE_URL, {
 
 // Экспортируем API методы
 export const api = {
+  // Аутентификация
+  auth: {
+    login: async (credentials: LoginCredentials) => {
+      return apiClient.post<AuthResponse>('/api/auth/login', credentials);
+    },
+    
+    register: async (userData: LoginCredentials & { email: string }) => {
+      return apiClient.post<AuthResponse>('/api/auth/register', userData);
+    },
+    
+    refreshToken: async (refreshToken: string) => {
+      return apiClient.post<AuthResponse>('/api/auth/refresh', { refreshToken });
+    },
+    
+    logout: async () => {
+      return apiClient.post<void>('/api/auth/logout', {});
+    },
+    
+    validateToken: async (token: string) => {
+      return apiClient.get<boolean>('/api/auth/validate', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+  },
+
   // Метод для проверки соединения с API
   ping: async () => {
     return apiClient.get<string>('/api/Test/ping', { 

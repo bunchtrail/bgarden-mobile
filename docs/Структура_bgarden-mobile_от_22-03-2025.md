@@ -4,12 +4,20 @@
   - **.expo** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\.expo)`
   - **.vscode** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\.vscode)`
   - **app** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\app)`
+    - **(auth)** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\app\(auth))`
+      - `login.tsx` (4.9 KB)
+      - `register.tsx` (6.8 KB)
+      - `_layout.tsx` (376.0 B)
     - **(tabs)** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\app\(tabs))`
       - `explore.tsx` (327.0 B)
-      - `index.tsx` (6.9 KB)
-      - `_layout.tsx` (1.3 KB)
+      - `index.tsx` (7.2 KB)
+      - `map.tsx` (455.0 B)
+      - `profile.tsx` (6.0 KB)
+      - `_layout.tsx` (2.2 KB)
     - `+not-found.tsx` (824.0 B)
-    - `_layout.tsx` (1.1 KB)
+    - `auth.tsx` (4.5 KB)
+    - `index.tsx` (215.0 B)
+    - `_layout.tsx` (1.4 KB)
   - `app.json` (1.6 KB)
   - **assets** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets)`
     - **fonts** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets\fonts)`
@@ -38,18 +46,21 @@
         - `ThemedText-test.tsx.snap` (362.0 B)
   - **constants** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\constants)`
     - `Colors.ts` (1.1 KB)
+  - **contexts** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\contexts)`
+    - `AuthContext.tsx` (8.2 KB)
   - **docs** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\docs)`
   - **hooks** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\hooks)`
     - `useColorScheme.ts` (48.0 B)
     - `useColorScheme.web.ts` (501.0 B)
     - `useThemeColor.ts` (557.0 B)
-  - `package-lock.json` (638.7 KB)
-  - `package.json` (1.6 KB)
+  - `package-lock.json` (640.4 KB)
+  - `package.json` (1.7 KB)
   - `README.md` (1.7 KB)
   - **scripts** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\scripts)`
     - `reset-project.js` (3.6 KB)
   - **services** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\services)`
-    - `api.ts` (1.9 KB)
+    - `api.ts` (2.9 KB)
+    - `authStorage.ts` (8.1 KB)
     - `HttpClient.ts` (4.1 KB)
-    - `index.ts` (103.0 B)
+    - `index.ts` (161.0 B)
   - `tsconfig.json` (259.0 B)

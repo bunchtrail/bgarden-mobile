@@ -1,79 +1,88 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-import { useState, useEffect } from 'react';
-import * as Network from 'expo-network';
-import NetInfo from '@react-native-community/netinfo';
+import { Image, StyleSheet, Platform, View, Animated } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'expo-router';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Button } from '@/components/Button';
-import { api } from '@/services';
+import { useAuth } from '@/contexts/AuthContext';
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+// Тип для имен иконок Ionicons
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
 export default function HomeScreen() {
-  const [pingResponse, setPingResponse] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [deviceInfo, setDeviceInfo] = useState<string | null>(null);
+  const { user } = useAuth();
+  const router = useRouter();
+  const [greeting, setGreeting] = useState<string>('Добро пожаловать');
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const primaryColor = useThemeColor({}, 'primary');
   
-  // Получение информации о сети устройства
   useEffect(() => {
-    async function getNetworkInfo() {
-      try {
-        // Получаем IP с помощью expo-network (может вернуть внешний IP)
-        const expoIp = await Network.getIpAddressAsync();
-        const networkType = await Network.getNetworkStateAsync();
-        
-        // Используем альтернативный способ для получения реальных локальных IP-адресов
-        let localIp = "не найден";
-        
-        NetInfo.fetch().then((state: any) => {
-          const details = JSON.stringify(state, null, 2);
-          console.log("Подробная информация о сети:", details);
-          
-          // Используем безопасное обращение к свойствам объекта
-          const ipAddress = state?.details?.ipAddress;
-          if (ipAddress) {
-            localIp = ipAddress;
-          }
-          
-          setDeviceInfo(`Внешний IP: ${expoIp}\nЛокальный IP телефона: ${localIp}\nIP сервера: 192.168.0.11\nТип сети: ${networkType.type}\nПодключено: ${networkType.isConnected ? 'Да' : 'Нет'}`);
-        });
-      } catch (e: any) {
-        console.error('Ошибка получения сетевой информации:', e);
-        setDeviceInfo(`Ошибка получения сетевой информации: ${e.message}`);
-      }
+    // Определение приветствия в зависимости от времени суток
+    const hour = new Date().getHours();
+    
+    if (hour >= 5 && hour < 12) {
+      setGreeting('Доброе утро');
+    } else if (hour >= 12 && hour < 18) {
+      setGreeting('Добрый день');
+    } else {
+      setGreeting('Добрый вечер');
     }
     
-    getNetworkInfo();
+    // Запуск анимации
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 4,
+        useNativeDriver: true,
+      })
+    ]).start();
   }, []);
   
-  const handlePingRequest = async () => {
-    try {
-      setLoading(true);
-      
-      // Используем наш HttpClient через api сервис
-      console.log('Выполняем ping запрос через HttpClient');
-      
-      const response = await api.ping();
-      
-      if (response.data) {
-        console.log('Получен ответ:', response.data);
-        setPingResponse(response.data.toString());
-      } else {
-        console.error('Ошибка API:', response.error);
-        const errorMessage = Platform.OS === 'ios' 
-          ? `Ошибка соединения на iOS: ${response.error}\nПроверьте настройки ATS в app.json и сетевое соединение`
-          : `Ошибка соединения: ${response.error}`;
-        setPingResponse(errorMessage);
-      }
-    } catch (error: any) {
-      console.error('Непредвиденная ошибка при вызове API:', error);
-      const errorMessage = `Непредвиденная ошибка: ${error.message || 'неизвестная ошибка'}`;
-      setPingResponse(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Компонент сектора ботанического сада
+  const GardenSection = ({ title, icon, description }: { title: string, icon: IconName, description: string }) => (
+    <ThemedView 
+      style={styles.sectionCard}
+      lightColor="#F2F8F5"
+      darkColor="#243D30"
+    >
+      <Ionicons name={icon} size={48} color={primaryColor} style={styles.sectionIcon} />
+      <ThemedText type="subtitle" style={styles.sectionTitle}>{title}</ThemedText>
+      <ThemedText style={styles.sectionDesc}>{description}</ThemedText>
+    </ThemedView>
+  );
+  
+  // Навигационные кнопки для неавторизованного пользователя
+  const PublicNavigationButtons = () => (
+    <View style={styles.navigationButtons}>
+      <Button 
+        title="Каталог растений" 
+        onPress={() => router.push('/explore')} 
+        style={styles.navButton}
+      />
+      <Button 
+        title="Карта сада" 
+        onPress={() => router.push('/map')} 
+        style={styles.navButton}
+      />
+      <Button 
+        title="Войти" 
+        onPress={() => router.push('/(auth)/login')} 
+        style={styles.navButton}
+        variant="secondary"
+      />
+    </View>
+  );
+  
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#4A8F6D', dark: '#1D3D28' }}
@@ -86,32 +95,43 @@ export default function HomeScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Ботанический сад ВятГУ</ThemedText>
       </ThemedView>
-      <ThemedView style={styles.contentContainer}>
-        <ThemedText type="subtitle">Добро пожаловать!</ThemedText>
-        <ThemedText>
-          Ботанический сад Вятского государственного университета приглашает вас погрузиться в мир уникальной флоры нашего региона и редких растений со всего мира.
+      
+      <Animated.View style={[
+        styles.greetingContainer,
+        { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }
+      ]}>
+        <ThemedText type="subtitle">
+          {greeting}{user ? `, ${user.username || 'Гость'}` : '!'}
         </ThemedText>
+        <ThemedText>
+          {user 
+            ? 'Познакомьтесь с уникальными растениями нашего ботанического сада'
+            : 'Ботанический сад Вятского государственного университета приглашает вас познакомиться с уникальной флорой!'}
+        </ThemedText>
+      </Animated.View>
+      
+      <ThemedView style={styles.sectionsContainer}>
+        <ThemedText type="subtitle" style={styles.sectionsTitle}>Секторы сада</ThemedText>
+        <View style={styles.sectionsGrid}>
+          <GardenSection 
+            title="Дендрология" 
+            icon="leaf" 
+            description="Коллекция древесных растений, характерных для различных климатических зон"
+          />
+          <GardenSection 
+            title="Флора" 
+            icon="planet" 
+            description="Богатая коллекция цветковых растений местной и иностранной флоры"
+          />
+          <GardenSection 
+            title="Цветоводство" 
+            icon="color-palette" 
+            description="Декоративные цветочные растения, используемые в ландшафтном дизайне"
+          />
+        </View>
       </ThemedView>
       
-      <ThemedView style={styles.buttonContainer}>
-        <Button 
-          title="Проверить API" 
-          onPress={handlePingRequest} 
-          loading={loading}
-        />
-        {deviceInfo && (
-          <ThemedView style={styles.infoBox}>
-            <ThemedText type="defaultSemiBold">Информация об устройстве:</ThemedText>
-            <ThemedText>{deviceInfo}</ThemedText>
-          </ThemedView>
-        )}
-        {pingResponse && (
-          <ThemedView style={styles.responseContainer}>
-            <ThemedText type="defaultSemiBold">Ответ сервера:</ThemedText>
-            <ThemedText>{pingResponse}</ThemedText>
-          </ThemedView>
-        )}
-      </ThemedView>
+      {!user && <PublicNavigationButtons />}
       
       <ThemedView style={styles.infoContainer}>
         <ThemedText type="subtitle">Время работы</ThemedText>
@@ -121,12 +141,7 @@ export default function HomeScreen() {
           Вс: выходной
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.infoContainer}>
-        <ThemedText type="subtitle">Экскурсии</ThemedText>
-        <ThemedText>
-          Познавательные экскурсии проводятся для групп от 5 человек по предварительной записи.
-        </ThemedText>
-      </ThemedView>
+      
       <ThemedView style={styles.contactContainer}>
         <ThemedText type="subtitle">Контакты</ThemedText>
         <ThemedText>
@@ -144,9 +159,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  contentContainer: {
+  greetingContainer: {
     gap: 8,
+    marginBottom: 24,
+    alignItems: 'center',
+    padding: 16,
+  },
+  sectionsContainer: {
+    marginBottom: 24,
+  },
+  sectionsTitle: {
     marginBottom: 16,
+    textAlign: 'center',
+  },
+  sectionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  sectionCard: {
+    width: '48%',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  sectionIcon: {
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  sectionDesc: {
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  navigationButtons: {
+    marginBottom: 24,
+    gap: 12,
+  },
+  navButton: {
+    marginHorizontal: 16,
   },
   infoContainer: {
     gap: 8,
@@ -155,23 +214,6 @@ const styles = StyleSheet.create({
   contactContainer: {
     gap: 8,
     marginBottom: 8,
-  },
-  buttonContainer: {
-    marginBottom: 16,
-  },
-  responseContainer: {
-    marginTop: 8,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  infoBox: {
-    marginTop: 8,
-    marginBottom: 8,
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
   },
   gardenLogo: {
     height: 200,

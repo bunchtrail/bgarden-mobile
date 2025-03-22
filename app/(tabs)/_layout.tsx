@@ -1,12 +1,15 @@
+import React from 'react';
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { TabBarBackground } from '@/components/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { user } = useAuth();
   const tabBarBackground = colorScheme === 'dark' 
     ? 'rgba(21, 23, 24, 0.85)'
     : 'rgba(255, 255, 255, 0.85)';
@@ -32,6 +35,32 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="leaf" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: 'Каталог',
+          headerTitle: 'Каталог растений',
+          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="map"
+        options={{
+          title: 'Карта',
+          headerTitle: 'Карта сада',
+          tabBarIcon: ({ color }) => <TabBarIcon name="map" color={color} />,
+        }}
+      />
+      {user && (
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Профиль',
+            headerTitle: 'Личный кабинет',
+            tabBarIcon: ({ color }) => <TabBarIcon name="person-circle" color={color} />,
+          }}
+        />
+      )}
     </Tabs>
   );
 }
