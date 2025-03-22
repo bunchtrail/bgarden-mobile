@@ -2,8 +2,8 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { useRouter, useSegments } from 'expo-router';
 import { Alert } from 'react-native';
 
-import { api } from '@/services';
-import { authStorage } from '@/services';
+import { authApi } from '../services/authApi';
+import { authStorage } from '../services';
 import { AuthContextType, AuthResponse, LoginCredentials, RegisterCredentials } from '../types';
 
 
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           if (!isExpired) {
             // Валидируем токен на сервере
             try {
-              const response = await api.auth.validateToken(authData.accessToken);
+              const response = await authApi.validateToken(authData.accessToken);
 
               if (response.data && response.data.valid === true) {
                 setUser(authData);
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const refreshToken = await authStorage.getRefreshToken();
 
       if (refreshToken) {
-        const response = await api.auth.refreshToken(refreshToken);
+        const response = await authApi.refreshToken(refreshToken);
 
         if (response.data) {
           await authStorage.storeAuthData(response.data);
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Вход в систему
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      const response = await api.auth.login(credentials);
+      const response = await authApi.login(credentials);
 
       if (response.data) {
         if (!response.data.accessToken) {
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
         
         // Настраиваем заголовок авторизации для HTTP клиента
-        api.setAuthHeader(response.data.accessToken);
+        authApi.setAuthHeader(response.data.accessToken);
         
         // Сохраняем данные авторизации
         await authStorage.storeAuthData(response.data);
@@ -156,7 +156,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Регистрация
   const register = async (userData: RegisterCredentials): Promise<boolean> => {
     try {
-      const response = await api.auth.register(userData);
+      const response = await authApi.register(userData);
 
       if (response.data) {
         await authStorage.storeAuthData(response.data);
@@ -177,7 +177,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Выход из системы
   const logout = async (): Promise<void> => {
     try {
-      await api.auth.logout();
+      await authApi.logout();
     } catch (error) {
       // Игнорируем ошибку
     } finally {

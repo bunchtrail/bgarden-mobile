@@ -1,5 +1,7 @@
 import HttpClient from './HttpClient';
 import { Platform } from 'react-native';
+import { authApi, PasswordResetRequest, PasswordResetComplete, TokenValidationResponse } from '../modules/auth/services/authApi';
+import { AuthResponse, LoginCredentials } from '../modules/auth/types';
 
 // Базовый URL API с учетом платформы
 const API_BASE_URL = Platform.select({
@@ -8,21 +10,7 @@ const API_BASE_URL = Platform.select({
   default: 'http://localhost:7254',
 });
 
-// Типы для аутентификации
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  expiration: string;
-  tokenType: string;
-  username: string;
-  requiresTwoFactor: boolean;
-}
-
-export interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
+// Типы для работы с API
 export interface User {
   id: number;
   username: string;
@@ -31,20 +19,6 @@ export interface User {
   firstName?: string;
   lastName?: string;
   createdAt: string;
-}
-
-export interface PasswordResetRequest {
-  email: string;
-}
-
-export interface PasswordResetComplete {
-  token: string;
-  newPassword: string;
-}
-
-export interface TokenValidationResponse {
-  valid: boolean;
-  userId?: number;
 }
 
 export type ApiError = string | null;
@@ -80,47 +54,11 @@ const apiClient = new HttpClient(API_BASE_URL, {
 
 // Экспортируем API методы
 export const api = {
-  // Метод для установки заголовка авторизации
-  setAuthHeader: (token: string) => {
-    apiClient.setDefaultHeader('Authorization', `Bearer ${token}`);
-  },
-
-  // Аутентификация
-  auth: {
-    login: async (credentials: LoginCredentials) => {
-      const response = await apiClient.post<AuthResponse>('/api/auth/login', credentials as unknown as Record<string, unknown>);
-      return response;
-    },
-
-    register: async (userData: LoginCredentials & { email: string }) => {
-      const response = await apiClient.post<AuthResponse>('/api/auth/register', userData as unknown as Record<string, unknown>);
-      return response;
-    },
-
-    refreshToken: async (refreshToken: string) => {
-      const response = await apiClient.post<AuthResponse>('/api/User/refresh', { refreshToken } as Record<string, unknown>);
-      return response;
-    },
-
-    logout: async () => {
-      return apiClient.post<void>('/api/auth/logout', {});
-    },
-
-    validateToken: async (token: string) => {
-      const response = await apiClient.get<TokenValidationResponse>('/api/User/validate', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response;
-    },
-
-    resetPassword: async (data: PasswordResetRequest) => {
-      return apiClient.post<{ success: boolean }>('/api/auth/reset-password', data as unknown as Record<string, unknown>);
-    },
-
-    completeReset: async (data: PasswordResetComplete) => {
-      return apiClient.post<{ success: boolean }>('/api/auth/complete-reset', data as unknown as Record<string, unknown>);
-    },
-  },
+  // Реэкспортируем методы авторизации из модуля auth
+  setAuthHeader: authApi.setAuthHeader,
+  
+  // Реэкспортируем API авторизации
+  auth: authApi,
 
   // Метод для проверки соединения с API
   ping: async () => {

@@ -104,8 +104,9 @@
         - `LoginScreen.tsx` (3.9 KB)
         - `RegisterScreen.tsx` (5.1 KB)
       - **services** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\auth\services)`
+        - `authApi.ts` (2.9 KB)
         - `authStorage.ts` (6.9 KB)
-        - `index.ts` (31.0 B)
+        - `index.ts` (59.0 B)
       - `types.ts` (620.0 B)
   - `package-lock.json` (646.9 KB)
   - `package.json` (1.9 KB)
@@ -113,8 +114,8 @@
   - **scripts** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\scripts)`
     - `reset-project.js` (3.5 KB)
   - **services** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\services)`
-    - `api.ts` (5.4 KB)
+    - `api.ts` (3.7 KB)
     - `HttpClient.ts` (4.6 KB)
-    - `index.ts` (287.0 B)
+    - `index.ts` (344.0 B)
     - `storageService.ts` (3.4 KB)
   - `tsconfig.json` (259.0 B)
