@@ -92,7 +92,7 @@
         - `AuthButton.tsx` (1.7 KB)
         - `index.ts` (54.0 B)
       - **context** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\auth\context)`
-        - `AuthContext.tsx` (6.6 KB)
+        - `AuthContext.tsx` (5.8 KB)
         - `index.ts` (31.0 B)
       - **hooks** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\auth\hooks)`
         - `index.ts` (27.0 B)
@@ -110,7 +110,7 @@
       - `types.ts` (620.0 B)
     - **navigation** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\navigation)`
       - `index.ts` (96.0 B)
-      - `NavigationProvider.tsx` (4.7 KB)
+      - `NavigationProvider.tsx` (4.0 KB)
   - `package-lock.json` (646.9 KB)
   - `package.json` (1.9 KB)
   - `README.md` (1.7 KB)
