@@ -9,7 +9,7 @@ docs/
 dist/
 web-build/
 expo-env.d.ts
-
+docs/
 # Native
 *.orig.*
 *.jks

@@ -1,12 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useSegments } from 'expo-router';
 import { Alert } from 'react-native';
-import { useAppNavigation } from '@/modules/navigation';
 
 import { authApi } from '../services/authApi';
 import { authStorage } from '../services';
 import { AuthContextType, AuthResponse, LoginCredentials, RegisterCredentials } from '../types';
-
 
 // Создаем контекст аутентификации
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,23 +25,6 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<Partial<AuthResponse> | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { replaceTo } = useAppNavigation();
-  const segments = useSegments();
-
-  // Проверка аутентификации и перенаправление пользователя
-  useEffect(() => {
-    if (!isLoading) {
-      const inAuthGroup = segments[0] === '(auth)';
-      const inTabsGroup = segments[0] === '(tabs)';
-      const isRootPath = !segments ||segments.join('') === '';
-
-      if (!user && !inAuthGroup && !inTabsGroup) {
-        replaceTo('HOME');
-      } else if (user && (inAuthGroup || isRootPath)) {
-        replaceTo('HOME');
-      }
-    }
-  }, [user, segments, isLoading]);
 
   // Проверка существующего токена при загрузке приложения
   useEffect(() => {
@@ -64,8 +44,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
               if (response.data && response.data.valid === true) {
                 setUser(authData);
                 setIsLoading(false);
-                
-                // useEffect сработает после изменения состояния
               } else {
                 // Если токен недействителен, пытаемся обновить его
                 await refreshAuthToken();

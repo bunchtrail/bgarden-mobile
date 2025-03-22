@@ -55,36 +55,23 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     return segmentToRouteType[firstSegment as string] || RouteType.PUBLIC;
   };
 
-  // Перенаправление на соответствующий маршрут
-  const redirectToAppropriateRoute = () => {
-    const currentRouteType = getCurrentRouteType();
-
-    // Если загрузка еще идет, ничего не делаем
+  // Логика редиректа при изменении состояния аутентификации или URL
+  useEffect(() => {
     if (isLoading) return;
 
-    // Если пользователь не аутентифицирован
-    if (!user) {
-      // Если пытается получить доступ к защищенному маршруту, перенаправляем на логин
-      if (currentRouteType === RouteType.PROTECTED) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        router.replace(ROUTES.LOGIN.path as any);
-      }
-      // В противном случае оставляем на текущем маршруте (если это авторизация или публичный маршрут)
-    } 
-    // Если пользователь аутентифицирован
-    else {
-      // Если пытается получить доступ к маршруту авторизации, перенаправляем на главную
-      if (currentRouteType === RouteType.AUTH) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        router.replace(ROUTES.HOME.path as any);
-      }
-      // Защищенные и публичные маршруты доступны
-    }
-  };
+    const currentRouteType = getCurrentRouteType();
+    const isRootPath = !segments || segments.join('') === '';
 
-  // Выполняем проверку и перенаправление при изменении состояния аутентификации или URL
-  useEffect(() => {
-    redirectToAppropriateRoute();
+    // Пользователь не залогинен и пытается попасть на защищённый маршрут
+    if (!user && currentRouteType === RouteType.PROTECTED) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      router.replace(ROUTES.LOGIN.path as any);
+    }
+    // Пользователь залогинен, но на странице авторизации или на корневом пути
+    else if (user && (currentRouteType === RouteType.AUTH || isRootPath)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      router.replace(ROUTES.HOME.path as any);
+    }
   }, [user, segments, isLoading]);
 
   return <>{children}</>;
