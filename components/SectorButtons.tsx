@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useAppNavigation } from '@/modules/navigation';
 import { Button } from '@/components/Button';
 
 export function SectorButtons() {
-  const router = useRouter();
+  const { router } = useAppNavigation();
   
   return (
     <View style={styles.sectorsContainer}>

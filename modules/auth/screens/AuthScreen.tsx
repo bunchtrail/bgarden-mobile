@@ -8,7 +8,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
+import { useAppNavigation } from '@/modules/navigation';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -21,7 +22,7 @@ export default function AuthScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const router = useRouter();
+  const { replaceTo } = useAppNavigation();
   const inputBackground = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'icon');
@@ -42,7 +43,7 @@ export default function AuthScreen() {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // После успешной авторизации переходим на главную страницу
-      router.replace('/(tabs)');
+      replaceTo('HOME');
     } catch (err) {
       setError('Ошибка авторизации');
     } finally {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Image, ScrollView, Animated, Linking } from 'react-native';
-import { Stack, Link, useRouter } from 'expo-router';
+import { Stack, Link } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -9,10 +9,11 @@ import { Button } from '@/components/Button';
 import { Header } from '@/components/Header';
 import { AuthButton, useAuth } from '@/modules/auth';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useAppNavigation } from '@/modules/navigation';
 
 export default function Index() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const { router } = useAppNavigation();
   const primaryColor = useThemeColor({}, 'primary');
   
   // Анимация для элементов страницы

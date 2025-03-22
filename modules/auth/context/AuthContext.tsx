@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useRouter, useSegments } from 'expo-router';
+import { useSegments } from 'expo-router';
 import { Alert } from 'react-native';
+import { useAppNavigation } from '@/modules/navigation';
 
 import { authApi } from '../services/authApi';
 import { authStorage } from '../services';
@@ -27,7 +28,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<Partial<AuthResponse> | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const router = useRouter();
+  const { replaceTo } = useAppNavigation();
   const segments = useSegments();
 
   // Проверка аутентификации и перенаправление пользователя
@@ -38,9 +39,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const isRootPath = !segments ||segments.join('') === '';
 
       if (!user && !inAuthGroup && !inTabsGroup) {
-        router.replace('/(tabs)');
+        replaceTo('HOME');
       } else if (user && (inAuthGroup || isRootPath)) {
-        router.replace('/(tabs)');
+        replaceTo('HOME');
       }
     }
   }, [user, segments, isLoading]);

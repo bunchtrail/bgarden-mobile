@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Button } from '@/components/Button';
 import { useAuth } from '../../modules/auth/context/AuthContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useAppNavigation } from '@/modules/navigation';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const iconColor = useThemeColor({}, 'text');
-  const router = useRouter();
+  const { router } = useAppNavigation();
 
   const handleLogout = async () => {
     Alert.alert('Выход из системы', 'Вы уверены, что хотите выйти?', [

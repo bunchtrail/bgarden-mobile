@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useAppNavigation } from '@/modules/navigation';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -24,7 +24,7 @@ export default function RegisterScreen() {
   const [error, setError] = useState('');
 
   const { register, isLoading } = useAuth();
-  const router = useRouter();
+  const { replaceTo } = useAppNavigation();
 
   const inputBackground = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
@@ -64,7 +64,7 @@ export default function RegisterScreen() {
   };
 
   const goToLogin = () => {
-    router.replace('/(auth)/login');
+    replaceTo('LOGIN');
   };
 
   return (

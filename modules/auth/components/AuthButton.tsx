@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useAppNavigation } from '@/modules/navigation';
 import { Button } from '@/components/Button';
 
 interface AuthButtonProps {
@@ -20,13 +20,13 @@ const AuthButton = ({
   onLoginPress,
   onRegisterPress
 }: AuthButtonProps) => {
-  const router = useRouter();
+  const { navigateTo } = useAppNavigation();
   
   const handleLoginPress = () => {
     if (onLoginPress) {
       onLoginPress();
     } else {
-      router.push('/(auth)/login');
+      navigateTo('LOGIN');
     }
   };
   
@@ -34,7 +34,7 @@ const AuthButton = ({
     if (onRegisterPress) {
       onRegisterPress();
     } else {
-      router.push('/(auth)/register');
+      navigateTo('REGISTER');
     }
   };
   

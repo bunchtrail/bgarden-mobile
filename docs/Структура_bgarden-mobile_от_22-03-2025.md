@@ -16,10 +16,10 @@
       - `profile.tsx` (5.9 KB)
       - `_layout.tsx` (2.2 KB)
     - `+not-found.tsx` (792.0 B)
-    - `auth.tsx` (80.0 B)
-    - `index.tsx` (6.3 KB)
+    - `auth.tsx` (3.1 KB)
+    - `index.tsx` (6.4 KB)
     - `storage-test.tsx` (2.6 KB)
-    - `_layout.tsx` (1.4 KB)
+    - `_layout.tsx` (1.6 KB)
   - `app.json` (1.6 KB)
   - **assets** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets)`
     - **fonts** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets\fonts)`
@@ -89,7 +89,7 @@
   - **modules** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules)`
     - **auth** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\auth)`
       - **components** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\auth\components)`
-        - `AuthButton.tsx` (1.6 KB)
+        - `AuthButton.tsx` (1.7 KB)
         - `index.ts` (54.0 B)
       - **context** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\auth\context)`
         - `AuthContext.tsx` (6.6 KB)
@@ -99,7 +99,7 @@
         - `useAuth.ts` (109.0 B)
       - `index.ts` (361.0 B)
       - **screens** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\auth\screens)`
-        - `AuthScreen.tsx` (4.4 KB)
+        - `AuthScreen.tsx` (4.5 KB)
         - `index.ts` (579.0 B)
         - `LoginScreen.tsx` (3.9 KB)
         - `RegisterScreen.tsx` (5.1 KB)
@@ -108,6 +108,9 @@
         - `authStorage.ts` (6.9 KB)
         - `index.ts` (59.0 B)
       - `types.ts` (620.0 B)
+    - **navigation** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\modules\navigation)`
+      - `index.ts` (96.0 B)
+      - `NavigationProvider.tsx` (4.7 KB)
   - `package-lock.json` (646.9 KB)
   - `package.json` (1.9 KB)
   - `README.md` (1.7 KB)
