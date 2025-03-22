@@ -11,13 +11,13 @@
       - `_layout.tsx` (362.0 B)
     - **(tabs)** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\app\(tabs))`
       - `explore.tsx` (317.0 B)
-      - `index.tsx` (6.9 KB)
+      - `index.tsx` (946.0 B)
       - `map.tsx` (437.0 B)
       - `profile.tsx` (5.7 KB)
       - `_layout.tsx` (2.1 KB)
     - `+not-found.tsx` (792.0 B)
     - `auth.tsx` (4.3 KB)
-    - `index.tsx` (210.0 B)
+    - `index.tsx` (6.7 KB)
     - `_layout.tsx` (1.3 KB)
   - `app.json` (1.6 KB)
   - **assets** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets)`
@@ -32,12 +32,21 @@
       - `react-logo@2x.png` (13.9 KB)
       - `react-logo@3x.png` (20.8 KB)
       - `splash-icon.png` (17.1 KB)
+    - **sounds** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets\sounds)`
   - **components** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\components)`
+    - `AuthButton.tsx` (584.0 B)
+    - `BotanicalGardenInfo.tsx` (2.2 KB)
     - `Button.tsx` (1.8 KB)
+    - `GardenMap.tsx` (1017.0 B)
+    - `Header.tsx` (726.0 B)
     - `ParallaxScrollView.tsx` (2.1 KB)
+    - `SectorButtons.tsx` (1.0 KB)
     - `ThemedText.tsx` (1.4 KB)
     - `ThemedView.tsx` (556.0 B)
     - **time-based-greeting** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\components\time-based-greeting)`
+      - `index.tsx` (4.1 KB)
+      - `LastLoginInfo.tsx` (1.8 KB)
+      - `UserInfo.tsx` (3.2 KB)
     - **ui** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\components\ui)`
       - `IconSymbol.ios.tsx` (598.0 B)
       - `TabBarBackground.ios.tsx` (713.0 B)
@@ -61,7 +70,7 @@
   - **scripts** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\scripts)`
     - `reset-project.js` (3.5 KB)
   - **services** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\services)`
-    - `api.ts` (4.4 KB)
+    - `api.ts` (4.7 KB)
     - `authStorage.ts` (7.8 KB)
     - `HttpClient.ts` (4.1 KB)
     - `index.ts` (147.0 B)

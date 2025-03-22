@@ -157,6 +157,13 @@ export const api = {
     deleteAccount: async () => {
       return apiClient.delete<{ success: boolean }>('/api/users/account');
     },
+    
+    // Метод для получения информации о текущем пользователе
+    getCurrentUser: async () => {
+      return apiClient.get<User>('/api/User/me', {
+        headers: { accept: 'text/plain' }
+      });
+    },
   },
 };
 
