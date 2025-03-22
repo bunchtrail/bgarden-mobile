@@ -41,14 +41,17 @@ export const authStorage = {
           await SecureStore.setItemAsync(USERNAME_KEY, String(authData.username));
         }
       };
-      
+
       // Функция для сохранения в AsyncStorage (резервное копирование на iOS)
       const saveToAsyncStorage = async () => {
         if (authData.token) {
           await AsyncStorage.setItem(ASYNC_PREFIX + AUTH_TOKEN_KEY, String(authData.token));
         }
         if (authData.refreshToken) {
-          await AsyncStorage.setItem(ASYNC_PREFIX + REFRESH_TOKEN_KEY, String(authData.refreshToken));
+          await AsyncStorage.setItem(
+            ASYNC_PREFIX + REFRESH_TOKEN_KEY,
+            String(authData.refreshToken)
+          );
         }
         if (authData.expiresAt) {
           await AsyncStorage.setItem(ASYNC_PREFIX + AUTH_EXPIRES_KEY, String(authData.expiresAt));
@@ -63,7 +66,7 @@ export const authStorage = {
 
       // Сохраняем в SecureStore
       await saveToSecureStore();
-      
+
       // На iOS также сохраняем в AsyncStorage как резервную копию
       if (Platform.OS === 'ios') {
         await saveToAsyncStorage();
@@ -81,12 +84,12 @@ export const authStorage = {
     try {
       // Сначала пробуем получить из SecureStore
       const secureToken = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
-      
+
       // Если на iOS и токен не найден в SecureStore, проверяем AsyncStorage
       if (!secureToken && Platform.OS === 'ios') {
         return await AsyncStorage.getItem(ASYNC_PREFIX + AUTH_TOKEN_KEY);
       }
-      
+
       return secureToken;
     } catch (error) {
       console.error('Ошибка при получении токена', error);
@@ -101,12 +104,12 @@ export const authStorage = {
     try {
       // Сначала пробуем получить из SecureStore
       const secureToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-      
+
       // Если на iOS и токен не найден в SecureStore, проверяем AsyncStorage
       if (!secureToken && Platform.OS === 'ios') {
         return await AsyncStorage.getItem(ASYNC_PREFIX + REFRESH_TOKEN_KEY);
       }
-      
+
       return secureToken;
     } catch (error) {
       console.error('Ошибка при получении refresh токена', error);
@@ -120,19 +123,19 @@ export const authStorage = {
   async getAuthData(): Promise<Partial<AuthResponse> | null> {
     try {
       console.log('Получение токена из хранилища...');
-      
+
       // Пробуем получить токен из SecureStore
       let token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
       let refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
       let expiresAt = await SecureStore.getItemAsync(AUTH_EXPIRES_KEY);
       let userId = await SecureStore.getItemAsync(USER_ID_KEY);
       let username = await SecureStore.getItemAsync(USERNAME_KEY);
-      
+
       // На iOS, если токен не найден в SecureStore, пробуем AsyncStorage
       if (Platform.OS === 'ios' && !token) {
         console.log('Токен не найден в SecureStore, проверяем AsyncStorage...');
         token = await AsyncStorage.getItem(ASYNC_PREFIX + AUTH_TOKEN_KEY);
-        
+
         if (token) {
           console.log('Токен найден в AsyncStorage');
           refreshToken = await AsyncStorage.getItem(ASYNC_PREFIX + REFRESH_TOKEN_KEY);
@@ -141,9 +144,9 @@ export const authStorage = {
           username = await AsyncStorage.getItem(ASYNC_PREFIX + USERNAME_KEY);
         }
       }
-      
+
       console.log('Токен получен из хранилища:', !!token);
-      
+
       if (!token) return null;
 
       console.log('Все данные авторизации получены из хранилища');
@@ -152,7 +155,7 @@ export const authStorage = {
         refreshToken: refreshToken || '',
         expiresAt: expiresAt || '',
         userId: userId || '',
-        username: username || ''
+        username: username || '',
       };
     } catch (error) {
       console.error('Ошибка при получении данных аутентификации:', error);
@@ -166,14 +169,14 @@ export const authStorage = {
   async clearAuthData(): Promise<void> {
     try {
       console.log('Очистка данных аутентификации из хранилища...');
-      
+
       // Очищаем SecureStore
       await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
       await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
       await SecureStore.deleteItemAsync(AUTH_EXPIRES_KEY);
       await SecureStore.deleteItemAsync(USER_ID_KEY);
       await SecureStore.deleteItemAsync(USERNAME_KEY);
-      
+
       // На iOS также очищаем AsyncStorage
       if (Platform.OS === 'ios') {
         await AsyncStorage.removeItem(ASYNC_PREFIX + AUTH_TOKEN_KEY);
@@ -182,7 +185,7 @@ export const authStorage = {
         await AsyncStorage.removeItem(ASYNC_PREFIX + USER_ID_KEY);
         await AsyncStorage.removeItem(ASYNC_PREFIX + USERNAME_KEY);
       }
-      
+
       console.log('Данные аутентификации успешно очищены из хранилища');
     } catch (error) {
       console.error('Ошибка при удалении данных аутентификации:', error);
@@ -195,12 +198,12 @@ export const authStorage = {
    */
   isTokenExpired(expiresAt: string): boolean {
     if (!expiresAt) return true;
-    
+
     const expirationDate = new Date(expiresAt);
     const now = new Date();
-    
+
     return now > expirationDate;
-  }
+  },
 };
 
-export default authStorage; 
+export default authStorage;

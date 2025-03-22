@@ -22,9 +22,58 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+  createdAt: string;
+}
+
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetComplete {
+  token: string;
+  newPassword: string;
+}
+
+export interface TokenValidationResponse {
+  valid: boolean;
+  userId?: number;
+}
+
+export type ApiError = string | null;
+
+// Типы для работы с растениями
+export interface Plant {
+  id: string;
+  name: string;
+  scientificName: string;
+  description: string;
+  category: string;
+  imageUrl?: string;
+  location?: string; 
+  careInstructions?: string;
+  dateAdded: string;
+}
+
+export interface PlantCreateDto {
+  name: string;
+  scientificName: string;
+  description: string;
+  category: string;
+  imageUrl?: string;
+  location?: string;
+  careInstructions?: string;
+}
+
 // Создаем инстанс HTTP клиента
 const apiClient = new HttpClient(API_BASE_URL, {
-  'Accept': 'application/json, text/plain',
+  Accept: 'application/json, text/plain',
   'Cache-Control': 'no-cache',
 });
 
@@ -35,57 +84,80 @@ export const api = {
     login: async (credentials: LoginCredentials) => {
       return apiClient.post<AuthResponse>('/api/auth/login', credentials);
     },
-    
+
     register: async (userData: LoginCredentials & { email: string }) => {
       return apiClient.post<AuthResponse>('/api/auth/register', userData);
     },
-    
+
     refreshToken: async (refreshToken: string) => {
       return apiClient.post<AuthResponse>('/api/auth/refresh', { refreshToken });
     },
-    
+
     logout: async () => {
       return apiClient.post<void>('/api/auth/logout', {});
     },
-    
+
     validateToken: async (token: string) => {
       return apiClient.get<boolean>('/api/auth/validate', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-    }
+    },
+
+    resetPassword: async (data: PasswordResetRequest) => {
+      return apiClient.post<{ success: boolean }>('/api/auth/reset-password', data);
+    },
+
+    completeReset: async (data: PasswordResetComplete) => {
+      return apiClient.post<{ success: boolean }>('/api/auth/complete-reset', data);
+    },
   },
 
   // Метод для проверки соединения с API
   ping: async () => {
-    return apiClient.get<string>('/api/Test/ping', { 
-      headers: { 'accept': 'text/plain' }
+    return apiClient.get<string>('/api/Test/ping', {
+      headers: { accept: 'text/plain' },
     });
   },
 
   // Пример метода для получения списка растений
   getPlants: async () => {
-    return apiClient.get<any[]>('/plants');
+    return apiClient.get<Plant[]>('/plants');
   },
-  
+
   // Пример метода для получения информации о конкретном растении
   getPlantById: async (id: string) => {
-    return apiClient.get<any>(`/plants/${id}`);
+    return apiClient.get<Plant>(`/plants/${id}`);
   },
-  
+
   // Пример метода для добавления нового растения
-  createPlant: async (plantData: any) => {
-    return apiClient.post<any>('/plants', plantData);
+  createPlant: async (plantData: PlantCreateDto) => {
+    return apiClient.post<Plant>('/plants', plantData);
   },
-  
+
   // Пример метода для обновления информации о растении
-  updatePlant: async (id: string, plantData: any) => {
-    return apiClient.put<any>(`/plants/${id}`, plantData);
+  updatePlant: async (id: string, plantData: Partial<PlantCreateDto>) => {
+    return apiClient.put<Plant>(`/plants/${id}`, plantData);
   },
-  
+
   // Пример метода для удаления растения
   deletePlant: async (id: string) => {
-    return apiClient.delete<any>(`/plants/${id}`);
-  }
+    return apiClient.delete<{ success: boolean }>(`/plants/${id}`);
+  },
+
+  // API для работы с пользователями
+  users: {
+    getProfile: async () => {
+      return apiClient.get<User>('/api/users/profile');
+    },
+
+    updateProfile: async (data: Partial<User>) => {
+      return apiClient.put<User>('/api/users/profile', data);
+    },
+
+    deleteAccount: async () => {
+      return apiClient.delete<{ success: boolean }>('/api/users/account');
+    },
+  },
 };
 
-export default api; 
+export default api;

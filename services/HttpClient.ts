@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 
 interface HttpResponse<T> {
@@ -12,14 +11,21 @@ interface RequestOptions {
   timeout?: number;
 }
 
+interface ApiError {
+  message: string;
+  [key: string]: unknown;
+}
+
+type RequestBody = Record<string, unknown> | unknown[];
+
 class HttpClient {
   private baseUrl: string;
   private defaultHeaders: Record<string, string>;
   private defaultTimeout: number;
 
   constructor(
-    baseUrl: string, 
-    defaultHeaders: Record<string, string> = {}, 
+    baseUrl: string,
+    defaultHeaders: Record<string, string> = {},
     defaultTimeout: number = 30000
   ) {
     this.baseUrl = baseUrl;
@@ -40,11 +46,11 @@ class HttpClient {
   private async request<T>(
     endpoint: string,
     method: string,
-    data?: any,
+    data?: RequestBody,
     options?: RequestOptions
   ): Promise<HttpResponse<T>> {
     const isConnected = await this.checkNetworkConnectivity();
-    
+
     if (!isConnected) {
       return {
         data: null,
@@ -75,22 +81,23 @@ class HttpClient {
 
       clearTimeout(timeoutId);
 
-      let responseData: any;
+      let responseData: unknown;
       const contentType = response.headers.get('content-type');
-      
+
       if (contentType && contentType.includes('application/json')) {
         responseData = await response.json();
       } else {
         // Для текстовых ответов
         responseData = await response.text();
       }
-      
+
       return {
-        data: response.ok ? responseData : null,
-        error: response.ok ? null : 
-               typeof responseData === 'object' && responseData.message 
-               ? responseData.message 
-               : 'Произошла ошибка',
+        data: response.ok ? (responseData as T) : null,
+        error: response.ok
+          ? null
+          : typeof responseData === 'object' && responseData && 'message' in responseData
+            ? (responseData as ApiError).message
+            : 'Произошла ошибка',
         status: response.status,
       };
     } catch (error) {
@@ -102,14 +109,14 @@ class HttpClient {
             status: 408,
           };
         }
-        
+
         return {
           data: null,
           error: error.message,
           status: 500,
         };
       }
-      
+
       return {
         data: null,
         error: 'Неизвестная ошибка',
@@ -124,17 +131,17 @@ class HttpClient {
   }
 
   // POST запрос
-  async post<T>(endpoint: string, data: any, options?: RequestOptions): Promise<HttpResponse<T>> {
+  async post<T>(endpoint: string, data: RequestBody, options?: RequestOptions): Promise<HttpResponse<T>> {
     return this.request<T>(endpoint, 'POST', data, options);
   }
 
   // PUT запрос
-  async put<T>(endpoint: string, data: any, options?: RequestOptions): Promise<HttpResponse<T>> {
+  async put<T>(endpoint: string, data: RequestBody, options?: RequestOptions): Promise<HttpResponse<T>> {
     return this.request<T>(endpoint, 'PUT', data, options);
   }
 
   // PATCH запрос
-  async patch<T>(endpoint: string, data: any, options?: RequestOptions): Promise<HttpResponse<T>> {
+  async patch<T>(endpoint: string, data: RequestBody, options?: RequestOptions): Promise<HttpResponse<T>> {
     return this.request<T>(endpoint, 'PATCH', data, options);
   }
 
@@ -144,4 +151,4 @@ class HttpClient {
   }
 }
 
-export default HttpClient; 
+export default HttpClient;

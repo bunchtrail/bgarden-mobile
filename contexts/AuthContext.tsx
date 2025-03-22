@@ -41,7 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!isLoading) {
       const inAuthGroup = segments[0] === '(auth)';
       const inTabsGroup = segments[0] === '(tabs)';
-      
+
       if (!user && !inAuthGroup && !inTabsGroup) {
         // Если пользователь не аутентифицирован и не на странице авторизации и не на главной странице,
         // перенаправляем на главную страницу
@@ -58,44 +58,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     async function loadAuthData() {
       try {
-        console.log('Загрузка данных аутентификации...');
         const authData = await authStorage.getAuthData();
-        console.log('Полученные данные аутентификации:', authData ? 'Есть данные' : 'Нет данных');
-        
+
         if (authData && authData.token && authData.expiresAt) {
           // Проверяем, истек ли срок действия токена
           const isExpired = authStorage.isTokenExpired(authData.expiresAt);
-          console.log('Токен истек:', isExpired);
-          
+
           if (!isExpired) {
             // Валидируем токен на сервере
-            console.log('Валидация токена на сервере...');
             try {
               const response = await api.auth.validateToken(authData.token);
-              console.log('Результат валидации токена:', response);
-              
+
               if (response.data) {
-                console.log('Токен действителен, восстанавливаем сессию');
                 setUser(authData);
               } else {
-                console.log('Токен недействителен, пытаемся обновить токен');
                 // Если токен недействителен, пытаемся обновить его
                 await refreshAuthToken();
               }
             } catch (validationError) {
-              console.error('Ошибка при валидации токена:', validationError);
               await refreshAuthToken();
             }
           } else {
-            console.log('Токен истек, пытаемся обновить токен');
             // Если токен истек, пытаемся обновить его
             await refreshAuthToken();
           }
-        } else {
-          console.log('Нет данных аутентификации или данные неполные');
         }
       } catch (error) {
-        console.error('Ошибка при загрузке данных аутентификации:', error);
+        // Ошибка при загрузке данных аутентификации
       } finally {
         setIsLoading(false);
       }
@@ -107,32 +96,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Обновление токена аутентификации
   async function refreshAuthToken() {
     try {
-      console.log('Попытка обновления токена...');
       const refreshToken = await authStorage.getRefreshToken();
-      console.log('RefreshToken существует:', !!refreshToken);
-      
+
       if (refreshToken) {
-        console.log('Отправка запроса на обновление токена');
         const response = await api.auth.refreshToken(refreshToken);
-        console.log('Результат обновления токена:', response);
-        
+
         if (response.data) {
-          console.log('Токен успешно обновлен, сохраняем новые данные');
           await authStorage.storeAuthData(response.data);
           setUser(response.data);
           return true;
-        } else {
-          console.log('Не удалось обновить токен:', response.error);
         }
       }
-      
+
       // Если не удалось обновить токен, очищаем данные аутентификации
-      console.log('Очистка данных аутентификации');
       await authStorage.clearAuthData();
       setUser(null);
       return false;
     } catch (error) {
-      console.error('Ошибка при обновлении токена:', error);
       await authStorage.clearAuthData();
       setUser(null);
       return false;
@@ -143,7 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
       const response = await api.auth.login(credentials);
-      
+
       if (response.data) {
         await authStorage.storeAuthData(response.data);
         setUser(response.data);
@@ -162,13 +142,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const register = async (userData: LoginCredentials & { email: string }): Promise<boolean> => {
     try {
       const response = await api.auth.register(userData);
-      
+
       if (response.data) {
         await authStorage.storeAuthData(response.data);
         setUser(response.data);
         return true;
       } else {
-        Alert.alert('Ошибка регистрации', response.error || 'Не удалось зарегистрировать пользователя');
+        Alert.alert(
+          'Ошибка регистрации',
+          response.error || 'Не удалось зарегистрировать пользователя'
+        );
         return false;
       }
     } catch (error) {
@@ -194,4 +177,4 @@ export function AuthProvider({ children }: AuthProviderProps) {
       {children}
     </AuthContext.Provider>
   );
-} 
+}

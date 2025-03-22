@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -14,10 +22,10 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  
+
   const { register, isLoading } = useAuth();
   const router = useRouter();
-  
+
   const inputBackground = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'icon');
@@ -29,12 +37,12 @@ export default function RegisterScreen() {
       setError('Пожалуйста, заполните все поля');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError('Пароли не совпадают');
       return;
     }
-    
+
     // Проверка формата email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -43,10 +51,10 @@ export default function RegisterScreen() {
     }
 
     setError('');
-    
+
     try {
       const success = await register({ username, password, email });
-      
+
       if (!success) {
         setError('Ошибка при регистрации');
       }
@@ -61,27 +69,29 @@ export default function RegisterScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <KeyboardAvoidingView
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ThemedView style={styles.inner}>
           <View style={styles.titleContainer}>
-            <ThemedText type="title" style={styles.title}>Регистрация</ThemedText>
+            <ThemedText type="title" style={styles.title}>
+              Регистрация
+            </ThemedText>
           </View>
-          
+
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
               <ThemedText>Имя пользователя</ThemedText>
               <TextInput
                 style={[
-                  styles.input, 
-                  { 
+                  styles.input,
+                  {
                     backgroundColor: inputBackground,
                     color: textColor,
-                    borderColor: borderColor
-                  }
+                    borderColor: borderColor,
+                  },
                 ]}
                 placeholder="Введите имя пользователя"
                 placeholderTextColor={borderColor}
@@ -90,17 +100,17 @@ export default function RegisterScreen() {
                 autoCapitalize="none"
               />
             </View>
-            
+
             <View style={styles.inputContainer}>
               <ThemedText>Email</ThemedText>
               <TextInput
                 style={[
-                  styles.input, 
-                  { 
+                  styles.input,
+                  {
                     backgroundColor: inputBackground,
                     color: textColor,
-                    borderColor: borderColor
-                  }
+                    borderColor: borderColor,
+                  },
                 ]}
                 placeholder="Введите email"
                 placeholderTextColor={borderColor}
@@ -110,17 +120,17 @@ export default function RegisterScreen() {
                 keyboardType="email-address"
               />
             </View>
-            
+
             <View style={styles.inputContainer}>
               <ThemedText>Пароль</ThemedText>
               <TextInput
                 style={[
-                  styles.input, 
-                  { 
+                  styles.input,
+                  {
                     backgroundColor: inputBackground,
                     color: textColor,
-                    borderColor: borderColor
-                  }
+                    borderColor: borderColor,
+                  },
                 ]}
                 placeholder="Введите пароль"
                 placeholderTextColor={borderColor}
@@ -129,17 +139,17 @@ export default function RegisterScreen() {
                 secureTextEntry
               />
             </View>
-            
+
             <View style={styles.inputContainer}>
               <ThemedText>Подтверждение пароля</ThemedText>
               <TextInput
                 style={[
-                  styles.input, 
-                  { 
+                  styles.input,
+                  {
                     backgroundColor: inputBackground,
                     color: textColor,
-                    borderColor: borderColor
-                  }
+                    borderColor: borderColor,
+                  },
                 ]}
                 placeholder="Подтвердите пароль"
                 placeholderTextColor={borderColor}
@@ -148,22 +158,20 @@ export default function RegisterScreen() {
                 secureTextEntry
               />
             </View>
-            
+
             {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
-            
-            <Button 
+
+            <Button
               title="Зарегистрироваться"
               onPress={handleRegister}
               loading={isLoading}
               style={styles.button}
             />
-            
+
             <View style={styles.linkContainer}>
               <ThemedText>Уже есть аккаунт?</ThemedText>
               <TouchableWithoutFeedback onPress={goToLogin}>
-                <ThemedText style={[styles.link, { color: linkColor }]}>
-                  Войти
-                </ThemedText>
+                <ThemedText style={[styles.link, { color: linkColor }]}>Войти</ThemedText>
               </TouchableWithoutFeedback>
             </View>
           </View>
@@ -220,4 +228,4 @@ const styles = StyleSheet.create({
   link: {
     fontWeight: '600',
   },
-}); 
+});

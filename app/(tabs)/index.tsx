@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, View, Animated } from 'react-native';
+import { Image, StyleSheet, View, Animated } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -20,11 +20,11 @@ export default function HomeScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const primaryColor = useThemeColor({}, 'primary');
-  
+
   useEffect(() => {
     // Определение приветствия в зависимости от времени суток
     const hour = new Date().getHours();
-    
+
     if (hour >= 5 && hour < 12) {
       setGreeting('Доброе утро');
     } else if (hour >= 12 && hour < 18) {
@@ -32,7 +32,7 @@ export default function HomeScreen() {
     } else {
       setGreeting('Добрый вечер');
     }
-    
+
     // Запуск анимации
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -44,95 +44,97 @@ export default function HomeScreen() {
         toValue: 1,
         friction: 4,
         useNativeDriver: true,
-      })
+      }),
     ]).start();
-  }, []);
-  
+  }, [fadeAnim, scaleAnim]);
+
   // Компонент сектора ботанического сада
-  const GardenSection = ({ title, icon, description }: { title: string, icon: IconName, description: string }) => (
-    <ThemedView 
-      style={styles.sectionCard}
-      lightColor="#F2F8F5"
-      darkColor="#243D30"
-    >
+  const GardenSection = ({
+    title,
+    icon,
+    description,
+  }: {
+    title: string;
+    icon: IconName;
+    description: string;
+  }) => (
+    <ThemedView style={styles.sectionCard} lightColor="#F2F8F5" darkColor="#243D30">
       <Ionicons name={icon} size={48} color={primaryColor} style={styles.sectionIcon} />
-      <ThemedText type="subtitle" style={styles.sectionTitle}>{title}</ThemedText>
+      <ThemedText type="subtitle" style={styles.sectionTitle}>
+        {title}
+      </ThemedText>
       <ThemedText style={styles.sectionDesc}>{description}</ThemedText>
     </ThemedView>
   );
-  
+
   // Навигационные кнопки для неавторизованного пользователя
   const PublicNavigationButtons = () => (
     <View style={styles.navigationButtons}>
-      <Button 
-        title="Каталог растений" 
-        onPress={() => router.push('/explore')} 
+      <Button
+        title="Каталог растений"
+        onPress={() => router.push('/explore')}
         style={styles.navButton}
       />
-      <Button 
-        title="Карта сада" 
-        onPress={() => router.push('/map')} 
-        style={styles.navButton}
-      />
-      <Button 
-        title="Войти" 
-        onPress={() => router.push('/(auth)/login')} 
+      <Button title="Карта сада" onPress={() => router.push('/map')} style={styles.navButton} />
+      <Button
+        title="Войти"
+        onPress={() => router.push('/(auth)/login')}
         style={styles.navButton}
         variant="secondary"
       />
     </View>
   );
-  
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#4A8F6D', dark: '#1D3D28' }}
       headerImage={
-        <Image
-          source={require('@/assets/images/splash-icon.png')}
-          style={styles.gardenLogo}
-        />
-      }>
+        <Image source={require('@/assets/images/splash-icon.png')} style={styles.gardenLogo} />
+      }
+    >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Ботанический сад ВятГУ</ThemedText>
       </ThemedView>
-      
-      <Animated.View style={[
-        styles.greetingContainer,
-        { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }
-      ]}>
+
+      <Animated.View
+        style={[styles.greetingContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}
+      >
         <ThemedText type="subtitle">
-          {greeting}{user ? `, ${user.username || 'Гость'}` : '!'}
+          {greeting}
+          {user ? `, ${user.username || 'Гость'}` : '!'}
         </ThemedText>
         <ThemedText>
-          {user 
+          {user
             ? 'Познакомьтесь с уникальными растениями нашего ботанического сада'
             : 'Ботанический сад Вятского государственного университета приглашает вас познакомиться с уникальной флорой!'}
         </ThemedText>
       </Animated.View>
-      
+
       <ThemedView style={styles.sectionsContainer}>
-        <ThemedText type="subtitle" style={styles.sectionsTitle}>Секторы сада</ThemedText>
+        <ThemedText type="subtitle" style={styles.sectionsTitle}>
+          Секторы сада
+        </ThemedText>
         <View style={styles.sectionsGrid}>
-          <GardenSection 
-            title="Дендрология" 
-            icon="leaf" 
+          <GardenSection
+            title="Дендрология"
+            icon="leaf"
             description="Коллекция древесных растений, характерных для различных климатических зон"
           />
-          <GardenSection 
-            title="Флора" 
-            icon="planet" 
+          <GardenSection
+            title="Флора"
+            icon="planet"
             description="Богатая коллекция цветковых растений местной и иностранной флоры"
           />
-          <GardenSection 
-            title="Цветоводство" 
-            icon="color-palette" 
+          <GardenSection
+            title="Цветоводство"
+            icon="color-palette"
             description="Декоративные цветочные растения, используемые в ландшафтном дизайне"
           />
         </View>
       </ThemedView>
-      
+
       {!user && <PublicNavigationButtons />}
-      
+
       <ThemedView style={styles.infoContainer}>
         <ThemedText type="subtitle">Время работы</ThemedText>
         <ThemedText>
@@ -141,7 +143,7 @@ export default function HomeScreen() {
           Вс: выходной
         </ThemedText>
       </ThemedView>
-      
+
       <ThemedView style={styles.contactContainer}>
         <ThemedText type="subtitle">Контакты</ThemedText>
         <ThemedText>

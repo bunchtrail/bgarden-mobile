@@ -15,28 +15,24 @@ export default function ProfileScreen() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Выход из системы',
-      'Вы уверены, что хотите выйти?',
-      [
-        { text: 'Отмена', style: 'cancel' },
-        { 
-          text: 'Выйти', 
-          style: 'destructive',
-          onPress: async () => {
-            setIsLoggingOut(true);
-            try {
-              await logout();
-            } catch (error) {
-              console.error('Ошибка при выходе', error);
-              Alert.alert('Ошибка', 'Не удалось выйти из системы');
-            } finally {
-              setIsLoggingOut(false);
-            }
-          } 
+    Alert.alert('Выход из системы', 'Вы уверены, что хотите выйти?', [
+      { text: 'Отмена', style: 'cancel' },
+      {
+        text: 'Выйти',
+        style: 'destructive',
+        onPress: async () => {
+          setIsLoggingOut(true);
+          try {
+            await logout();
+          } catch (error) {
+            console.error('Ошибка при выходе', error);
+            Alert.alert('Ошибка', 'Не удалось выйти из системы');
+          } finally {
+            setIsLoggingOut(false);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   // Если пользователь не авторизован, показываем экран с призывом авторизоваться
@@ -80,26 +76,26 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.content}>
-        <ProfileMenuItem 
-          icon="person" 
-          title="Личные данные" 
+        <ProfileMenuItem
+          icon="person"
+          title="Личные данные"
           onPress={() => Alert.alert('Информация', 'Здесь будет редактирование личных данных')}
         />
-        
-        <ProfileMenuItem 
-          icon="notifications" 
-          title="Уведомления" 
+
+        <ProfileMenuItem
+          icon="notifications"
+          title="Уведомления"
           onPress={() => Alert.alert('Информация', 'Здесь будут настройки уведомлений')}
         />
-        
-        <ProfileMenuItem 
-          icon="settings" 
-          title="Настройки" 
+
+        <ProfileMenuItem
+          icon="settings"
+          title="Настройки"
           onPress={() => Alert.alert('Информация', 'Здесь будут настройки приложения')}
         />
-        
+
         <View style={styles.separator} />
-        
+
         <Button
           title="Выйти из системы"
           onPress={handleLogout}
@@ -112,17 +108,17 @@ export default function ProfileScreen() {
   );
 }
 
-function ProfileMenuItem({ 
-  icon, 
-  title, 
-  onPress 
-}: { 
-  icon: React.ComponentProps<typeof Ionicons>['name'], 
-  title: string, 
-  onPress: () => void 
+function ProfileMenuItem({
+  icon,
+  title,
+  onPress,
+}: {
+  icon: React.ComponentProps<typeof Ionicons>['name'];
+  title: string;
+  onPress: () => void;
 }) {
   const iconColor = useThemeColor({}, 'text');
-  
+
   return (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
       <View style={styles.menuItemContent}>
@@ -201,4 +197,4 @@ const styles = StyleSheet.create({
   unauthButton: {
     width: '100%',
   },
-}); 
+});

@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, Pressable } from 'react-native';
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Pressable,
+} from 'react-native';
 import { Link } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -12,7 +21,7 @@ export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
+
   const { login, isLoading } = useAuth();
   const inputBackground = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
@@ -27,10 +36,10 @@ export default function LoginScreen() {
     }
 
     setError('');
-    
+
     try {
       const success = await login({ username, password });
-      
+
       if (!success) {
         setError('Неправильное имя пользователя или пароль');
       }
@@ -41,27 +50,29 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <KeyboardAvoidingView
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ThemedView style={styles.inner}>
           <View style={styles.titleContainer}>
-            <ThemedText type="title" style={styles.title}>Вход в систему</ThemedText>
+            <ThemedText type="title" style={styles.title}>
+              Вход в систему
+            </ThemedText>
           </View>
-          
+
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
               <ThemedText>Имя пользователя</ThemedText>
               <TextInput
                 style={[
-                  styles.input, 
-                  { 
+                  styles.input,
+                  {
                     backgroundColor: inputBackground,
                     color: textColor,
-                    borderColor: borderColor
-                  }
+                    borderColor: borderColor,
+                  },
                 ]}
                 placeholder="Введите имя пользователя"
                 placeholderTextColor={borderColor}
@@ -70,17 +81,17 @@ export default function LoginScreen() {
                 autoCapitalize="none"
               />
             </View>
-            
+
             <View style={styles.inputContainer}>
               <ThemedText>Пароль</ThemedText>
               <TextInput
                 style={[
-                  styles.input, 
-                  { 
+                  styles.input,
+                  {
                     backgroundColor: inputBackground,
                     color: textColor,
-                    borderColor: borderColor
-                  }
+                    borderColor: borderColor,
+                  },
                 ]}
                 placeholder="Введите пароль"
                 placeholderTextColor={borderColor}
@@ -89,16 +100,11 @@ export default function LoginScreen() {
                 secureTextEntry
               />
             </View>
-            
+
             {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
-            
-            <Button 
-              title="Войти"
-              onPress={handleLogin}
-              loading={isLoading}
-              style={styles.button}
-            />
-            
+
+            <Button title="Войти" onPress={handleLogin} loading={isLoading} style={styles.button} />
+
             <View style={styles.linkContainer}>
               <ThemedText>Нет аккаунта?</ThemedText>
               <Link href="/register" asChild>
@@ -163,4 +169,4 @@ const styles = StyleSheet.create({
   link: {
     fontWeight: '600',
   },
-}); 
+});
