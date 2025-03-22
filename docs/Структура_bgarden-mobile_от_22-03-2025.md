@@ -1,0 +1,56 @@
+- **bgarden-mobile** `(d:\Projects\BotanicalGardenApp\bgarden-mobile)`
+  - **.cursor** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\.cursor)`
+    - **rules** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\.cursor\rules)`
+  - **.expo** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\.expo)`
+  - **.vscode** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\.vscode)`
+  - **app** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\app)`
+    - **(tabs)** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\app\(tabs))`
+      - `explore.tsx` (4.5 KB)
+      - `index.tsx` (2.5 KB)
+      - `_layout.tsx` (1.3 KB)
+    - `+not-found.tsx` (824.0 B)
+    - `_layout.tsx` (1.1 KB)
+  - `app.json` (952.0 B)
+  - **assets** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets)`
+    - **fonts** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets\fonts)`
+      - `SpaceMono-Regular.ttf` (91.1 KB)
+    - **images** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\assets\images)`
+      - `adaptive-icon.png` (17.1 KB)
+      - `favicon.png` (1.4 KB)
+      - `icon.png` (21.9 KB)
+      - `partial-react-logo.png` (5.0 KB)
+      - `react-logo.png` (6.2 KB)
+      - `react-logo@2x.png` (13.9 KB)
+      - `react-logo@3x.png` (20.8 KB)
+      - `splash-icon.png` (17.1 KB)
+  - **components** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\components)`
+    - `Collapsible.tsx` (1.4 KB)
+    - `ExternalLink.tsx` (724.0 B)
+    - `HapticTab.tsx` (582.0 B)
+    - `HelloWave.tsx` (962.0 B)
+    - `ParallaxScrollView.tsx` (2.2 KB)
+    - `ThemedText.tsx` (1.3 KB)
+    - `ThemedView.tsx` (482.0 B)
+    - **ui** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\components\ui)`
+      - `IconSymbol.ios.tsx` (630.0 B)
+      - `IconSymbol.tsx` (1.4 KB)
+      - `TabBarBackground.ios.tsx` (719.0 B)
+      - `TabBarBackground.tsx` (165.0 B)
+    - **__tests__** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\components\__tests__)`
+      - `ThemedText-test.tsx` (285.0 B)
+      - **__snapshots__** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\components\__tests__\__snapshots__)`
+        - `ThemedText-test.tsx.snap` (362.0 B)
+  - **constants** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\constants)`
+    - `Colors.ts` (776.0 B)
+  - **docs** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\docs)`
+    - `Структура_bgarden-mobile_от_22-03-2025.md` (2.7 KB)
+  - **hooks** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\hooks)`
+    - `useColorScheme.ts` (48.0 B)
+    - `useColorScheme.web.ts` (501.0 B)
+    - `useThemeColor.ts` (557.0 B)
+  - `package-lock.json` (530.0 KB)
+  - `package.json` (1.5 KB)
+  - `README.md` (1.7 KB)
+  - **scripts** `(d:\Projects\BotanicalGardenApp\bgarden-mobile\scripts)`
+    - `reset-project.js` (3.6 KB)
+  - `tsconfig.json` (259.0 B)

@@ -36,3 +36,42 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Временные файлы
+*.swp
+*.swo
+.tmp
+.temp
+
+# Логи
+logs
+*.log
+
+# Тестовые отчеты
+coverage/
+.jest/
+
+# Android/iOS специфичные файлы
+android/.gradle
+android/build/
+android/app/build/
+android/captures/
+android/local.properties
+ios/build/
+ios/Pods/
+ios/Podfile.lock
+ios/*.xcworkspace
+ios/*.xcodeproj/xcuserdata
+ios/*.xcodeproj/project.xcworkspace/xcuserdata
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Другие файлы
+.idea/
+*.sublime-*
+.history/
