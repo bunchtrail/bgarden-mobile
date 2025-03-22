@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { ThemedView } from '../ThemedView';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../../modules/auth/context/AuthContext';
 import { LastLoginInfo } from './LastLoginInfo';
 import { UserInfo } from './UserInfo';
 import { useThemeColor } from '@/hooks/useThemeColor';

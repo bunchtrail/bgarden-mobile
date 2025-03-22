@@ -2,25 +2,19 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { useRouter, useSegments } from 'expo-router';
 import { Alert } from 'react-native';
 
-import { api, authStorage } from '@/services';
-import { AuthResponse, LoginCredentials } from '@/services/api';
+import { api } from '@/services';
+import { authStorage } from '@/services';
+import { AuthContextType, AuthResponse, LoginCredentials, RegisterCredentials } from '../types';
 
-interface AuthContextType {
-  user: Partial<AuthResponse> | null;
-  isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<boolean>;
-  logout: () => Promise<void>;
-  register: (userData: LoginCredentials & { email: string }) => Promise<boolean>;
-}
 
 // Создаем контекст аутентификации
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Кастомный хук для использования контекста аутентификации
-export function useAuth() {
+// Хук для использования контекста аутентификации
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth должен использоваться внутри AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
@@ -160,7 +154,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   // Регистрация
-  const register = async (userData: LoginCredentials & { email: string }): Promise<boolean> => {
+  const register = async (userData: RegisterCredentials): Promise<boolean> => {
     try {
       const response = await api.auth.register(userData);
 
@@ -197,4 +191,4 @@ export function AuthProvider({ children }: AuthProviderProps) {
       {children}
     </AuthContext.Provider>
   );
-}
+} 

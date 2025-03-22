@@ -7,8 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Button } from '@/components/Button';
 import { Header } from '@/components/Header';
-import { AuthButton } from '@/components/AuthButton';
-import { useAuth } from '@/contexts/AuthContext';
+import { AuthButton, useAuth } from '@/modules/auth';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function Index() {

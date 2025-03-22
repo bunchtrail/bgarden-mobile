@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../../modules/auth/context/AuthContext';
 import { Header } from '@/components/Header';
 import { BotanicalGardenInfo } from '@/components/BotanicalGardenInfo';
 import { SectorButtons } from '@/components/SectorButtons';
-import { AuthButton } from '@/components/AuthButton';
+import AuthButton from '../../modules/auth/components/AuthButton';
 import { UserGreeting } from '@/components/time-based-greeting';
 
 export default function HomeScreen() {

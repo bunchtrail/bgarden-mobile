@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { AuthResponse } from './api';
+import { AuthResponse } from '../types';
 
 // Ключи для хранения данных аутентификации
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -192,4 +192,4 @@ export const authStorage = {
   },
 };
 
-export default authStorage;
+export default authStorage; 
