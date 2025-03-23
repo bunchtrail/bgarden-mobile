@@ -7,15 +7,46 @@ interface HeaderProps {
   logoStyle?: StyleProp<ImageStyle>;
   titleStyle?: StyleProp<TextStyle>;
   titleColor?: string;
+  title?: string;
+  logoSource?: number | { uri: string };
+  subtitle?: string;
+  subtitleStyle?: StyleProp<TextStyle>;
 }
 
-export function Header({ style, logoStyle, titleStyle, titleColor }: HeaderProps) {
+export function Header({ 
+  style, 
+  logoStyle, 
+  titleStyle, 
+  titleColor, 
+  title = 'Ботанический сад ВятГУ', 
+  logoSource,
+  subtitle,
+  subtitleStyle
+}: HeaderProps) {
   return (
     <View style={[styles.header, style]}>
-      <Image source={require('@/assets/images/splash-icon.png')} style={[styles.logo, logoStyle]} />
-      <ThemedText type="title" style={[styles.title, titleStyle]} lightColor={titleColor} darkColor={titleColor}>
-        Ботанический сад ВятГУ
+      <Image 
+        source={logoSource || require('@/assets/images/splash-icon.png')} 
+        style={[styles.logo, logoStyle]} 
+      />
+      <ThemedText 
+        type="title" 
+        style={[styles.title, titleStyle]} 
+        lightColor={titleColor} 
+        darkColor={titleColor}
+      >
+        {title}
       </ThemedText>
+      
+      {subtitle && (
+        <ThemedText 
+          style={[styles.subtitle, subtitleStyle]} 
+          lightColor={titleColor} 
+          darkColor={titleColor}
+        >
+          {subtitle}
+        </ThemedText>
+      )}
     </View>
   );
 }
@@ -35,4 +66,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
   },
+  subtitle: {
+    textAlign: 'center',
+    marginTop: 4,
+    fontSize: 16,
+    fontStyle: 'italic',
+  }
 }); 

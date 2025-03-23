@@ -8,16 +8,14 @@ import {
   ThemedText,
   ThemedView,
   Header,
-  Button 
+  Button,
+  PageHeader,
+  AboutSection,
+  MapSection,
+  WorkHoursSection,
+  ContactsSection,
+  AuthSection
 } from '@/components';
-import { 
-  PageHeader, 
-  AboutSection, 
-  MapSection, 
-  WorkHoursSection, 
-  ContactsSection, 
-  AuthSection 
-} from '@/app/components';
 
 export default function Index() {
   const { user, isLoading } = useAuth();

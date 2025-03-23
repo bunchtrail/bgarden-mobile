@@ -10,6 +10,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider } from '../modules/auth/context/AuthContext';
 import { NavigationProvider } from '../modules/navigation';
+import { PlantsProvider } from '../modules/plants';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,16 +34,18 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <NavigationProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="auth" options={{ title: 'Аутентификация' }} />
-            <Stack.Screen name="+not-found" />
-            <Stack.Screen name="storage-test" options={{ headerShown: true }} />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
+        <PlantsProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="auth" options={{ title: 'Аутентификация' }} />
+              <Stack.Screen name="+not-found" />
+              <Stack.Screen name="storage-test" options={{ headerShown: true }} />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </PlantsProvider>
       </NavigationProvider>
     </AuthProvider>
   );

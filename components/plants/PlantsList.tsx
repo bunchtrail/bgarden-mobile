@@ -1,7 +1,7 @@
 import React, { useRef, useCallback } from 'react';
 import { FlatList, Platform, View, ViewabilityConfig, ViewabilityConfigCallbackPair } from 'react-native';
 import { Specimen, UserRole } from '@/types';
-import PlantCard from '@/components/plants/PlantCard';
+import PlantCard from './PlantCard';
 import { FIXED_CARD_HEIGHT, BOTTOM_MARGIN } from '@/app/constants/layoutConstants';
 
 interface PlantsListProps {
