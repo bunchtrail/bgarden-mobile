@@ -35,11 +35,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="CatalogScreen"
         options={{
-          title: 'Каталог',
+          title: 'Растения',
           headerTitle: 'Каталог растений',
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="flower" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -57,6 +57,22 @@ export default function TabLayout() {
           headerTitle: 'Личный кабинет',
           tabBarIcon: ({ color }) => <TabBarIcon name="person-circle" color={color} />,
           href: user ? undefined : null,
+        }}
+      />
+      <Tabs.Screen
+        name="plant-details"
+        options={{
+          title: 'Растение',
+          headerTitle: 'Информация о растении',
+          tabBarButton: () => null, // Скрываем из таб-бара
+        }}
+      />
+      <Tabs.Screen
+        name="plant-edit"
+        options={{
+          title: 'Редактирование',
+          headerTitle: 'Редактирование растения',
+          tabBarButton: () => null, // Скрываем из таб-бара
         }}
       />
     </Tabs>
