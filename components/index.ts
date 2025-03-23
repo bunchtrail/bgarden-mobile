@@ -14,7 +14,7 @@ export * from './storage-test';
 export { Button } from './Button';
 export { ThemedText } from './ThemedText';
 export { ThemedView } from './ThemedView';
-export { AuthButton } from './AuthButton';
+export { default as AuthButton } from './AuthButton';
 export { Header } from './Header';
 export { default as GardenMap } from './GardenMap';
 export { default as ParallaxScrollView } from './ParallaxScrollView';
