@@ -50,8 +50,7 @@ export const LongPress: React.FC<LongPressProps> = ({
   const slideAnim = useRef(new Animated.Value(100)).current;
   
   const backgroundColor = useThemeColor({}, 'card');
-  const textColor = useThemeColor({}, 'text');
-  const primaryColor = useThemeColor({}, 'primary');
+
   
   // Получаем размеры экрана для динамического расчёта ширины меню
   const [screenDimensions, setScreenDimensions] = useState(Dimensions.get('window'));
@@ -60,21 +59,11 @@ export const LongPress: React.FC<LongPressProps> = ({
   // Логируем текущие размеры экрана при инициализации компонента
   useEffect(() => {
     const dimensions = Dimensions.get('window');
-    console.log('[LongPress] Размеры экрана:', {
-      width: dimensions.width,
-      height: dimensions.height,
-      scale: dimensions.scale,
-      fontScale: dimensions.fontScale
-    });
+
     
     // Создаем обработчик изменения размеров экрана
     const dimensionsChangeHandler = ({ window }: { window: ScaledSize }) => {
-      console.log('[LongPress] Изменение размеров экрана:', {
-        width: window.width,
-        height: window.height,
-        scale: window.scale,
-        fontScale: window.fontScale
-      });
+
       setScreenDimensions(window);
     };
     
@@ -90,15 +79,9 @@ export const LongPress: React.FC<LongPressProps> = ({
   }, []);
   
   // Логируем состояние видимости модального окна
-  useEffect(() => {
-    console.log('[LongPress] Состояние модального окна:', { 
-      visible: modalVisible,
-      screenWidth
-    });
-  }, [modalVisible, screenWidth]);
+
 
   const handleLongPress = () => {
-    console.log('[LongPress] Длительное нажатие активировано, открываем меню');
     // Показываем модальное окно
     setModalVisible(true);
     
@@ -122,7 +105,6 @@ export const LongPress: React.FC<LongPressProps> = ({
         useNativeDriver: true,
       })
     ]).start(() => {
-      console.log('[LongPress] Анимация появления меню завершена');
     });
   };
 
@@ -145,7 +127,6 @@ export const LongPress: React.FC<LongPressProps> = ({
   };
 
   const closeMenu = () => {
-    console.log('[LongPress] Закрываем меню');
     // Запускаем анимацию скрытия
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -169,12 +150,10 @@ export const LongPress: React.FC<LongPressProps> = ({
       fadeAnim.setValue(0);
       scaleAnim.setValue(0.9);
       slideAnim.setValue(100);
-      console.log('[LongPress] Анимация скрытия меню завершена');
     });
   };
 
   const handleActionPress = (action: ActionItem) => {
-    console.log(`[LongPress] Нажата опция меню: ${action.label} (id: ${action.id})`);
     closeMenu();
     action.onPress();
   };
@@ -183,14 +162,7 @@ export const LongPress: React.FC<LongPressProps> = ({
     if (!modalVisible) return null;
 
     // Логируем параметры меню при рендеринге
-    console.log('[LongPress] Рендеринг меню с параметрами:', {
-      actionsCount: actions.length,
-      screenWidth,
-      menuStyle: {
-        width: '100%',
-        alignSelf: 'stretch'
-      }
-    });
+
 
     return (
       <Modal
@@ -202,10 +174,6 @@ export const LongPress: React.FC<LongPressProps> = ({
       >
         <View 
           style={styles.modalOverlay}
-          onLayout={(event) => {
-            const { width, height, x, y } = event.nativeEvent.layout;
-            console.log('[LongPress] Размеры оверлея:', { width, height, x, y });
-          }}
         >
           <TouchableWithoutFeedback onPress={closeMenu}>
             <View style={styles.touchableArea} />
@@ -225,18 +193,7 @@ export const LongPress: React.FC<LongPressProps> = ({
           >
             <View 
               style={[styles.bottomMenuContainer, { backgroundColor }]}
-              onLayout={(event) => {
-                const { width, height, x, y } = event.nativeEvent.layout;
-                console.log('[LongPress] Размеры белого фона меню:', { 
-                  width, 
-                  height, 
-                  x, 
-                  y,
-                  screenWidth,
-                  difference: screenWidth - width,
-                  styleWidth: '100%'
-                });
-              }}
+ 
             >
               {actions.map((action) => (
                 <TouchableOpacity
@@ -244,17 +201,6 @@ export const LongPress: React.FC<LongPressProps> = ({
                   style={styles.actionItem}
                   onPress={() => handleActionPress(action)}
                   activeOpacity={0.7}
-                  onLayout={(event) => {
-                    if (action.id === actions[0].id) {
-                      const { width, x } = event.nativeEvent.layout;
-                      console.log('[LongPress] Размеры первого элемента меню:', { 
-                        width, 
-                        x, 
-                        rightEdge: x + width,
-                        screenWidth
-                      });
-                    }
-                  }}
                 >
                   {action.icon && (
                     <View style={styles.actionIcon}>{action.icon}</View>
