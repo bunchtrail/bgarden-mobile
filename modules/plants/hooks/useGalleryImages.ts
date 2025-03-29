@@ -14,15 +14,18 @@ type ImageSource = Platform['OS'] extends 'web' ? File[] : string[];
 interface UseGalleryImagesResult {
   allImages: SpecimenImage[];
   selectedImages: string[];
+  selectedImageIndex: number;
+  setSelectedImageIndex: (index: number) => void;
   isLoading: boolean;
   isUploading: boolean;
   uploadProgress: number;
   error: string | null;
   handleImagesChange: (files: string[]) => void;
   handleSaveImages: () => Promise<void>;
-  handleSetMainImage: (imageId: number) => Promise<void>;
-  handleDeleteImage: (imageId: number) => Promise<void>;
+  handleSetMainImage: (imageId: number) => Promise<boolean>;
+  handleDeleteImage: (imageId: number) => Promise<boolean>;
   clearSelectedImages: () => void;
+  loadImages: () => Promise<void>;
 }
 
 /**
@@ -31,6 +34,7 @@ interface UseGalleryImagesResult {
 export const useGalleryImages = ({ specimenId }: UseGalleryImagesProps): UseGalleryImagesResult => {
   const [allImages, setAllImages] = useState<SpecimenImage[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -109,8 +113,9 @@ export const useGalleryImages = ({ specimenId }: UseGalleryImagesProps): UseGall
   }, [selectedImages, allImages.length, uploadImage, loadImages]);
 
   // Установка изображения как основного
-  const handleSetMainImage = useCallback(async (imageId: number) => {
+  const handleSetMainImage = useCallback(async (imageId: number): Promise<boolean> => {
     try {
+      setIsLoading(true);
       setError(null);
       
       const success = await setAsMainImage(imageId);
@@ -118,31 +123,59 @@ export const useGalleryImages = ({ specimenId }: UseGalleryImagesProps): UseGall
       if (success) {
         // Обновляем список всех изображений
         await loadImages();
+        return true;
       }
+      return false;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Ошибка при установке основного изображения';
       setError(errorMessage);
       // eslint-disable-next-line no-console
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   }, [setAsMainImage, loadImages]);
 
   // Удаление изображения
-  const handleDeleteImage = useCallback(async (imageId: number) => {
+  const handleDeleteImage = useCallback(async (imageId: number): Promise<boolean> => {
     try {
+      setIsLoading(true);
       setError(null);
+      
+      // Находим индекс удаляемого изображения
+      const deletedImageIndex = allImages.findIndex(img => img.id === imageId);
+      if (deletedImageIndex === -1) return false;
       
       const success = await deleteImage(imageId);
       
       if (success) {
         // Обновляем список всех изображений
         await loadImages();
+        
+        // Корректируем текущий индекс, если удалено текущее или предыдущее изображение
+        if (deletedImageIndex <= selectedImageIndex) {
+          // Если удалили последнее изображение или текущее, переходим к предыдущему
+          if (deletedImageIndex === allImages.length - 1 || deletedImageIndex === selectedImageIndex) {
+            const newIndex = Math.max(0, selectedImageIndex - 1);
+            setSelectedImageIndex(newIndex);
+          } 
+          // Если удалили изображение с индексом меньше текущего, уменьшаем текущий индекс
+          else if (deletedImageIndex < selectedImageIndex) {
+            setSelectedImageIndex(selectedImageIndex - 1);
+          }
+        }
+        return true;
       }
+      return false;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Ошибка при удалении изображения';
       setError(errorMessage);
       // eslint-disable-next-line no-console
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-  }, [deleteImage, loadImages]);
+  }, [deleteImage, loadImages, allImages, selectedImageIndex]);
 
   // Очистка выбранных изображений
   const clearSelectedImages = useCallback(() => {
@@ -159,6 +192,8 @@ export const useGalleryImages = ({ specimenId }: UseGalleryImagesProps): UseGall
   return {
     allImages,
     selectedImages,
+    selectedImageIndex,
+    setSelectedImageIndex,
     isLoading,
     isUploading,
     uploadProgress,
@@ -167,6 +202,7 @@ export const useGalleryImages = ({ specimenId }: UseGalleryImagesProps): UseGall
     handleSaveImages,
     handleSetMainImage,
     handleDeleteImage,
-    clearSelectedImages
+    clearSelectedImages,
+    loadImages
   };
 }; 

@@ -57,6 +57,10 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
           <View 
             style={[styles.bottomMenuContainer, { backgroundColor }]}
           >
+            <View style={styles.menuHeader}>
+              <View style={styles.menuHeaderLine} />
+            </View>
+            
             {actions.map((action) => (
               <TouchableOpacity
                 key={action.id}
@@ -104,14 +108,31 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 8,
   },
+  menuHeader: {
+    alignItems: 'center',
+    paddingBottom: 10,
+  },
+  menuHeaderLine: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#aaa',
+    borderRadius: 2,
+    marginBottom: 8,
+  },
   actionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: 16,
+    marginVertical: 2,
+    borderRadius: 8,
   },
   actionIcon: {
-    marginRight: 12,
+    marginRight: 16,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   actionLabel: {
     fontSize: 16,

@@ -1,5 +1,7 @@
 import NetInfo from '@react-native-community/netinfo';
 import { ProgressEvent } from '@/types';
+import { Platform } from 'react-native';
+import { authStorage } from '@/modules/auth/services';
 
 interface HttpResponse<T> {
   data: T | null;
@@ -11,6 +13,7 @@ interface RequestOptions {
   headers?: Record<string, string>;
   timeout?: number;
   onUploadProgress?: (progressEvent: ProgressEvent) => void;
+  skipAuth?: boolean; // Флаг для пропуска авторизации, если требуется
 }
 
 interface ApiError {
@@ -24,6 +27,7 @@ class HttpClient {
   private baseUrl: string;
   private defaultHeaders: Record<string, string>;
   private defaultTimeout: number;
+  private authToken: string | null = null;
 
   constructor(
     baseUrl: string,
@@ -36,6 +40,43 @@ class HttpClient {
       ...defaultHeaders,
     };
     this.defaultTimeout = defaultTimeout;
+    
+    // Загружаем токен авторизации при инициализации
+    this.loadAuthToken();
+  }
+
+  /**
+   * Загружает токен авторизации из хранилища
+   */
+  public async loadAuthToken(): Promise<void> {
+    try {
+      const token = await authStorage.getAuthToken();
+      if (token) {
+        this.authToken = token;
+        this.setDefaultHeader('Authorization', `Bearer ${token}`);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки токена авторизации:', error);
+    }
+  }
+
+  /**
+   * Устанавливает токен авторизации
+   * @param token Токен авторизации
+   */
+  public setAuthToken(token: string): void {
+    this.authToken = token;
+    this.setDefaultHeader('Authorization', `Bearer ${token}`);
+  }
+
+  /**
+   * Очищает токен авторизации
+   */
+  public clearAuthToken(): void {
+    this.authToken = null;
+    // Удаляем заголовок авторизации
+    const { Authorization, ...rest } = this.defaultHeaders;
+    this.defaultHeaders = rest;
   }
 
   /**
@@ -60,6 +101,29 @@ class HttpClient {
     return netInfoState.isConnected === true;
   }
 
+  // Получение заголовков с учетом авторизации
+  private async getHeaders(options?: RequestOptions): Promise<Record<string, string>> {
+    const headers = {
+      ...this.defaultHeaders,
+      ...options?.headers,
+    };
+
+    // Если нет токена авторизации в заголовках и не установлен флаг пропуска авторизации
+    if (!headers['Authorization'] && !options?.skipAuth) {
+      // Попробуем загрузить токен, если его еще нет
+      if (!this.authToken) {
+        await this.loadAuthToken();
+      }
+      
+      // Если токен теперь доступен, добавляем его в заголовки
+      if (this.authToken) {
+        headers['Authorization'] = `Bearer ${this.authToken}`;
+      }
+    }
+
+    return headers;
+  }
+
   // Базовый метод для выполнения запросов
   private async request<T>(
     endpoint: string,
@@ -78,10 +142,11 @@ class HttpClient {
     }
 
     const url = `${this.baseUrl}${endpoint}`;
-    const headers = {
-      ...this.defaultHeaders,
-      ...options?.headers,
-    };
+    const headers = await this.getHeaders(options);
+
+    if (Platform.OS !== 'web' && __DEV__) {
+      console.log(`${method} запрос:`, { url, headers, data });
+    }
 
     try {
       const controller = new AbortController();
@@ -109,6 +174,22 @@ class HttpClient {
         responseData = await response.text();
       }
 
+      // Логируем ответ в режиме разработки
+      if (Platform.OS !== 'web' && __DEV__) {
+        console.log(`${method} ответ:`, { 
+          url, 
+          status: response.status, 
+          ok: response.ok,
+          data: responseData 
+        });
+      }
+
+      // Если получен статус 401 (Unauthorized), токен может быть истек
+      if (response.status === 401) {
+        // Здесь можно добавить логику обновления токена
+        console.error('Ошибка авторизации: требуется повторный вход');
+      }
+
       return {
         data: response.ok ? (responseData as T) : null,
         error: response.ok
@@ -119,6 +200,10 @@ class HttpClient {
         status: response.status,
       };
     } catch (error) {
+      if (Platform.OS !== 'web' && __DEV__) {
+        console.error(`${method} ошибка:`, { url, error });
+      }
+
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
           return {
@@ -160,7 +245,52 @@ class HttpClient {
 
   // PATCH запрос
   async patch<T>(endpoint: string, data: RequestBody, options?: RequestOptions): Promise<HttpResponse<T>> {
-    return this.request<T>(endpoint, 'PATCH', data, options);
+    try {
+      // Для мобильных устройств логируем отправку запроса
+      if (Platform.OS !== 'web' && __DEV__) {
+        console.log(`📡 PATCH ${this.baseUrl}${endpoint}`, {
+          headers: { ...this.defaultHeaders, ...options?.headers },
+          body: data
+        });
+      }
+      
+      // Формируем параметры запроса явно указывая Content-Type для мобильных платформ
+      const requestOptions = {
+        ...options,
+        headers: {
+          ...this.defaultHeaders,
+          ...options?.headers,
+          'Content-Type': 'application/json'
+        }
+      };
+      
+      const response = await this.request<T>(endpoint, 'PATCH', data, requestOptions);
+      
+      // Для мобильных устройств логируем полученный ответ
+      if (Platform.OS !== 'web' && __DEV__) {
+        console.log(`✅ PATCH ${this.baseUrl}${endpoint} Response:`, response);
+      }
+      
+      return response;
+    } catch (error) {
+      // Логируем ошибку детально
+      console.error(`❌ PATCH ${this.baseUrl}${endpoint} Error:`, error);
+      
+      // Улучшенная обработка ошибок для наглядности
+      if (error instanceof Error) {
+        return {
+          data: null,
+          error: `[PATCH] ${error.name}: ${error.message}`,
+          status: 500,
+        };
+      }
+      
+      return {
+        data: null,
+        error: 'Неизвестная ошибка при PATCH-запросе',
+        status: 500,
+      };
+    }
   }
 
   // DELETE запрос

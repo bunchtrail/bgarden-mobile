@@ -50,13 +50,36 @@ const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => {
 interface ImageGalleryProps {
   specimenId: number;
   onImageSelect?: (imageUrl: string, index: number) => void;
+  onMainImageChanged?: () => void; // Обратный вызов при смене главного изображения
+  onImageDeleted?: () => void; // Обратный вызов при удалении изображения
 }
 
-const ImageGallery: React.FC<ImageGalleryProps> = ({ specimenId, onImageSelect }) => {
+const ImageGallery: React.FC<ImageGalleryProps> = ({ 
+  specimenId, 
+  onImageSelect, 
+  onMainImageChanged,
+  onImageDeleted 
+}) => {
   const { allImages, isLoading, error, handleSetMainImage, handleDeleteImage } = useGalleryImages({ specimenId });
   
   // Создаем объект для анимации прозрачности для каждого изображения
   const [pressedItem, setPressedItem] = useState<number | null>(null);
+  
+  // Обработчик установки главного изображения
+  const onSetMainImage = async (imageId: number) => {
+    const success = await handleSetMainImage(imageId);
+    if (success && onMainImageChanged) {
+      onMainImageChanged(); // Вызываем обратный вызов при успешной установке
+    }
+  };
+  
+  // Обработчик удаления изображения
+  const onDeleteImage = async (imageId: number) => {
+    const success = await handleDeleteImage(imageId);
+    if (success && onImageDeleted) {
+      onImageDeleted(); // Вызываем обратный вызов при успешном удалении
+    }
+  };
   
   // Если нет изображений или только одно, не показываем галерею
   if (allImages.length <= 1) {
@@ -101,13 +124,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ specimenId, onImageSelect }
               id: 'setMain',
               label: 'Установить как основное',
               icon: <Ionicons name="star" size={20} color="#4CAF50" />,
-              onPress: () => handleSetMainImage(item.id)
+              onPress: () => onSetMainImage(item.id)
             },
             {
               id: 'delete',
               label: 'Удалить',
               icon: <Ionicons name="trash" size={20} color="#d32f2f" />,
-              onPress: () => handleDeleteImage(item.id)
+              onPress: () => onDeleteImage(item.id)
             }
           ];
 
@@ -157,12 +180,13 @@ export default function PlantDetails() {
   const [plant, setPlant] = useState<Specimen | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null); // Состояние для ошибки
+  const [forceUpdateKey, setForceUpdateKey] = useState(0); // Ключ для принудительного обновления
 
   // Получаем ID растения для использования с хуком изображений
   const plantId = typeof id === 'string' ? parseInt(id, 10) : Array.isArray(id) ? parseInt(id[0], 10) : 0;
   
   // Используем тот же хук для загрузки изображений, что и в PlantCard
-  const { imageSrc, isLoading: imageLoading } = useSpecimenImage(plantId);
+  const { imageSrc, isLoading: imageLoading, fetchSpecimenImage } = useSpecimenImage(plantId);
 
   // TODO: Заменить на получение реальной роли пользователя из контекста авторизации
   const userRole: UserRole = UserRole.Client;
@@ -173,7 +197,11 @@ export default function PlantDetails() {
   const [galleryLoaded, setGalleryLoaded] = useState(false);
   
   // Используем существующий хук для загрузки всех изображений
-  const { allImages, isLoading: galleryLoading } = useGalleryImages({ specimenId: plantId });
+  const { 
+    allImages, 
+    isLoading: galleryLoading, 
+    loadImages: reloadGalleryImages // Получаем функцию для обновления галереи
+  } = useGalleryImages({ specimenId: plantId });
   
   // Ref для FlatList карусели изображений
   const carouselRef = useRef<FlatList>(null);
@@ -238,6 +266,81 @@ export default function PlantDetails() {
       const lastIndex = allImageUrls.length - 1;
       setCurrentImageIndex(lastIndex);
       carouselRef.current?.scrollToIndex({ index: lastIndex, animated: true });
+    }
+  };
+
+  // Функция для обновления главного изображения после его изменения
+  const handleMainImageChange = async () => {
+    try {
+      console.log('Обновление изображений после установки нового главного...');
+      
+      // Обновляем главное изображение
+      await fetchSpecimenImage();
+      
+      // Обновляем галерею изображений
+      await reloadGalleryImages();
+      
+      // Обновляем данные для карусели
+      if (allImages && allImages.length > 0) {
+        const urls = allImages.map(img => {
+          return img.imageUrl || 
+            (img.imageDataBase64 ? 
+              `data:${img.contentType || 'image/png'};base64,${img.imageDataBase64}` : 
+              'https://via.placeholder.com/400x300.png?text=Нет+изображения');
+        });
+        setAllImageUrls(urls);
+      }
+      
+      // Увеличиваем ключ для принудительного обновления компонента
+      setForceUpdateKey(prevKey => prevKey + 1);
+      
+      console.log('Обновление успешно завершено');
+    } catch (err) {
+      console.error('Ошибка при обновлении главного изображения:', err);
+    }
+  };
+
+  // Функция для обновления галереи после удаления изображения
+  const handleImageDeleted = async () => {
+    try {
+      console.log('Обновление изображений после удаления...');
+      
+      // Обновляем список изображений
+      await reloadGalleryImages();
+      
+      // Обновляем главное изображение
+      await fetchSpecimenImage();
+      
+      // Обновляем данные для карусели
+      if (allImages && allImages.length > 0) {
+        const urls = allImages.map(img => {
+          return img.imageUrl || 
+            (img.imageDataBase64 ? 
+              `data:${img.contentType || 'image/png'};base64,${img.imageDataBase64}` : 
+              'https://via.placeholder.com/400x300.png?text=Нет+изображения');
+        });
+        setAllImageUrls(urls);
+        
+        // Проверяем, что текущий индекс не выходит за пределы массива
+        if (currentImageIndex >= urls.length) {
+          setCurrentImageIndex(Math.max(0, urls.length - 1));
+        }
+      } else if (imageSrc) {
+        // Если нет галереи, но есть основное изображение
+        setAllImageUrls([imageSrc]);
+        setCurrentImageIndex(0);
+      } else {
+        // Если нет изображений
+        setAllImageUrls([]);
+        setCurrentImageIndex(0);
+      }
+      
+      // Увеличиваем ключ для принудительного обновления компонента
+      setForceUpdateKey(prevKey => prevKey + 1);
+      
+      console.log('Обновление после удаления успешно завершено');
+    } catch (err) {
+      console.error('Ошибка при обновлении после удаления изображения:', err);
     }
   };
 
@@ -401,7 +504,7 @@ export default function PlantDetails() {
         }}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} key={`scroll_view_${forceUpdateKey}`}>
         {/* Карусель изображений */}
         <View style={styles.imageContainer}>
           {imageLoading || (galleryLoading && !galleryLoaded) ? (
@@ -467,7 +570,12 @@ export default function PlantDetails() {
         </View>
 
         {/* Галерея миниатюр */}
-        {plant && <ImageGallery specimenId={plantId} onImageSelect={handleImageSelect} />}
+        <ImageGallery 
+          specimenId={plantId} 
+          onImageSelect={handleImageSelect}
+          onMainImageChanged={handleMainImageChange}
+          onImageDeleted={handleImageDeleted}
+        />
 
         <View style={styles.detailsContainer}>
           {/* Названия */}

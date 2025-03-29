@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -8,7 +8,10 @@ import {
   FlatList, 
   Image, 
   Dimensions, 
-  ActivityIndicator 
+  ActivityIndicator,
+  Alert,
+  ToastAndroid,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SpecimenImage } from '@/types';
@@ -25,6 +28,16 @@ const { width } = Dimensions.get('window');
 const THUMBNAIL_SIZE = width / 3 - 16;
 
 /**
+ * Показывает уведомление пользователю
+ */
+const showToast = (message: string) => {
+  if (Platform.OS === 'android') {
+    ToastAndroid.show(message, ToastAndroid.SHORT);
+  }
+  // На iOS можно использовать Alert или другую библиотеку уведомлений
+};
+
+/**
  * Компонент для отображения галереи изображений образца
  */
 const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({ 
@@ -33,11 +46,12 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
 }) => {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [fullImageModalVisible, setFullImageModalVisible] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   
   const { 
     allImages, 
-    selectedImages, 
+    selectedImages,
+    selectedImageIndex, 
+    setSelectedImageIndex,
     isLoading, 
     isUploading,
     uploadProgress,
@@ -48,6 +62,13 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
     handleDeleteImage,
     clearSelectedImages
   } = useGalleryImages({ specimenId });
+
+  // Следим за ошибками и показываем их пользователю
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Ошибка', error);
+    }
+  }, [error]);
 
   // Открытие модального окна для загрузки изображений
   const handleOpenUploadModal = () => {
@@ -75,7 +96,69 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
   // Обработчик ошибок загрузки
   const handleUploadError = (errorMessage: string) => {
     // eslint-disable-next-line no-console
+    console.error('Ошибка загрузки:', errorMessage);
+    Alert.alert('Ошибка загрузки', errorMessage);
+  };
 
+  // Обработчик установки главного изображения с показом уведомления
+  const onSetMainImage = async (imageId: number) => {
+    try {
+      const success = await handleSetMainImage(imageId);
+      if (success) {
+        showToast('Изображение установлено как основное');
+      } else {
+        // Если ошибка уже обработана в хуке, не показываем дополнительное уведомление
+        if (!error) {
+          Alert.alert('Внимание', 'Не удалось установить изображение как основное');
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка при установке основного изображения:', err);
+      Alert.alert('Ошибка', 'Не удалось установить изображение как основное');
+    }
+  };
+
+  // Обработчик удаления с подтверждением и уведомлением
+  const onDeleteImage = async (imageId: number) => {
+    try {
+      const success = await handleDeleteImage(imageId);
+      if (success) {
+        showToast('Изображение удалено');
+        
+        // Если было открыто модальное окно просмотра и больше нет изображений, закрываем его
+        if (fullImageModalVisible && allImages.length <= 1) {
+          setFullImageModalVisible(false);
+        }
+      } else {
+        // Если ошибка уже обработана в хуке, не показываем дополнительное уведомление
+        if (!error) {
+          Alert.alert('Внимание', 'Не удалось удалить изображение');
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка при удалении изображения:', err);
+      Alert.alert('Ошибка', 'Не удалось удалить изображение');
+    }
+  };
+
+  // Отображение предупреждения о удалении изображения
+  const confirmDeleteImage = (imageId: number) => {
+    Alert.alert(
+      'Удаление изображения',
+      'Вы действительно хотите удалить это изображение?',
+      [
+        {
+          text: 'Отмена',
+          style: 'cancel'
+        },
+        {
+          text: 'Удалить',
+          style: 'destructive',
+          onPress: () => onDeleteImage(imageId)
+        }
+      ],
+      { cancelable: true }
+    );
   };
 
   // Рендер миниатюры изображения
@@ -85,13 +168,13 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
         id: 'setMain',
         label: 'Установить как основное',
         icon: <Ionicons name="star" size={20} color="#4299e1" />,
-        onPress: () => handleSetMainImage(item.id)
+        onPress: () => onSetMainImage(item.id)
       },
       {
         id: 'delete',
         label: 'Удалить',
         icon: <Ionicons name="trash" size={20} color="#f56565" />,
-        onPress: () => handleDeleteImage(item.id)
+        onPress: () => confirmDeleteImage(item.id)
       }
     ];
 
@@ -116,9 +199,25 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
               <Text style={styles.mainBadgeText}>Основное</Text>
             </View>
           )}
+          <View style={styles.longPressHint}>
+            <Ionicons name="ellipsis-vertical" size={16} color="#FFFFFF" />
+          </View>
         </View>
       </LongPress>
     );
+  };
+
+  // Сохранение изображений с закрытием модального окна
+  const handleSaveAndClose = async () => {
+    try {
+      await handleSaveImages();
+      if (!error) {
+        setUploadModalVisible(false);
+        showToast('Изображения успешно загружены');
+      }
+    } catch (err) {
+      console.error('Ошибка при сохранении изображений:', err);
+    }
   };
 
   return (
@@ -148,6 +247,7 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
           keyExtractor={(item) => item.id.toString()}
           numColumns={3}
           contentContainerStyle={styles.galleryContainer}
+          extraData={selectedImageIndex} // Обновляем при изменении индекса
         />
       ) : (
         <View style={styles.emptyContainer}>
@@ -159,13 +259,6 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
           >
             <Text style={styles.uploadButtonText}>Загрузить изображения</Text>
           </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Ошибка, если есть */}
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
 
@@ -201,8 +294,8 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
                 <Text style={styles.cancelButtonText}>Отмена</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={styles.saveButton} 
-                onPress={handleSaveImages}
+                style={[styles.saveButton, selectedImages.length === 0 ? styles.disabledButton : null]}
+                onPress={handleSaveAndClose}
                 disabled={isUploading || selectedImages.length === 0}
               >
                 <Text style={styles.saveButtonText}>Сохранить</Text>
@@ -240,7 +333,7 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
                   <TouchableOpacity 
                     style={styles.controlButton}
                     onPress={() => {
-                      handleSetMainImage(allImages[selectedImageIndex].id);
+                      onSetMainImage(allImages[selectedImageIndex].id);
                       setFullImageModalVisible(false);
                     }}
                   >
@@ -248,12 +341,11 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
                     <Text style={styles.controlButtonText}>Сделать основным</Text>
                   </TouchableOpacity>
                 )}
-                
                 <TouchableOpacity 
                   style={[styles.controlButton, styles.deleteButton]}
                   onPress={() => {
-                    handleDeleteImage(allImages[selectedImageIndex].id);
                     setFullImageModalVisible(false);
+                    confirmDeleteImage(allImages[selectedImageIndex].id);
                   }}
                 >
                   <Ionicons name="trash" size={20} color="white" />
@@ -321,6 +413,17 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 10,
     fontWeight: 'bold',
+  },
+  longPressHint: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingContainer: {
     flex: 1,
@@ -413,6 +516,9 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   fullImageModalContainer: {
     flex: 1,

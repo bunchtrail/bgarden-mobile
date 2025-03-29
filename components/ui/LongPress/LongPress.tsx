@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { 
   Pressable,
-  View
+  View,
+  Platform
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { ActionMenu } from './ActionMenu';
 import { useAnimation } from './hooks/useAnimation';
@@ -35,6 +37,11 @@ export const LongPress: React.FC<LongPressProps> = ({
   const { animationValues, animateIn, animateOut } = useAnimation();
 
   const handleLongPress = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+        .catch(err => console.log('Ошибка haptic feedback:', err));
+    }
+    
     setModalVisible(true);
     animateIn();
   };
@@ -56,6 +63,11 @@ export const LongPress: React.FC<LongPressProps> = ({
   };
 
   const handleActionPress = (action: ActionItem) => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        .catch(err => console.log('Ошибка haptic feedback:', err));
+    }
+    
     closeMenu();
     action.onPress();
   };
