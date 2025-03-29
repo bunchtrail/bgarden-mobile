@@ -1,10 +1,21 @@
-export { default as PlantCard } from './PlantCard';
-export { default as FilterBar } from './FilterBar';
-export { default as FilterButton } from './FilterButton';
-export { default as FilterModal } from './FilterModal';
-export { default as FilterPanel } from './FilterPanel';
-export { default as SearchInput } from './SearchInput';
-
-// Экспортирую PlantsList после других компонентов, чтобы избежать циклических зависимостей
+import FilterBar from './FilterBar';
+import FilterButton from './FilterButton';
+import FilterModal from './FilterModal';
+import FilterPanel from './FilterPanel';
+import PlantCard from './PlantCard';
 import PlantsList from './PlantsList';
-export { PlantsList }; 
+import SearchInput from './SearchInput';
+import ImageUploader from './ImageUploader';
+import SpecimenGallery from './SpecimenGallery';
+
+export {
+  FilterBar,
+  FilterButton,
+  FilterModal,
+  FilterPanel,
+  PlantCard,
+  PlantsList,
+  SearchInput,
+  ImageUploader,
+  SpecimenGallery
+}; 

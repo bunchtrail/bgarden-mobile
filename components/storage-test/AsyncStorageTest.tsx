@@ -16,7 +16,6 @@ export default function AsyncStorageTest() {
       Alert.alert('Успешно', 'Данные сохранены');
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось сохранить данные');
-      console.error(error);
     }
   };
 
@@ -32,7 +31,6 @@ export default function AsyncStorageTest() {
       }
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось прочитать данные');
-      console.error(error);
     }
   };
 
@@ -44,7 +42,6 @@ export default function AsyncStorageTest() {
       Alert.alert('Успешно', 'Данные удалены');
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось удалить данные');
-      console.error(error);
     }
   };
 

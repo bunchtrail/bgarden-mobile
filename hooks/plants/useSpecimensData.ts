@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Specimen, SpecimenFilterParams } from '@/types';
-import { mockSpecimens } from '@/data/mockData';
+import { plantsApi } from '@/modules/plants/services';
 
 export function useSpecimensData(initialFilters = {}) {
   const [specimens, setSpecimens] = useState<Specimen[]>([]);
@@ -8,50 +8,51 @@ export function useSpecimensData(initialFilters = {}) {
   const [filterParams, setFilterParams] = useState<SpecimenFilterParams>(initialFilters);
 
   useEffect(() => {
-    loadSpecimens();
-  }, [filterParams]);
-
-  const loadSpecimens = async () => {
-    setLoading(true);
+    let isMounted = true;
     
-    try {
-      setTimeout(() => {
-        let filteredData = [...mockSpecimens];
+    const loadSpecimens = async () => {
+      setLoading(true);
+      
+      try {
+        // Формируем параметры запроса для API
+        const searchParams = {
+          familyId: filterParams.familyId,
+          sectorType: filterParams.sectorType,
+          regionId: filterParams.regionId,
+          expositionId: filterParams.expositionId,
+          query: filterParams.searchValue
+        };
         
-        if (filterParams.familyId) {
-          filteredData = filteredData.filter(s => s.familyId === filterParams.familyId);
+        // Получаем данные из API
+        const response = await plantsApi.getSpecimens(searchParams);
+        
+        if (!isMounted) return;
+        
+        if (response.error) {
+          setSpecimens([]);
+        } else if (response.data) {
+          setSpecimens(response.data);
+        } else {
+          setSpecimens([]);
         }
-        
-        if (filterParams.sectorType !== undefined) {
-          filteredData = filteredData.filter(s => s.sectorType === filterParams.sectorType);
+      } catch (error) {
+        if (isMounted) {
+          setSpecimens([]);
         }
-        
-        if (filterParams.regionId) {
-          filteredData = filteredData.filter(s => s.regionId === filterParams.regionId);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
-        
-        if (filterParams.expositionId) {
-          filteredData = filteredData.filter(s => s.expositionId === filterParams.expositionId);
-        }
-        
-        if (filterParams.searchValue && filterParams.searchField) {
-          const searchValue = filterParams.searchValue.toLowerCase();
-          filteredData = filteredData.filter(s => {
-            const field = filterParams.searchField as string;
-            const fieldValue = s[field as keyof Specimen]?.toString().toLowerCase();
-            return fieldValue?.includes(searchValue);
-          });
-        }
-        
-        console.log('ЗАГРУЖЕНО РАСТЕНИЙ:', filteredData.length);
-        setSpecimens(filteredData);
-        setLoading(false);
-      }, 1000);
-    } catch (error) {
-      console.error('Ошибка при загрузке данных:', error);
-      setLoading(false);
-    }
-  };
+      }
+    };
+
+    loadSpecimens();
+    
+    // Функция очистки для предотвращения утечек памяти и обновления размонтированного компонента
+    return () => {
+      isMounted = false;
+    };
+  }, [filterParams]);
 
   return { specimens, loading, setFilterParams };
 } 

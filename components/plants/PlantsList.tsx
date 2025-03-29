@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from 'react';
-import { FlatList, Platform, View, ViewabilityConfig, ViewabilityConfigCallbackPair } from 'react-native';
+import { FlatList, Platform, View, ViewabilityConfig, ViewabilityConfigCallbackPair, Text } from 'react-native';
 import { Specimen, UserRole } from '@/types';
 import PlantCard from './PlantCard';
 import { FIXED_CARD_HEIGHT, BOTTOM_MARGIN } from '@/app/constants/layoutConstants';
@@ -40,6 +40,14 @@ const PlantsList = ({
       />
     </View>
   );
+
+  if (specimens.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ fontSize: 16, color: '#555' }}>Растения не найдены</Text>
+      </View>
+    );
+  }
 
   return (
     <FlatList

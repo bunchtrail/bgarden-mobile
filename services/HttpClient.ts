@@ -1,4 +1,5 @@
 import NetInfo from '@react-native-community/netinfo';
+import { ProgressEvent } from '@/types';
 
 interface HttpResponse<T> {
   data: T | null;
@@ -9,6 +10,7 @@ interface HttpResponse<T> {
 interface RequestOptions {
   headers?: Record<string, string>;
   timeout?: number;
+  onUploadProgress?: (progressEvent: ProgressEvent) => void;
 }
 
 interface ApiError {

@@ -22,7 +22,6 @@ export default function SecureStoreTest() {
       Alert.alert('Успешно', 'Данные сохранены в безопасное хранилище');
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось сохранить данные в безопасное хранилище');
-      console.error(error);
     }
   };
 
@@ -38,7 +37,6 @@ export default function SecureStoreTest() {
       }
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось прочитать защищенные данные');
-      console.error(error);
     }
   };
 
@@ -50,7 +48,6 @@ export default function SecureStoreTest() {
       Alert.alert('Успешно', 'Защищенные данные удалены');
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось удалить защищенные данные');
-      console.error(error);
     }
   };
 

@@ -24,45 +24,145 @@ export enum SectorType {
 }
 
 // Тип экспоната (растения)
+export enum LocationType {
+  None = 0,
+  Geographic = 1,
+  SchematicMap = 2
+}
+
+// Параметры фильтрации для интерфейса
+export interface FilterParams {
+  searchQuery: string;
+  familyFilter: string[];
+  sectorFilter: string[];
+  statusFilter: string[];
+}
+
 export interface Specimen {
   id: number;
   inventoryNumber: string;
-  sectorType: number;
-  latitude: number;
-  longitude: number;
-  locationWkt?: string;
-  regionId?: number | null;
-  regionName?: string | null;
+  sectorType: SectorType;
+  latitude?: number;
+  longitude?: number;
+  regionId?: number;
+  region?: {
+    id: number;
+    name: string;
+  };
   familyId: number;
-  familyName: string;
-  russianName: string;
-  latinName: string;
-  genus: string;
-  species: string;
-  cultivar?: string | null;
-  form?: string | null;
-  synonyms?: string | null;
-  determinedBy?: string | null;
-  plantingYear: number;
-  sampleOrigin?: string | null;
-  naturalRange?: string | null;
-  ecologyAndBiology?: string | null;
-  economicUse?: string | null;
-  conservationStatus?: string | null;
-  expositionId: number;
-  expositionName: string;
+  family?: {
+    id: number;
+    name: string;
+  };
+  russianName?: string;
+  latinName?: string;
+  genus?: string;
+  species?: string;
+  cultivar?: string;
+  form?: string;
+  synonyms?: string;
+  determinedBy?: string;
+  plantingYear?: number;
+  sampleOrigin?: string;
+  naturalRange?: string;
+  ecologyAndBiology?: string;
+  economicUse?: string;
+  conservationStatus?: string;
+  expositionId?: number;
+  exposition?: {
+    id: number;
+    name: string;
+  };
   hasHerbarium: boolean;
-  duplicatesInfo?: string | null;
-  originalBreeder?: string | null;
-  originalYear?: number | null;
-  country?: string | null;
-  illustration?: string | null;
-  notes?: string | null;
-  filledBy?: string | null;
+  duplicatesInfo?: string;
+  originalBreeder?: string;
+  originalYear?: number;
+  country?: string;
+  illustration?: string;
+  notes?: string;
+  filledBy?: string;
+  createdAt: string;
+  lastUpdatedAt?: string;
+  mapId?: number;
+  mapX?: number;
+  mapY?: number;
+  locationType: LocationType;
+  images?: SpecimenImage[];
+  mainImage?: string;
+}
+
+export interface SpecimenImage {
+  id: number;
+  specimenId: number;
+  imageUrl: string; // URL для доступа к изображению
+  imageDataBase64?: string; // Данные изображения в формате Base64
+  contentType: string;
   description?: string;
-  category?: string;
-  name?: string;
-  scientificName?: string;
+  isMain: boolean;
+  uploadedAt: string;
+  thumbnailUrl?: string; // URL для миниатюрной версии
+}
+
+export interface SpecimenCreateDto {
+  inventoryNumber: string;
+  sectorType: SectorType;
+  russianName?: string;
+  latinName?: string;
+  familyId: number;
+  genus?: string;
+  species?: string;
+  expositionId?: number;
+  plantingYear?: number;
+  // Другие необходимые поля
+}
+
+export interface SpecimenUpdateDto {
+  inventoryNumber?: string;
+  sectorType?: SectorType;
+  russianName?: string;
+  latinName?: string;
+  familyId?: number;
+  genus?: string;
+  species?: string;
+  // Другие поля, которые можно обновить
+}
+
+export interface SpecimenSearchParams {
+  query?: string;
+  familyId?: number;
+  sectorType?: SectorType;
+  regionId?: number;
+  expositionId?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface PaginatedSpecimensResponse {
+  items: Specimen[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface SpecimenCoordinatesDto {
+  // Географические координаты
+  latitude?: number;
+  longitude?: number;
+  // Координаты на схематической карте
+  mapId?: number;
+  mapX?: number;
+  mapY?: number;
+  // Тип координат
+  locationType: LocationType;
+}
+
+export interface SpecimenImageUploadResponse {
+  success: boolean;
+  imageId?: number;
+  imageUrl?: string;
+  thumbnailUrl?: string;
+  error?: string;
 }
 
 // Параметры фильтрации растений
@@ -98,4 +198,42 @@ export interface Exposition {
   name: string;
   description?: string;
   specimensCount?: number;
+}
+
+// Типы для работы с растениями
+export interface Plant {
+  id: string;
+  name: string;
+  scientificName: string;
+  description: string;
+  category: string;
+  imageUrl?: string;
+  location?: string; 
+  careInstructions?: string;
+  dateAdded: string;
+}
+
+export interface PlantCreateDto {
+  name: string;
+  scientificName: string;
+  description: string;
+  category: string;
+  imageUrl?: string;
+  location?: string;
+  careInstructions?: string;
+}
+
+// Типы для результатов массовой загрузки изображений
+export interface BatchSpecimenImageResult {
+  specimenId: number;
+  successCount: number;
+  errorCount: number;
+  uploadedImageIds: number[];
+  errorMessages: string[];
+}
+
+// Интерфейс для отслеживания прогресса загрузки
+export interface ProgressEvent {
+  loaded: number;
+  total: number;
 } 

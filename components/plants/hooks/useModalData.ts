@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
-import { SectorType, SpecimenFilterParams } from '@/types';
-import { mockFamilies, mockRegions, mockExpositions } from '@/data/mockData';
+import { useState, useCallback, useEffect } from 'react';
+import { SectorType, SpecimenFilterParams, Family, Region, Exposition } from '@/types';
+import { plantsApi } from '@/modules/plants/services';
 
 interface ModalItem {
   id: number | SectorType;
@@ -11,6 +11,39 @@ interface ModalItem {
 export function useModalData() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalType, setModalType] = useState<string>('');
+  const [families, setFamilies] = useState<Family[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [expositions, setExpositions] = useState<Exposition[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Загружаем справочники при инициализации компонента
+  useEffect(() => {
+    const loadReferences = async () => {
+      setLoading(true);
+      try {
+        // Загружаем семейства
+        const familiesResponse = await plantsApi.getFamilies();
+        if (familiesResponse.data) {
+          setFamilies(familiesResponse.data);
+        }
+
+        // Загружаем экспозиции
+        const expositionsResponse = await plantsApi.getExpositions();
+        if (expositionsResponse.data) {
+          setExpositions(expositionsResponse.data);
+        }
+
+        // Примечание: загрузка регионов должна быть реализована в API
+        // Пока оставляем пустой массив
+        setRegions([]);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReferences();
+  }, []);
 
   const openModal = useCallback((type: string) => {
     setModalType(type);
@@ -30,7 +63,7 @@ export function useModalData() {
 
     switch (modalType) {
       case 'family':
-        items = mockFamilies as ModalItem[];
+        items = families as ModalItem[];
         title = 'Выберите семейство';
         break;
       case 'sector':
@@ -42,11 +75,11 @@ export function useModalData() {
         title = 'Выберите сектор';
         break;
       case 'region':
-        items = mockRegions as ModalItem[];
+        items = regions as ModalItem[];
         title = 'Выберите регион';
         break;
       case 'exposition':
-        items = mockExpositions as ModalItem[];
+        items = expositions as ModalItem[];
         title = 'Выберите экспозицию';
         break;
       default:
@@ -54,7 +87,7 @@ export function useModalData() {
     }
 
     return { items, title };
-  }, [modalType]);
+  }, [modalType, families, regions, expositions]);
 
   const getActiveItemId = useCallback((activeFilters: SpecimenFilterParams): number | SectorType | undefined => {
     switch (modalType) {
@@ -72,6 +105,7 @@ export function useModalData() {
     openModal,
     closeModal,
     getModalData,
-    getActiveItemId
+    getActiveItemId,
+    loading
   };
 } 

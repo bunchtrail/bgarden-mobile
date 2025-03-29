@@ -15,8 +15,11 @@ export const FIXED_CARD_HEIGHT = height - TAB_BAR_HEIGHT - HEADER_HEIGHT -
 
 export const SCREEN_DIMENSIONS = { width, height };
 
+// Мемоизация результатов логирования для избежания дублирования
+let lastDimensionsLog: string | null = null;
+
 export const logScreenDimensions = () => {
-  console.log('РАЗМЕРЫ ЭКРАНА И ФИКСИРОВАННАЯ ВЫСОТА:', { 
+  const dimensionsData = { 
     экранВысота: height, 
     экранШирина: width,
     фиксированнаяВысотаКарточки: FIXED_CARD_HEIGHT,
@@ -28,5 +31,12 @@ export const logScreenDimensions = () => {
       отступСнизу: BOTTOM_MARGIN,
       общийВычет: TAB_BAR_HEIGHT + HEADER_HEIGHT + FILTER_BAR_HEIGHT + BOTTOM_MARGIN + SAFETY_MARGIN
     }
-  });
+  };
+  
+  const dimensionsString = JSON.stringify(dimensionsData);
+  
+  // Выводим лог только если изменились размеры
+  if (dimensionsString !== lastDimensionsLog) {
+    lastDimensionsLog = dimensionsString;
+  }
 }; 

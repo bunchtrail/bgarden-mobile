@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Specimen, UserRole, SectorType } from '@/types';
+import { useSpecimenImage } from '@/modules/plants/hooks';
 
 const { width } = Dimensions.get('window');
 
@@ -14,8 +15,16 @@ interface PlantCardProps {
 }
 
 const PlantCard: React.FC<PlantCardProps> = ({ specimen, isActive, userRole, onPress, height }) => {
+
+
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  
+  // Используем новый хук useSpecimenImage для загрузки изображения
+  const { imageSrc } = useSpecimenImage(specimen.id);
+  
+  // Итоговый URL изображения с резервными вариантами
+  const imageUrl = imageSrc || specimen.mainImage || specimen.illustration || 'https://via.placeholder.com/400x600.png?text=Plant+Image';
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -104,6 +113,8 @@ const PlantCard: React.FC<PlantCardProps> = ({ specimen, isActive, userRole, onP
 
   // Отображение дополнительной информации, если она есть
   const renderAdditionalInfo = () => {
+    // Логируем значения перед рендерингом доп. информации
+
     return (
       <>
         {specimen.cultivar && (
@@ -146,17 +157,38 @@ const PlantCard: React.FC<PlantCardProps> = ({ specimen, isActive, userRole, onP
     );
   };
 
+  const specimenName = specimen.russianName || 'Без названия';
+  const latinName = specimen.latinName || (specimen.genus && specimen.species ? `${specimen.genus} ${specimen.species}` : 'Без латинского названия');
+  const familyName = specimen.family?.name || 'Семейство не указано';
+
+  // Логируем основные вычисляемые значения
+
+
+  const genusSpecies = specimen.genus && specimen.species ? `${specimen.genus} ${specimen.species}` : null;
+  const inventoryNum = specimen.inventoryNumber;
+  const sectorTypeName = getSectorTypeName(specimen.sectorType);
+  const expositionName = specimen.exposition?.name;
+  const regionName = specimen.region?.name;
+  const plantingYearStr = specimen.plantingYear ? String(specimen.plantingYear) : null;
+  const originalYearStr = specimen.originalYear ? String(specimen.originalYear) : null;
+  const originalBreeder = specimen.originalBreeder;
+  const naturalRange = specimen.naturalRange;
+  const hasHerbariumText = specimen.hasHerbarium ? 'Имеется' : 'Отсутствует';
+  const coordinates = specimen.latitude && specimen.longitude ? `${typeof specimen.latitude === 'number' ? specimen.latitude.toFixed(4) : '0'}, ${typeof specimen.longitude === 'number' ? specimen.longitude.toFixed(4) : '0'}` : null;
+
+
+
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim, height: height }]}>
       <Image
-        source={{ uri: specimen.illustration || 'https://via.placeholder.com/400x600.png?text=Plant+Image' }}
+        source={{ uri: imageUrl }}
         style={styles.image}
         resizeMode="cover"
       />
       <TouchableOpacity style={styles.infoContainer} onPress={onPress} activeOpacity={0.9}>
         <View style={styles.header}>
-          <Text style={styles.russianName}>{specimen.russianName}</Text>
-          <Text style={styles.latinName}>{specimen.latinName}</Text>
+          <Text style={styles.russianName}>{specimenName}</Text>
+          <Text style={styles.latinName}>{latinName}</Text>
         </View>
 
         <TouchableOpacity style={styles.detailsButton} onPress={toggleDetails}>
@@ -174,65 +206,73 @@ const PlantCard: React.FC<PlantCardProps> = ({ specimen, isActive, userRole, onP
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Семейство:</Text>
-              <Text style={styles.detailValue}>{specimen.familyName}</Text>
+              <Text style={styles.detailValue}>{familyName}</Text>
             </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Род / Вид:</Text>
-              <Text style={styles.detailValue}>{specimen.genus} {specimen.species}</Text>
-            </View>
+            {genusSpecies && (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Род / Вид:</Text>
+                <Text style={styles.detailValue}>{genusSpecies}</Text>
+              </View>
+            )}
             {renderAdditionalInfo()}
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Инв. номер:</Text>
-              <Text style={styles.detailValue}>{specimen.inventoryNumber}</Text>
+              <Text style={styles.detailValue}>{String(inventoryNum)}</Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Сектор:</Text>
-              <Text style={styles.detailValue}>{getSectorTypeName(specimen.sectorType)}</Text>
+              <Text style={styles.detailValue}>{String(sectorTypeName)}</Text>
             </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Экспозиция:</Text>
-              <Text style={styles.detailValue}>{specimen.expositionName}</Text>
-            </View>
-            {specimen.regionName && (
+            {expositionName && (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Экспозиция:</Text>
+                <Text style={styles.detailValue}>{expositionName}</Text>
+              </View>
+            )}
+            {regionName && (
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Регион:</Text>
-                <Text style={styles.detailValue}>{specimen.regionName}</Text>
+                <Text style={styles.detailValue}>{regionName}</Text>
               </View>
             )}
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Год посадки:</Text>
-              <Text style={styles.detailValue}>{specimen.plantingYear}</Text>
-            </View>
-            {specimen.originalYear && (
+            {plantingYearStr && (
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Год выведения:</Text>
-                <Text style={styles.detailValue}>{specimen.originalYear}</Text>
+                <Text style={styles.detailLabel}>Год посадки:</Text>
+                <Text style={styles.detailValue}>{plantingYearStr}</Text>
               </View>
             )}
-            {specimen.originalBreeder && (
+            {originalYearStr && (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Год интродукции:</Text>
+                <Text style={styles.detailValue}>{originalYearStr}</Text>
+              </View>
+            )}
+            {originalBreeder && (
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Селекционер:</Text>
-                <Text style={styles.detailValue}>{specimen.originalBreeder}</Text>
+                <Text style={styles.detailValue}>{originalBreeder}</Text>
               </View>
             )}
-            {specimen.naturalRange && (
+            {naturalRange && (
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Ареал:</Text>
-                <Text style={styles.detailValue}>{specimen.naturalRange}</Text>
+                <Text style={styles.detailValue}>{naturalRange}</Text>
               </View>
             )}
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Гербарий:</Text>
-              <Text style={styles.detailValue}>{specimen.hasHerbarium ? 'Имеется' : 'Отсутствует'}</Text>
+              <Text style={styles.detailValue}>{hasHerbariumText}</Text>
             </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Координаты:</Text>
-              <Text style={styles.detailValue}>{specimen.latitude.toFixed(4)}, {specimen.longitude.toFixed(4)}</Text>
-            </View>
+            {coordinates && (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Координаты:</Text>
+                <Text style={styles.detailValue}>{coordinates}</Text>
+              </View>
+            )}
+            
+            {renderActions()}
           </View>
         )}
-
-        {renderActions()}
       </TouchableOpacity>
     </Animated.View>
   );

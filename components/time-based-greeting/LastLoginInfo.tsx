@@ -31,7 +31,6 @@ export const LastLoginInfo: React.FC<LastLoginInfoProps> = React.memo(
         
         return date.toLocaleDateString('ru-RU', options);
       } catch (error) {
-        console.error('Ошибка форматирования даты:', error);
         return 'неизвестно';
       }
     };

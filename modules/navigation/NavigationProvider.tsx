@@ -88,7 +88,6 @@ export function useAppNavigation() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       router.push(route.path as any);
     } else {
-      console.error(`Route "${routeName}" not found`);
     }
   };
 
@@ -99,7 +98,6 @@ export function useAppNavigation() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       router.replace(route.path as any);
     } else {
-      console.error(`Route "${routeName}" not found`);
     }
   };
 

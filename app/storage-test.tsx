@@ -15,7 +15,6 @@ export default function StorageTestScreen() {
 
   // Функция для логирования содержимого хранилищ
   const logStorageContents = async () => {
-    console.log('======= ПРОВЕРКА ХРАНИЛИЩ НА ЭКРАНЕ ТЕСТИРОВАНИЯ =======');
     
     try {
       // Проверяем AsyncStorage
@@ -24,10 +23,8 @@ export default function StorageTestScreen() {
       // Проверяем SecureStore
       await secureStoreService.logAllItems();
     } catch (error) {
-      console.error('Ошибка при логировании хранилищ:', error);
     }
     
-    console.log('======= КОНЕЦ ПРОВЕРКИ ХРАНИЛИЩ =======');
   };
 
   return (

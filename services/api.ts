@@ -1,7 +1,7 @@
 import HttpClient from './HttpClient';
 import { Platform } from 'react-native';
-import { authApi, PasswordResetRequest, PasswordResetComplete, TokenValidationResponse } from '../modules/auth/services/authApi';
-import { AuthResponse, LoginCredentials } from '../modules/auth/types';
+import { authApi } from '../modules/auth/services/authApi';
+import { plantsApi } from '../modules/plants';
 
 // Базовый URL API с учетом платформы
 const API_BASE_URL = Platform.select({
@@ -23,29 +23,6 @@ export interface User {
 
 export type ApiError = string | null;
 
-// Типы для работы с растениями
-export interface Plant {
-  id: string;
-  name: string;
-  scientificName: string;
-  description: string;
-  category: string;
-  imageUrl?: string;
-  location?: string; 
-  careInstructions?: string;
-  dateAdded: string;
-}
-
-export interface PlantCreateDto {
-  name: string;
-  scientificName: string;
-  description: string;
-  category: string;
-  imageUrl?: string;
-  location?: string;
-  careInstructions?: string;
-}
-
 // Создаем инстанс HTTP клиента
 const apiClient = new HttpClient(API_BASE_URL, {
   Accept: 'application/json, text/plain',
@@ -60,36 +37,14 @@ export const api = {
   // Реэкспортируем API авторизации
   auth: authApi,
 
+  // Реэкспортируем API для работы с растениями
+  plants: plantsApi,
+
   // Метод для проверки соединения с API
   ping: async () => {
     return apiClient.get<string>('/api/Test/ping', {
       headers: { accept: 'text/plain' },
     });
-  },
-
-  // Пример метода для получения списка растений
-  getPlants: async () => {
-    return apiClient.get<Plant[]>('/plants');
-  },
-
-  // Пример метода для получения информации о конкретном растении
-  getPlantById: async (id: string) => {
-    return apiClient.get<Plant>(`/plants/${id}`);
-  },
-
-  // Пример метода для добавления нового растения
-  createPlant: async (plantData: PlantCreateDto) => {
-    return apiClient.post<Plant>('/plants', plantData as unknown as Record<string, unknown>);
-  },
-
-  // Пример метода для обновления информации о растении
-  updatePlant: async (id: string, plantData: Partial<PlantCreateDto>) => {
-    return apiClient.put<Plant>(`/plants/${id}`, plantData as unknown as Record<string, unknown>);
-  },
-
-  // Пример метода для удаления растения
-  deletePlant: async (id: string) => {
-    return apiClient.delete<{ success: boolean }>(`/plants/${id}`);
   },
 
   // API для работы с пользователями
