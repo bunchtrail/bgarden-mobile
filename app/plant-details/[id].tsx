@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { Specimen, UserRole, SectorType } from '@/types';
 import { plantsApi } from '@/modules/plants/services';
 import { useSpecimenImage, useGalleryImages } from '@/modules/plants/hooks';
+import { LongPress } from '@/components/ui/LongPress';
 
 // --- ФУНКЦИЯ ПРЕОБРАЗОВАНИЯ ТИПА СЕКТОРА ---
 // Вынесена за пределы компонента для чистоты
@@ -52,8 +53,8 @@ interface ImageGalleryProps {
 }
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({ specimenId, onImageSelect }) => {
-  const { allImages, isLoading, error } = useGalleryImages({ specimenId });
-
+  const { allImages, isLoading, error, handleSetMainImage, handleDeleteImage } = useGalleryImages({ specimenId });
+  
   // Если нет изображений или только одно, не показываем галерею
   if (allImages.length <= 1) {
     return null;
@@ -90,27 +91,51 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ specimenId, onImageSelect }
             (item.imageDataBase64 ? 
               `data:${item.contentType || 'image/png'};base64,${item.imageDataBase64}` : 
               'https://via.placeholder.com/150.png?text=Нет+изображения');
+          
+          // Действия при долгом нажатии
+          const imageActions = [
+            {
+              id: 'setMain',
+              label: 'Установить как основное',
+              icon: <Ionicons name="star" size={20} color="#4CAF50" />,
+              onPress: () => handleSetMainImage(item.id)
+            },
+            {
+              id: 'delete',
+              label: 'Удалить',
+              icon: <Ionicons name="trash" size={20} color="#d32f2f" />,
+              onPress: () => handleDeleteImage(item.id)
+            }
+          ];
+
+          // Если изображение уже основное, убираем эту опцию из меню
+          if (item.isMain) {
+            imageActions.shift();
+          }
               
           return (
-            <TouchableOpacity 
-              style={styles.galleryItem}
+            <LongPress 
+              actions={imageActions}
               onPress={() => {
                 if (onImageSelect) {
                   onImageSelect(imageUrl, index);
                 }
               }}
+              longPressDuration={800}
             >
-              <Image
-                source={{ uri: imageUrl }}
-                style={styles.galleryImage}
-                resizeMode="cover"
-              />
-              {item.isMain && (
-                <View style={styles.mainImageBadge}>
-                  <ThemedText style={styles.mainImageText}>Осн.</ThemedText>
-                </View>
-              )}
-            </TouchableOpacity>
+              <View style={styles.galleryItem}>
+                <Image
+                  source={{ uri: imageUrl }}
+                  style={styles.galleryImage}
+                  resizeMode="cover"
+                />
+                {item.isMain && (
+                  <View style={styles.mainImageBadge}>
+                    <ThemedText style={styles.mainImageText}>Осн.</ThemedText>
+                  </View>
+                )}
+              </View>
+            </LongPress>
           );
         }}
       />

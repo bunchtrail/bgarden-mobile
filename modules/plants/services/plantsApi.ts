@@ -5,7 +5,6 @@ import {
   SpecimenCreateDto, 
   SpecimenUpdateDto, 
   SpecimenSearchParams, 
-  SpecimenImageUploadResponse,
   SpecimenCoordinatesDto,
   Family,
   Exposition
@@ -121,75 +120,13 @@ export const plantsApi = {
     );
   },
 
-  // Загрузка изображения растения (для отдельного контроллера с изображениями)
-  uploadSpecimenImage: async (specimenId: number, imageUri: string, description?: string, isMain: boolean = false) => {
-    // Создаем FormData для загрузки файла
-    const formData = new FormData();
-    
-    // Получаем имя файла из URI
-    const uriParts = imageUri.split('/');
-    const fileName = uriParts[uriParts.length - 1];
-    
-    // Определяем MIME-тип на основе расширения файла
-    const fileType = fileName.split('.').pop()?.toLowerCase();
-    const mimeType = fileType === 'png' ? 'image/png' : 
-                    fileType === 'jpg' || fileType === 'jpeg' ? 'image/jpeg' : 
-                    'application/octet-stream';
-    
-    // Добавляем файл в formData
-    formData.append('imageFile', {
-      uri: imageUri,
-      name: fileName,
-      type: mimeType,
-    } as unknown as Blob);
-    
-    // Добавляем описание, если оно есть
-    if (description) {
-      formData.append('description', description);
-    }
-    
-    // Добавляем флаг основного изображения
-    formData.append('isMain', isMain.toString());
-    
-    // Отправляем запрос с особыми заголовками для multipart/form-data
-    // Примечание: этот эндпоинт не указан в контроллере, возможно это отдельный контроллер
-    return plantsHttpClient.post<SpecimenImageUploadResponse>(
-      `/api/SpecimenImages/${specimenId}`, 
-      formData as unknown as Record<string, unknown>,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
-      }
-    );
-  },
-
-  // Удаление изображения растения
-  deleteSpecimenImage: async (specimenId: number, imageId: number) => {
-    // Примечание: этот эндпоинт не указан в контроллере, возможно это отдельный контроллер
-    return plantsHttpClient.delete<{ success: boolean }>(
-      `/api/SpecimenImages/${specimenId}/images/${imageId}`
-    );
-  },
-  
-  // Установка основного изображения
-  setMainImage: async (specimenId: number, imageId: number) => {
-    // Примечание: этот эндпоинт не указан в контроллере, возможно это отдельный контроллер
-    return plantsHttpClient.put<{ success: boolean }>(
-      `/api/SpecimenImages/${specimenId}/images/${imageId}/main`,
-      {} as Record<string, unknown>
-    );
-  },
-  
   // Получение списка семейств растений
   getFamilies: async () => {
-    // Примечание: этот эндпоинт не указан в контроллере, возможно это отдельный контроллер
     return plantsHttpClient.get<Family[]>('/api/Families');
   },
   
   // Получение списка экспозиций (участков ботанического сада)
   getExpositions: async () => {
-    // Примечание: этот эндпоинт не указан в контроллере, возможно это отдельный контроллер
     return plantsHttpClient.get<Exposition[]>('/api/Expositions');
   },
 }; 

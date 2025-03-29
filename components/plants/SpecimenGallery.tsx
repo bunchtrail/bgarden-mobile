@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SpecimenImage } from '@/types';
 import { useGalleryImages } from '@/modules/plants/hooks';
 import ImageUploader from './ImageUploader';
+import { LongPress } from '@/components/ui/LongPress';
 
 interface SpecimenGalleryProps {
   specimenId: number;
@@ -78,23 +79,47 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
   };
 
   // Рендер миниатюры изображения
-  const renderImageItem = ({ item, index }: { item: SpecimenImage; index: number }) => (
-    <TouchableOpacity 
-      style={styles.thumbnailContainer} 
-      onPress={() => handleViewFullImage(index)}
-    >
-      <Image
-        source={{ uri: item.thumbnailUrl || item.imageUrl }}
-        style={styles.thumbnail}
-        resizeMode="cover"
-      />
-      {item.isMain && (
-        <View style={styles.mainBadge}>
-          <Text style={styles.mainBadgeText}>Основное</Text>
+  const renderImageItem = ({ item, index }: { item: SpecimenImage; index: number }) => {
+    const imageActions = [
+      {
+        id: 'setMain',
+        label: 'Установить как основное',
+        icon: <Ionicons name="star" size={20} color="#4299e1" />,
+        onPress: () => handleSetMainImage(item.id)
+      },
+      {
+        id: 'delete',
+        label: 'Удалить',
+        icon: <Ionicons name="trash" size={20} color="#f56565" />,
+        onPress: () => handleDeleteImage(item.id)
+      }
+    ];
+
+    // Если изображение уже основное, убираем эту опцию из меню
+    if (item.isMain) {
+      imageActions.shift();
+    }
+
+    return (
+      <LongPress 
+        actions={imageActions}
+        onPress={() => handleViewFullImage(index)}
+      >
+        <View style={styles.thumbnailContainer}>
+          <Image
+            source={{ uri: item.thumbnailUrl || item.imageUrl }}
+            style={styles.thumbnail}
+            resizeMode="cover"
+          />
+          {item.isMain && (
+            <View style={styles.mainBadge}>
+              <Text style={styles.mainBadgeText}>Основное</Text>
+            </View>
+          )}
         </View>
-      )}
-    </TouchableOpacity>
-  );
+      </LongPress>
+    );
+  };
 
   return (
     <View style={styles.container}>
