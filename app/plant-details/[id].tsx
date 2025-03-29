@@ -102,7 +102,7 @@ export default function PlantDetails() {
   // --- РЕНДЕРИНГ ДЕЙСТВИЙ ---
   const renderActions = () => {
     // Действия не рендерятся если нет данных о растении
-    if (!plant) return null;
+    if (!plant) return <></>;
 
     const role = Number(userRole); // Приводим к числу для надежного сравнения
 
@@ -116,12 +116,8 @@ export default function PlantDetails() {
         color: "#4CAF50", // Цвет иконки
     };
 
-
-
-    
-
     // Если роль не определена или неизвестна
-    return null;
+    return <></>;
   };
 
 
@@ -235,21 +231,22 @@ export default function PlantDetails() {
           <ThemedText style={styles.russianName}>{russianName}</ThemedText>
           <ThemedText style={styles.latinName}>{latinName}</ThemedText>
 
-          {/* Секция: Основная информация */}
+          {/* Секция: Основная информация           */}
           <View style={styles.section}>
             <ThemedText style={styles.sectionTitle}>Основная информация</ThemedText>
             <DetailRow label="Семейство" value={familyName} />
-            {/* Комбинируем Род и Вид, если оба есть */}
-            {(plant.genus || plant.species) && (
+            {(plant.genus || plant.species) ? (
               <DetailRow label="Род / Вид" value={`${plant.genus || ''} ${plant.species || ''}`.trim()} />
-            )}
+            ) : null}
             <DetailRow label="Сорт" value={plant.cultivar} />
             <DetailRow label="Форма" value={plant.form} />
             <DetailRow label="Синонимы" value={plant.synonyms} />
             <DetailRow label="Определил" value={plant.determinedBy} />
           </View>
 
-          {/* Секция: Расположение и происхождение */}
+
+
+
           <View style={styles.section}>
             <ThemedText style={styles.sectionTitle}>Расположение и происхождение</ThemedText>
             <DetailRow label="Инв. номер" value={plant.inventoryNumber} />
@@ -257,15 +254,15 @@ export default function PlantDetails() {
             <DetailRow label="Экспозиция" value={expositionName} />
             <DetailRow label="Регион" value={regionName} />
             <DetailRow label="Год посадки" value={plant.plantingYear} />
-            <DetailRow label="Год выведения" value={plant.originalYear !== 0 ? plant.originalYear : null} /> {/* Скрываем 0 */}
+            <DetailRow label="Год выведения" value={plant.originalYear !== 0 ? plant.originalYear : null} />
             <DetailRow label="Селекционер" value={plant.originalBreeder} />
             <DetailRow label="Естеств. ареал" value={plant.naturalRange} />
             <DetailRow label="Гербарий" value={hasHerbariumText} />
-            {/* Отображаем координаты, если хотя бы одна есть */}
+            
             {(plant.latitude !== null || plant.longitude !== null) && (
                 <DetailRow label="Координаты (lat, lon)" value={coordinatesText} />
             )}
-             {/* Отображаем координаты на карте, если хотя бы одна есть */}
+             
             {(plant.mapX !== null || plant.mapY !== null) && (
                 <DetailRow label="На карте (X, Y)" value={mapCoordinatesText} />
             )}
@@ -275,27 +272,27 @@ export default function PlantDetails() {
              <DetailRow label="Кем заполнено" value={plant.filledBy}/>
 
 
-          </View>
+          </View> 
 
            {/* Секция: Дополнительная информация */}
-           {(plant.ecologyAndBiology || plant.economicUse || plant.conservationStatus) && (
+           {(plant.ecologyAndBiology || plant.economicUse || plant.conservationStatus) ? (
              <View style={styles.section}>
                <ThemedText style={styles.sectionTitle}>Дополнительная информация</ThemedText>
                <DetailRow label="Экология и биология" value={plant.ecologyAndBiology} />
                <DetailRow label="Хозяйственное использование" value={plant.economicUse} />
                <DetailRow label="Статус сохранности" value={plant.conservationStatus} />
              </View>
-           )}
+           ) : null}
 
 
           {/* Секция: Описание (Заметки) */}
-          {plant.notes && (
+          {plant.notes ? (
             <View style={styles.section}>
               <ThemedText style={styles.sectionTitle}>Описание</ThemedText>
               {/* Используем String() для безопасности, хотя notes должно быть строкой */}
               <ThemedText style={styles.description}>{String(plant.notes)}</ThemedText>
             </View>
-          )}
+          ) : null}
 
           {/* Рендеринг действий */}
           {renderActions()}

@@ -17,7 +17,9 @@ docs/
 *.p12
 *.key
 *.mobileprovision
-
+fonts/
+assets/
+.vscode/
 # Metro
 .metro-health-check*
 
