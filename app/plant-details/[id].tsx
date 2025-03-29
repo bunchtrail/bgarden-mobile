@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, ActivityIndicator, StyleSheet, Image, View, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { ScrollView, ActivityIndicator, StyleSheet, Image, View, TouchableOpacity, FlatList, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Specimen, UserRole, SectorType } from '@/types';
 import { plantsApi } from '@/modules/plants/services';
-import { useSpecimenImage } from '@/modules/plants/hooks';
+import { useSpecimenImage, useGalleryImages } from '@/modules/plants/hooks';
 
 // --- ФУНКЦИЯ ПРЕОБРАЗОВАНИЯ ТИПА СЕКТОРА ---
 // Вынесена за пределы компонента для чистоты
@@ -45,6 +45,79 @@ const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => {
   );
 };
 
+// --- КОМПОНЕНТ ДЛЯ ОТОБРАЖЕНИЯ ГАЛЕРЕИ ИЗОБРАЖЕНИЙ ---
+interface ImageGalleryProps {
+  specimenId: number;
+  onImageSelect?: (imageUrl: string, index: number) => void;
+}
+
+const ImageGallery: React.FC<ImageGalleryProps> = ({ specimenId, onImageSelect }) => {
+  const { allImages, isLoading, error } = useGalleryImages({ specimenId });
+
+  // Если нет изображений или только одно, не показываем галерею
+  if (allImages.length <= 1) {
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <View style={styles.galleryLoading}>
+        <ActivityIndicator size="small" color="#4CAF50" />
+        <ThemedText style={{ marginTop: 5, fontSize: 12 }}>Загрузка галереи...</ThemedText>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.galleryError}>
+        <ThemedText style={{ color: '#d32f2f', fontSize: 12 }}>Ошибка загрузки галереи</ThemedText>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.galleryContainer}>
+      <ThemedText style={styles.galleryTitle}>Галерея изображений ({allImages.length})</ThemedText>
+      <FlatList
+        data={allImages}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item, index }) => {
+          // Определяем URL изображения
+          const imageUrl = item.imageUrl || 
+            (item.imageDataBase64 ? 
+              `data:${item.contentType || 'image/png'};base64,${item.imageDataBase64}` : 
+              'https://via.placeholder.com/150.png?text=Нет+изображения');
+              
+          return (
+            <TouchableOpacity 
+              style={styles.galleryItem}
+              onPress={() => {
+                if (onImageSelect) {
+                  onImageSelect(imageUrl, index);
+                }
+              }}
+            >
+              <Image
+                source={{ uri: imageUrl }}
+                style={styles.galleryImage}
+                resizeMode="cover"
+              />
+              {item.isMain && (
+                <View style={styles.mainImageBadge}>
+                  <ThemedText style={styles.mainImageText}>Осн.</ThemedText>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        }}
+      />
+    </View>
+  );
+};
+
 export default function PlantDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -60,6 +133,80 @@ export default function PlantDetails() {
 
   // TODO: Заменить на получение реальной роли пользователя из контекста авторизации
   const userRole: UserRole = UserRole.Client;
+
+  // State для управления текущим изображением
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [allImageUrls, setAllImageUrls] = useState<string[]>([]);
+  const [galleryLoaded, setGalleryLoaded] = useState(false);
+  
+  // Используем существующий хук для загрузки всех изображений
+  const { allImages, isLoading: galleryLoading } = useGalleryImages({ specimenId: plantId });
+  
+  // Ref для FlatList карусели изображений
+  const carouselRef = useRef<FlatList>(null);
+  const { width: screenWidth } = Dimensions.get('window');
+  
+  // При изменении allImages обновляем массив URLs
+  useEffect(() => {
+    if (allImages && allImages.length > 0) {
+      const urls = allImages.map(img => {
+        return img.imageUrl || 
+          (img.imageDataBase64 ? 
+            `data:${img.contentType || 'image/png'};base64,${img.imageDataBase64}` : 
+            'https://via.placeholder.com/400x300.png?text=Нет+изображения');
+      });
+      setAllImageUrls(urls);
+      setGalleryLoaded(true);
+    } else if (imageSrc) {
+      // Если нет галереи, но есть основное изображение
+      setAllImageUrls([imageSrc]);
+      setGalleryLoaded(true);
+    }
+  }, [allImages, imageSrc]);
+  
+  // Обработчик выбора изображения в галерее
+  const handleImageSelect = (imageUrl: string, index: number) => {
+    setCurrentImageIndex(index);
+    // Прокручиваем карусель к выбранному изображению
+    carouselRef.current?.scrollToIndex({ index, animated: true });
+  };
+  
+  // Обработчик события прокрутки карусели
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(contentOffsetX / screenWidth);
+    
+    if (newIndex !== currentImageIndex) {
+      setCurrentImageIndex(newIndex);
+    }
+  };
+  
+  // Переход к следующему изображению
+  const goToNextImage = () => {
+    if (allImageUrls.length > 1 && currentImageIndex < allImageUrls.length - 1) {
+      const nextIndex = currentImageIndex + 1;
+      setCurrentImageIndex(nextIndex);
+      carouselRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+    } else if (allImageUrls.length > 1) {
+      // Переход к первому изображению, если достигли конца
+      setCurrentImageIndex(0);
+      carouselRef.current?.scrollToIndex({ index: 0, animated: true });
+    }
+  };
+  
+  // Переход к предыдущему изображению
+  const goToPrevImage = () => {
+    if (allImageUrls.length > 1 && currentImageIndex > 0) {
+      const prevIndex = currentImageIndex - 1;
+      setCurrentImageIndex(prevIndex);
+      carouselRef.current?.scrollToIndex({ index: prevIndex, animated: true });
+    } else if (allImageUrls.length > 1) {
+      // Переход к последнему изображению, если мы в начале
+      const lastIndex = allImageUrls.length - 1;
+      setCurrentImageIndex(lastIndex);
+      carouselRef.current?.scrollToIndex({ index: lastIndex, animated: true });
+    }
+  };
 
   useEffect(() => {
     loadPlantDetails();
@@ -120,6 +267,28 @@ export default function PlantDetails() {
     return <></>;
   };
 
+  // Рендерер для элемента карусели изображений
+  const renderCarouselItem = ({ item }: { item: string }) => {
+    return (
+      <View style={[styles.carouselItemContainer, { width: screenWidth }]}>
+        {!item || item === 'https://via.placeholder.com/400x300.png?text=Нет+изображения' ? (
+          <View style={[styles.image, styles.imagePlaceholder]}>
+            <Ionicons name="image-outline" size={64} color="#999" />
+            <ThemedText style={{ marginTop: 10, color: '#999' }}>Изображение отсутствует</ThemedText>
+          </View>
+        ) : (
+          <Image
+            source={{ uri: item }}
+            style={styles.image}
+            resizeMode="cover"
+            onError={(e) => {
+              console.error("Ошибка загрузки изображения:", e.nativeEvent);
+            }}
+          />
+        )}
+      </View>
+    );
+  };
 
   // --- СОСТОЯНИЯ ЗАГРУЗКИ И ОШИБКИ ---
   if (loading) {
@@ -200,31 +369,72 @@ export default function PlantDetails() {
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Изображение */}
+        {/* Карусель изображений */}
         <View style={styles.imageContainer}>
-          {imageLoading ? (
+          {imageLoading || (galleryLoading && !galleryLoaded) ? (
             <View style={[styles.image, styles.imagePlaceholder]}>
               <ActivityIndicator size="large" color="#4CAF50" />
               <ThemedText style={{ marginTop: 10 }}>Загрузка изображения...</ThemedText>
             </View>
-          ) : !imageUrl || imageUrl === 'https://via.placeholder.com/400x300.png?text=Нет+изображения' ? (
+          ) : allImageUrls.length === 0 ? (
             <View style={[styles.image, styles.imagePlaceholder]}>
               <Ionicons name="image-outline" size={64} color="#999" />
               <ThemedText style={{ marginTop: 10, color: '#999' }}>Изображение отсутствует</ThemedText>
             </View>
           ) : (
-            <Image
-              source={{ uri: imageUrl }}
-              style={styles.image}
-              resizeMode="cover"
-              // Полная обработка ошибок загрузки изображения
-              onError={(e) => {
-                // Можно добавить обработку ошибки здесь, если нужно
-                console.error("Ошибка загрузки изображения:", e.nativeEvent);
-              }}
-            />
+            <View style={styles.imageCarouselContainer}>
+              <FlatList
+                ref={carouselRef}
+                data={allImageUrls}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                renderItem={renderCarouselItem}
+                keyExtractor={(_, index) => `carousel_image_${index}`}
+                onMomentumScrollEnd={handleScroll}
+                initialScrollIndex={currentImageIndex}
+                getItemLayout={(_, index) => ({
+                  length: screenWidth,
+                  offset: screenWidth * index,
+                  index,
+                })}
+              />
+              
+              {allImageUrls.length > 1 && (
+                <>
+                  <TouchableOpacity 
+                    style={[styles.carouselButton, styles.prevButton]}
+                    onPress={goToPrevImage}
+                  >
+                    <Ionicons name="chevron-back" size={30} color="#fff" />
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[styles.carouselButton, styles.nextButton]}
+                    onPress={goToNextImage}
+                  >
+                    <Ionicons name="chevron-forward" size={30} color="#fff" />
+                  </TouchableOpacity>
+                  
+                  <View style={styles.paginationContainer}>
+                    {allImageUrls.map((_, index) => (
+                      <View 
+                        key={index}
+                        style={[
+                          styles.paginationDot,
+                          index === currentImageIndex && styles.paginationDotActive
+                        ]}
+                      />
+                    ))}
+                  </View>
+                </>
+              )}
+            </View>
           )}
         </View>
+
+        {/* Галерея миниатюр */}
+        {plant && <ImageGallery specimenId={plantId} onImageSelect={handleImageSelect} />}
 
         <View style={styles.detailsContainer}>
           {/* Названия */}
@@ -418,5 +628,104 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#333', // Цвет текста кнопки
     textAlign: 'center', // Центрирование текста
+  },
+  // Стили для галереи
+  galleryContainer: {
+    marginTop: 8,
+    paddingVertical: 12,
+    backgroundColor: '#f5f5f5',
+  },
+  galleryTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    color: '#333',
+  },
+  galleryItem: {
+    width: 120,
+    height: 90,
+    marginHorizontal: 4,
+    marginLeft: 16,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#e0e0e0',
+    position: 'relative',
+  },
+  galleryImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  galleryLoading: {
+    padding: 16,
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  galleryError: {
+    padding: 16,
+    alignItems: 'center',
+    backgroundColor: '#ffebee',
+  },
+  mainImageBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    backgroundColor: 'rgba(76, 175, 80, 0.8)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  mainImageText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  imageCarouselContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
+  carouselButton: {
+    position: 'absolute',
+    top: '50%',
+    marginTop: -25,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  prevButton: {
+    left: 10,
+  },
+  nextButton: {
+    right: 10,
+  },
+  paginationContainer: {
+    position: 'absolute',
+    bottom: 15,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    marginHorizontal: 4,
+  },
+  paginationDotActive: {
+    backgroundColor: '#fff',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  carouselItemContainer: {
+    height: 300,
   },
 }); 
