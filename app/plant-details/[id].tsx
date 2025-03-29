@@ -223,6 +223,8 @@ export default function PlantDetails() {
               resizeMode="cover"
               // Полная обработка ошибок загрузки изображения
               onError={(e) => {
+                // Можно добавить обработку ошибки здесь, если нужно
+                console.error("Ошибка загрузки изображения:", e.nativeEvent);
               }}
             />
           )}

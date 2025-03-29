@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Animated, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { AuthButton } from '@/modules/auth';
+import { AuthButton } from '@/modules/auth/components';
 
 interface AuthSectionProps {
   style?: StyleProp<ViewStyle>;

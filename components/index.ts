@@ -27,9 +27,9 @@ import AboutSection from './sections/AboutSection';
 import PageHeader from './PageHeader';
 export { AuthSection, WorkHoursSection, MapSection, ContactsSection, AboutSection, PageHeader };
 
-// Импорт и экспорт компонентов авторизации
-import { AuthButton } from '@/modules/auth/components';
-export { AuthButton };
+// Удаляем импорт из auth, чтобы избежать цикла
+// import { AuthButton } from '@/modules/auth/components';
+// export { AuthButton };
 
 // Существующие компоненты
 export { Button } from './Button';

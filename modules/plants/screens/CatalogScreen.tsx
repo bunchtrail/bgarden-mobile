@@ -2,11 +2,14 @@ import React, { useEffect, useCallback } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ThemedView, ThemedText, DebugInfo, LoadingIndicator } from '@/components';
+import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/ThemedText';
+import DebugInfo from '@/components/debug/DebugInfo';
+import LoadingIndicator from '@/components/common/LoadingIndicator';
 import { SCREEN_DIMENSIONS, logScreenDimensions } from '@/app/constants/layoutConstants';
 import { useViewabilityTracking } from '@/hooks/plants';
 import { FilterBar, PlantsList } from '@/components/plants';
-import { usePlantsContext } from '@/modules/plants';
+import { usePlantsContext } from '@/modules/plants/context/PlantsContext';
 
 export default function CatalogScreen() {
   const router = useRouter();

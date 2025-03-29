@@ -1,7 +1,7 @@
 import HttpClient from './HttpClient';
 import { Platform } from 'react-native';
 import { authApi } from '../modules/auth/services/authApi';
-import { plantsApi } from '../modules/plants';
+import { plantsApi } from '../modules/plants/services/plantsApi';
 
 // Базовый URL API с учетом платформы
 const API_BASE_URL = Platform.select({

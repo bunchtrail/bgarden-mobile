@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppNavigation } from '@/modules/navigation';
 import { useAuth } from '@/modules/auth/hooks';
-import { ThemedText } from '@/components';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function StatusScreen() {
   const { user, logout } = useAuth();
