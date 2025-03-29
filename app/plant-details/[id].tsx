@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ScrollView, ActivityIndicator, StyleSheet, Image, View, TouchableOpacity, FlatList, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { ScrollView, ActivityIndicator, StyleSheet, Image, View, TouchableOpacity, FlatList, Dimensions, NativeSyntheticEvent, NativeScrollEvent, Animated } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
@@ -54,6 +54,9 @@ interface ImageGalleryProps {
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({ specimenId, onImageSelect }) => {
   const { allImages, isLoading, error, handleSetMainImage, handleDeleteImage } = useGalleryImages({ specimenId });
+  
+  // Создаем объект для анимации прозрачности для каждого изображения
+  const [pressedItem, setPressedItem] = useState<number | null>(null);
   
   // Если нет изображений или только одно, не показываем галерею
   if (allImages.length <= 1) {
@@ -122,11 +125,16 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ specimenId, onImageSelect }
                 }
               }}
               longPressDuration={800}
+              onPressIn={() => setPressedItem(index)}
+              onPressOut={() => setPressedItem(null)}
             >
               <View style={styles.galleryItem}>
                 <Image
                   source={{ uri: imageUrl }}
-                  style={styles.galleryImage}
+                  style={[
+                    styles.galleryImage, 
+                    pressedItem === index && styles.galleryImagePressed
+                  ]}
                   resizeMode="cover"
                 />
                 {item.isMain && (
@@ -681,6 +689,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 8,
+  },
+  galleryImagePressed: {
+    opacity: 0.7,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Добавляем затемнение при нажатии
   },
   galleryLoading: {
     padding: 16,
