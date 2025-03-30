@@ -27,6 +27,9 @@ import AboutSection from './sections/AboutSection';
 import PageHeader from './PageHeader';
 export { AuthSection, WorkHoursSection, MapSection, ContactsSection, AboutSection, PageHeader };
 
+// Экспорт нового компонента главной страницы
+export { default as HomePage } from './HomePage';
+
 // Удаляем импорт из auth, чтобы избежать цикла
 // import { AuthButton } from '@/modules/auth/components';
 // export { AuthButton };

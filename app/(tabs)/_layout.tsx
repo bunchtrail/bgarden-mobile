@@ -1,22 +1,34 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { TabBarBackground } from '@/components/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
+import { TabBarBackground } from '@/components/ui/TabBarBackground';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../modules/auth/context/AuthContext';
+import { useAuth } from '@/modules/auth/hooks';
+import { useRouter } from 'expo-router';
+
+// Определение ролей пользователей (копия из types)
+enum UserRoles {
+  Administrator = 1,
+  Employee = 2,
+  Client = 3
+}
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() || 'light';
   const { user } = useAuth();
+  // Предполагаем, что роль пользователя - клиент
+  // В реальном приложении это должно приходить с сервера
+  const userRole: number = UserRoles.Client;
   const tabBarBackground =
     colorScheme === 'dark' ? 'rgba(21, 23, 24, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+  const router = useRouter();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: useThemeColor({}, 'tint'),
-        tabBarInactiveTintColor: useThemeColor({}, 'tabIconDefault'),
+        tabBarActiveTintColor: Colors[colorScheme]?.tint,
+        tabBarInactiveTintColor: Colors[colorScheme]?.tabIconDefault,
         tabBarStyle: {
           position: 'absolute',
           backgroundColor: 'transparent',
@@ -54,9 +66,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Профиль',
-          headerTitle: 'Личный кабинет',
-          tabBarIcon: ({ color }) => <TabBarIcon name="person-circle" color={color} />,
-          href: user ? undefined : null,
+          tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -75,6 +85,28 @@ export default function TabLayout() {
           tabBarButton: () => null, // Скрываем из таб-бара
         }}
       />
+      {(userRole === UserRoles.Administrator || userRole === UserRoles.Employee) && (
+        <Tabs.Screen
+          name="add"
+          options={{
+            title: 'Добавить',
+            tabBarIcon: ({ color }) => <TabBarIcon name="add-circle" color={color} />,
+            headerShown: false,
+          }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              // Предотвращаем навигацию по умолчанию
+              e.preventDefault();
+              // Перенаправляем напрямую на страницу добавления растения вне табов
+              router.push({
+                pathname: '/add-specimen',
+                params: { mode: 'full' }
+              });
+              console.log('[Навигация] Переход на /add-specimen из вкладки добавления');
+            },
+          })}
+        />
+      )}
     </Tabs>
   );
 }

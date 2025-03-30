@@ -70,7 +70,7 @@ export default function AboutSection({ delay = 0 }: AboutSectionProps) {
       <SectionCard icon="leaf-outline" title="О ботаническом саде">
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <ThemedText style={styles.sectionText}>
-            Научно-образовательный центр "Ботанический сад ВятГУ" основан в 1912-1914 годах. 
+            Научно-образовательный центр "Ботаничыыеский сад ВятГУ" основан в 1912-1914 годах. 
             Расположен в центре Кирова и занимает площадь 1,7 га.
           </ThemedText>
           

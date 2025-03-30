@@ -77,7 +77,6 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Ошибка при загрузке изображения';
       setError(errorMessage);
-      console.error('Ошибка при загрузке основного изображения:', err);
       return null;
     } finally {
       setIsLoading(false);
@@ -142,7 +141,6 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
           
           return response.data;
         } catch (uploadError) {
-          console.error('Ошибка при загрузке изображений:', uploadError);
           const errorMessage = uploadError instanceof Error ? uploadError.message : 'Ошибка при загрузке изображений';
           setError(errorMessage);
           return null;
@@ -181,7 +179,6 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Ошибка при загрузке изображения';
       setError(errorMessage);
-      console.error('Ошибка при загрузке изображений:', err);
       return null;
     } finally {
       setIsUploading(false);
@@ -191,7 +188,6 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
   // Установка изображения как основного
   const setAsMainImage = useCallback(async (imageId: number): Promise<boolean> => {
     if (!imageId) {
-      console.error('ID изображения не указан');
       return false;
     }
 
@@ -207,21 +203,12 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
       if (response.error) {
         const errorMessage = `Ошибка при установке основного изображения: ${response.error}`;
         setError(errorMessage);
-        console.error(errorMessage);
-        
-        // Добавляем детальную информацию об ошибке в консоль
-        console.error('Детали запроса:', { 
-          endpoint: `/api/v1/specimen-images/${imageId}/set-as-main`,
-          status: response.status,
-          error: response.error
-        });
         
         return false;
       }
       
       // Обновляем основное изображение после установки
       await fetchSpecimenImage();
-      console.log('Изображение успешно установлено как основное');
       
       return true;
     } catch (err) {
@@ -229,11 +216,6 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
         ? `Ошибка при установке основного изображения: ${err.message}` 
         : 'Неизвестная ошибка при установке основного изображения';
       setError(errorMessage);
-      console.error(errorMessage);
-      
-      if (err instanceof Error && err.stack) {
-        console.error('Stack trace:', err.stack);
-      }
       
       return false;
     } finally {
@@ -244,7 +226,6 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
   // Удаление изображения
   const deleteImage = useCallback(async (imageId: number): Promise<boolean> => {
     if (!imageId) {
-      console.error('ID изображения не указан');
       return false;
     }
     
@@ -260,21 +241,12 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
       if (response.error) {
         const errorMessage = `Ошибка при удалении изображения: ${response.error}`;
         setError(errorMessage);
-        console.error(errorMessage);
-        
-        // Добавляем детальную информацию об ошибке в консоль
-        console.error('Детали запроса:', { 
-          endpoint: `/api/v1/specimen-images/${imageId}`,
-          status: response.status,
-          error: response.error
-        });
         
         return false;
       }
       
       // Обновляем основное изображение после удаления, на случай если было удалено основное
       await fetchSpecimenImage();
-      console.log('Изображение успешно удалено');
       
       return true;
     } catch (err) {
@@ -282,11 +254,6 @@ export const useSpecimenImage = (specimenId: number): UseSpecimenImageResult => 
         ? `Ошибка при удалении изображения: ${err.message}` 
         : 'Неизвестная ошибка при удалении изображения';
       setError(errorMessage);
-      console.error(errorMessage);
-      
-      if (err instanceof Error && err.stack) {
-        console.error('Stack trace:', err.stack);
-      }
       
       return false;
     } finally {

@@ -1,7 +1,13 @@
 import NetInfo from '@react-native-community/netinfo';
 import { ProgressEvent } from '@/types';
 import { Platform } from 'react-native';
-import { authStorage } from '@/modules/auth/services';
+// Удаляем импорт из auth modules
+// import { authStorage } from '@/modules/auth/services';
+
+// Добавляем интерфейс для токен-провайдера
+export interface TokenProvider {
+  getAuthToken(): Promise<string | null>;
+}
 
 interface HttpResponse<T> {
   data: T | null;
@@ -28,11 +34,13 @@ class HttpClient {
   private defaultHeaders: Record<string, string>;
   private defaultTimeout: number;
   private authToken: string | null = null;
+  private tokenProvider: TokenProvider | null = null;
 
   constructor(
     baseUrl: string,
     defaultHeaders: Record<string, string> = {},
-    defaultTimeout: number = 30000
+    defaultTimeout: number = 30000,
+    tokenProvider: TokenProvider | null = null
   ) {
     this.baseUrl = baseUrl;
     this.defaultHeaders = {
@@ -40,6 +48,7 @@ class HttpClient {
       ...defaultHeaders,
     };
     this.defaultTimeout = defaultTimeout;
+    this.tokenProvider = tokenProvider;
     
     // Загружаем токен авторизации при инициализации
     this.loadAuthToken();
@@ -50,13 +59,15 @@ class HttpClient {
    */
   public async loadAuthToken(): Promise<void> {
     try {
-      const token = await authStorage.getAuthToken();
-      if (token) {
-        this.authToken = token;
-        this.setDefaultHeader('Authorization', `Bearer ${token}`);
+      if (this.tokenProvider) {
+        const token = await this.tokenProvider.getAuthToken();
+        if (token) {
+          this.authToken = token;
+          this.setDefaultHeader('Authorization', `Bearer ${token}`);
+        }
       }
     } catch (error) {
-      console.error('Ошибка загрузки токена авторизации:', error);
+      // Удален console.error
     }
   }
 
@@ -145,7 +156,7 @@ class HttpClient {
     const headers = await this.getHeaders(options);
 
     if (Platform.OS !== 'web' && __DEV__) {
-      console.log(`${method} запрос:`, { url, headers, data });
+      // Удален console.log
     }
 
     try {
@@ -175,19 +186,19 @@ class HttpClient {
       }
 
       // Логируем ответ в режиме разработки
-      if (Platform.OS !== 'web' && __DEV__) {
-        console.log(`${method} ответ:`, { 
-          url, 
-          status: response.status, 
-          ok: response.ok,
-          data: responseData 
-        });
-      }
+      // if (Platform.OS !== 'web' && __DEV__) {
+      //   console.log(`${method} ответ:`, { 
+      //     url, 
+      //     status: response.status, 
+      //     ok: response.ok,
+      //     data: responseData 
+      //   });
+      // }
 
       // Если получен статус 401 (Unauthorized), токен может быть истек
       if (response.status === 401) {
         // Здесь можно добавить логику обновления токена
-        console.error('Ошибка авторизации: требуется повторный вход');
+        // Удален console.error
       }
 
       return {
@@ -201,7 +212,7 @@ class HttpClient {
       };
     } catch (error) {
       if (Platform.OS !== 'web' && __DEV__) {
-        console.error(`${method} ошибка:`, { url, error });
+        // Удален console.error
       }
 
       if (error instanceof Error) {
@@ -247,12 +258,12 @@ class HttpClient {
   async patch<T>(endpoint: string, data: RequestBody, options?: RequestOptions): Promise<HttpResponse<T>> {
     try {
       // Для мобильных устройств логируем отправку запроса
-      if (Platform.OS !== 'web' && __DEV__) {
-        console.log(`📡 PATCH ${this.baseUrl}${endpoint}`, {
-          headers: { ...this.defaultHeaders, ...options?.headers },
-          body: data
-        });
-      }
+      // if (Platform.OS !== 'web' && __DEV__) {
+      //   console.log(`📡 PATCH ${this.baseUrl}${endpoint}`, {
+      //     headers: options ? { ...options.headers } : {},
+      //     data
+      //   });
+      // }
       
       // Формируем параметры запроса явно указывая Content-Type для мобильных платформ
       const requestOptions = {
@@ -267,14 +278,17 @@ class HttpClient {
       const response = await this.request<T>(endpoint, 'PATCH', data, requestOptions);
       
       // Для мобильных устройств логируем полученный ответ
-      if (Platform.OS !== 'web' && __DEV__) {
-        console.log(`✅ PATCH ${this.baseUrl}${endpoint} Response:`, response);
-      }
+      // if (Platform.OS !== 'web' && __DEV__) {
+      //   console.log(`✅ PATCH ${this.baseUrl}${endpoint} Response:`, response);
+      // }
       
       return response;
     } catch (error) {
       // Логируем ошибку детально
-      console.error(`❌ PATCH ${this.baseUrl}${endpoint} Error:`, error);
+      // Логируем ошибку детально
+      // if (Platform.OS !== 'web' && __DEV__) {
+      //   console.error(`❌ PATCH ${this.baseUrl}${endpoint} Error:`, error);
+      // }
       
       // Улучшенная обработка ошибок для наглядности
       if (error instanceof Error) {

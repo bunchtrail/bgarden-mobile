@@ -25,33 +25,26 @@ const specimenImagesHttpClient = new HttpClient(API_BASE_URL, {
     const token = await authStorage.getAuthToken();
     if (token) {
       specimenImagesHttpClient.setAuthToken(token);
-      console.log('Токен авторизации успешно загружен для HTTP клиента изображений');
-    } else {
-      console.warn('Токен авторизации не найден при инициализации API изображений');
     }
   } catch (error) {
-    console.error('Ошибка при загрузке токена авторизации:', error);
   }
 })();
 
 // Логирование запросов (в режиме разработки)
 const logRequest = (method: string, url: string, data?: unknown) => {
   if (__DEV__) {
-    console.log(`🌐 ${method} ${url}`, data ? data : '');
   }
 };
 
 // Логирование ответов (в режиме разработки)
 const logResponse = (method: string, url: string, response: unknown) => {
   if (__DEV__) {
-    console.log(`✅ ${method} ${url} Response:`, response);
   }
 };
 
 // Логирование ошибок
 const logError = (method: string, url: string, error: unknown) => {
-  console.error(`❌ ${method} ${url} Error:`, error);
-};
+}
 
 /**
  * API методы для работы с изображениями образцов
@@ -67,7 +60,6 @@ export const specimenImagesApi = {
       }
       return false;
     } catch (error) {
-      console.error('Ошибка при обновлении токена авторизации:', error);
       return false;
     }
   },
@@ -123,8 +115,6 @@ export const specimenImagesApi = {
       
       // В случае ошибки авторизации, пробуем обновить токен и повторить запрос
       if (response.status === 401) {
-        console.log('Токен авторизации истек, пробуем повторить запрос');
-        // Уже обновили выше
         const newResponse = await specimenImagesHttpClient.delete<void>(url);
         logResponse('DELETE (retry)', url, newResponse);
         return newResponse;
@@ -132,7 +122,6 @@ export const specimenImagesApi = {
       
       return response;
     } catch (error) {
-      logError('DELETE', url, error);
       return { 
         data: null, 
         error: error instanceof Error ? error.message : 'Ошибка при удалении изображения', 
@@ -165,8 +154,6 @@ export const specimenImagesApi = {
       
       // В случае ошибки авторизации, пробуем обновить токен и повторить запрос
       if (response.status === 401) {
-        console.log('Токен авторизации истек, пробуем повторить запрос');
-        // Уже обновили выше
         const newResponse = await specimenImagesHttpClient.patch<SpecimenImage>(
           url,
           {},
@@ -191,7 +178,6 @@ export const specimenImagesApi = {
       
       return response;
     } catch (error) {
-      logError('PATCH', url, error);
       return { 
         data: null, 
         error: error instanceof Error ? error.message : 'Ошибка при установке основного изображения', 
@@ -255,8 +241,6 @@ export const specimenImagesApi = {
       
       // В случае ошибки авторизации, пробуем обновить токен и повторить запрос
       if (response.status === 401) {
-        console.log('Токен авторизации истек, пробуем повторить запрос');
-        // Уже обновили выше        
         const newResponse = await specimenImagesHttpClient.post<BatchSpecimenImageResult>(
           url,
           formData as unknown as Record<string, unknown>,
@@ -272,7 +256,6 @@ export const specimenImagesApi = {
       
       return response;
     } catch (error) {
-      logError('POST', url, error);
       return { 
         data: null, 
         error: error instanceof Error ? error.message : 'Ошибка при загрузке изображений', 

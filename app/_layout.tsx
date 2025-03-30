@@ -42,6 +42,18 @@ export default function RootLayout() {
               <Stack.Screen name="auth" options={{ title: 'Аутентификация' }} />
               <Stack.Screen name="+not-found" />
               <Stack.Screen name="storage-test" options={{ headerShown: true }} />
+              <Stack.Screen 
+                name="add-specimen" 
+                options={{ 
+                  headerShown: false,
+                  presentation: 'modal',
+                  animation: 'slide_from_bottom'
+                }} 
+              />
+              <Stack.Screen 
+                name="plant-details/[id]" 
+                options={{ headerShown: false }} 
+              />
             </Stack>
             <StatusBar style="auto" />
           </ThemeProvider>

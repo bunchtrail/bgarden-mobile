@@ -54,6 +54,15 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     const firstSegment = segments[0];
     return segmentToRouteType[firstSegment as string] || RouteType.PUBLIC;
   };
+  
+  // Логирование текущего маршрута при изменении сегментов
+  useEffect(() => {
+    console.log('[Навигация] Текущий маршрут:', segments.join('/'));
+    console.log('[Навигация] Сегменты маршрута:', segments);
+    
+    const routeType = getCurrentRouteType();
+    console.log(`[Навигация] Тип маршрута: ${routeType}`);
+  }, [segments]);
 
   // Логика редиректа при изменении состояния аутентификации или URL
   useEffect(() => {
@@ -64,11 +73,13 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 
     // Пользователь не залогинен и пытается попасть на защищённый маршрут
     if (!user && currentRouteType === RouteType.PROTECTED) {
+      console.log('[Навигация] Редирект неавторизованного пользователя с защищенного маршрута на страницу входа');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       router.replace(ROUTES.LOGIN.path as any);
     }
     // Пользователь залогинен, но на странице авторизации или на корневом пути
     else if (user && (currentRouteType === RouteType.AUTH || isRootPath)) {
+      console.log('[Навигация] Редирект авторизованного пользователя на домашнюю страницу');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       router.replace(ROUTES.HOME.path as any);
     }

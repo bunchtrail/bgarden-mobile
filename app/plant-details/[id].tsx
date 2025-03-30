@@ -272,75 +272,31 @@ export default function PlantDetails() {
   // Функция для обновления главного изображения после его изменения
   const handleMainImageChange = async () => {
     try {
-      console.log('Обновление изображений после установки нового главного...');
-      
-      // Обновляем главное изображение
+      // Обновляем основное изображение
       await fetchSpecimenImage();
-      
-      // Обновляем галерею изображений
+      // Перезагружаем галерею изображений
       await reloadGalleryImages();
-      
-      // Обновляем данные для карусели
-      if (allImages && allImages.length > 0) {
-        const urls = allImages.map(img => {
-          return img.imageUrl || 
-            (img.imageDataBase64 ? 
-              `data:${img.contentType || 'image/png'};base64,${img.imageDataBase64}` : 
-              'https://via.placeholder.com/400x300.png?text=Нет+изображения');
-        });
-        setAllImageUrls(urls);
-      }
-      
       // Увеличиваем ключ для принудительного обновления компонента
       setForceUpdateKey(prevKey => prevKey + 1);
-      
-      console.log('Обновление успешно завершено');
     } catch (err) {
-      console.error('Ошибка при обновлении главного изображения:', err);
+      // Удален console.error
     }
   };
 
   // Функция для обновления галереи после удаления изображения
   const handleImageDeleted = async () => {
     try {
-      console.log('Обновление изображений после удаления...');
-      
-      // Обновляем список изображений
-      await reloadGalleryImages();
-      
-      // Обновляем главное изображение
+      // Если было удалено текущее изображение, 
+      // обновляем состояние основного изображения
       await fetchSpecimenImage();
       
-      // Обновляем данные для карусели
-      if (allImages && allImages.length > 0) {
-        const urls = allImages.map(img => {
-          return img.imageUrl || 
-            (img.imageDataBase64 ? 
-              `data:${img.contentType || 'image/png'};base64,${img.imageDataBase64}` : 
-              'https://via.placeholder.com/400x300.png?text=Нет+изображения');
-        });
-        setAllImageUrls(urls);
-        
-        // Проверяем, что текущий индекс не выходит за пределы массива
-        if (currentImageIndex >= urls.length) {
-          setCurrentImageIndex(Math.max(0, urls.length - 1));
-        }
-      } else if (imageSrc) {
-        // Если нет галереи, но есть основное изображение
-        setAllImageUrls([imageSrc]);
-        setCurrentImageIndex(0);
-      } else {
-        // Если нет изображений
-        setAllImageUrls([]);
-        setCurrentImageIndex(0);
-      }
+      // Перезагружаем галерею изображений
+      await reloadGalleryImages();
       
-      // Увеличиваем ключ для принудительного обновления компонента
+      // Обновляем ключ для принудительного обновления
       setForceUpdateKey(prevKey => prevKey + 1);
-      
-      console.log('Обновление после удаления успешно завершено');
     } catch (err) {
-      console.error('Ошибка при обновлении после удаления изображения:', err);
+      // Удален console.error
     }
   };
 
@@ -418,7 +374,7 @@ export default function PlantDetails() {
             style={styles.image}
             resizeMode="cover"
             onError={(e) => {
-              console.error("Ошибка загрузки изображения:", e.nativeEvent);
+              // Удален console.error
             }}
           />
         )}

@@ -1,37 +1,15 @@
 import React from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
 import { useAuth } from '../../modules/auth/context/AuthContext';
-import { Header } from '@/components/Header';
-import { BotanicalGardenInfo } from '@/components/BotanicalGardenInfo';
-import { SectorButtons } from '@/components/SectorButtons';
-import AuthButton from '../../modules/auth/components/AuthButton';
-import { UserGreeting } from '@/components/time-based-greeting';
+import { HomePage } from '@/components';
 
 export default function HomeScreen() {
   const { user } = useAuth();
 
   return (
-    <ScrollView style={styles.container}>
-      <Header />
-      
-      {user ? (
-        <>
-          <UserGreeting showUserInfo={true} />
-          <SectorButtons />
-        </>
-      ) : (
-        <>
-          <BotanicalGardenInfo />
-          <AuthButton />
-        </>
-      )}
-    </ScrollView>
+    <HomePage 
+      isAuthorized={!!user} 
+      isTabsLayout={true} 
+      showHeader={true}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-});

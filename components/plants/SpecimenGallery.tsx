@@ -95,8 +95,6 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
 
   // Обработчик ошибок загрузки
   const handleUploadError = (errorMessage: string) => {
-    // eslint-disable-next-line no-console
-    console.error('Ошибка загрузки:', errorMessage);
     Alert.alert('Ошибка загрузки', errorMessage);
   };
 
@@ -113,7 +111,6 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
         }
       }
     } catch (err) {
-      console.error('Ошибка при установке основного изображения:', err);
       Alert.alert('Ошибка', 'Не удалось установить изображение как основное');
     }
   };
@@ -136,7 +133,6 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
         }
       }
     } catch (err) {
-      console.error('Ошибка при удалении изображения:', err);
       Alert.alert('Ошибка', 'Не удалось удалить изображение');
     }
   };
@@ -216,7 +212,6 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
         showToast('Изображения успешно загружены');
       }
     } catch (err) {
-      console.error('Ошибка при сохранении изображений:', err);
     }
   };
 

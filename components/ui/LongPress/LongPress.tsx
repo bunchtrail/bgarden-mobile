@@ -39,7 +39,7 @@ export const LongPress: React.FC<LongPressProps> = ({
   const handleLongPress = () => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-        .catch(err => console.log('Ошибка haptic feedback:', err));
+        .catch(err => {/* Удален console.log */});
     }
     
     setModalVisible(true);
@@ -65,7 +65,7 @@ export const LongPress: React.FC<LongPressProps> = ({
   const handleActionPress = (action: ActionItem) => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-        .catch(err => console.log('Ошибка haptic feedback:', err));
+        .catch(err => {/* Удален console.log */});
     }
     
     closeMenu();

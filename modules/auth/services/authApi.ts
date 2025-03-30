@@ -1,6 +1,7 @@
 import HttpClient from '@/services/HttpClient';
 import { Platform } from 'react-native';
 import { AuthResponse, LoginCredentials, RegisterCredentials } from '../types';
+import { authStorage } from './authStorage';
 
 // Базовый URL API с учетом платформы
 const API_BASE_URL = Platform.select({
@@ -28,7 +29,7 @@ export interface TokenValidationResponse {
 const authHttpClient = new HttpClient(API_BASE_URL, {
   Accept: 'application/json, text/plain',
   'Cache-Control': 'no-cache',
-});
+}, 30000, authStorage);
 
 // API методы для авторизации
 export const authApi = {
