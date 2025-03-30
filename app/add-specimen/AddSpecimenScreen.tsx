@@ -9,6 +9,7 @@ import { Header } from '@/components/Header';
 
 import { useSpecimenFormState } from './hooks/useSpecimenFormState';
 import { useSpecimenFormValidation } from './hooks/useSpecimenFormValidation';
+import { useSpecimenSubmit } from './hooks/useSpecimenSubmit';
 import { styles } from './styles';
 import { plantsApi } from '@/modules/plants/services';
 import { LocationType } from '@/types';
@@ -109,93 +110,8 @@ export default function AddSpecimenScreen() {
     setErrors,
   });
 
-  // Кнопка "Сохранить"
-  const handleSubmit = useCallback(async () => {
-    console.log('[AddSpecimenScreen] Запуск обработчика отправки формы');
-
-    // Валидация
-    if (!validateForm()) {
-      console.log('[AddSpecimenScreen] Форма не прошла валидацию, отправка отменена');
-      return;
-    }
-
-    setLoading(true);
-    console.log('[AddSpecimenScreen] Начало процесса сохранения образца');
-
-    try {
-      const specimenData: Record<string, string | number | boolean | undefined> = {
-        inventoryNumber,
-        sectorType,
-        russianName: russianName || undefined,
-        latinName: latinName || undefined,
-        familyId: parseInt(familyId, 10),
-        genus: genus || undefined,
-        species: species || undefined,
-        cultivar: cultivar || undefined,
-        form: formValue || undefined,
-        synonyms: synonyms || undefined,
-        plantingYear: plantingYear ? parseInt(plantingYear, 10) : undefined,
-        hasHerbarium,
-        expositionId: expositionId ? parseInt(expositionId, 10) : undefined,
-        naturalRange: naturalRange || undefined,
-        sampleOrigin: sampleOrigin || undefined,
-        economicUse: economicUse || undefined,
-        ecologyAndBiology: ecologyAndBiology || undefined,
-        conservationStatus: conservationStatus || undefined,
-        locationType,
-      };
-
-      // Если указаны координаты
-      if (locationType === LocationType.Geographic && latitude && longitude) {
-        specimenData.latitude = parseFloat(latitude);
-        specimenData.longitude = parseFloat(longitude);
-      } else if (locationType === LocationType.SchematicMap && mapId && mapX && mapY) {
-        specimenData.mapId = parseInt(mapId, 10);
-        specimenData.mapX = parseFloat(mapX);
-        specimenData.mapY = parseFloat(mapY);
-      }
-
-
-      console.log('[AddSpecimenScreen] Образец успешно сохранен');
-      Alert.alert('Успешно', 'Образец растения успешно добавлен в базу данных', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
-    } catch (error) {
-      console.error('[AddSpecimenScreen] Ошибка при добавлении образца:', error);
-      Alert.alert('Ошибка', 'Произошла ошибка при добавлении образца растения');
-    } finally {
-      console.log('[AddSpecimenScreen] Завершение процесса сохранения');
-      setLoading(false);
-    }
-  }, [
-    validateForm,
-    setLoading,
-    inventoryNumber,
-    sectorType,
-    russianName,
-    latinName,
-    familyId,
-    genus,
-    species,
-    cultivar,
-    formValue,
-    synonyms,
-    plantingYear,
-    hasHerbarium,
-    expositionId,
-    naturalRange,
-    sampleOrigin,
-    economicUse,
-    ecologyAndBiology,
-    conservationStatus,
-    locationType,
-    latitude,
-    longitude,
-    mapId,
-    mapX,
-    mapY,
-    images,
-  ]);
+  // Используем хук для отправки формы
+  const { handleSubmit } = useSpecimenSubmit({ form, validateForm });
 
   // Кнопка "Отмена"
   const handleCancel = () => {
@@ -242,7 +158,7 @@ export default function AddSpecimenScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Ветка для простой формы */}
-
+        {isSimpleMode ? (
           <SimpleSpecimenForm
             form={{
               russianName,
@@ -257,9 +173,66 @@ export default function AddSpecimenScreen() {
               setLocation,
               careInstructions,
               setCareInstructions,
-              errors
+              errors,
             }}
           />
+        ) : (
+          <FullSpecimenForm
+            form={{
+              inventoryNumber,
+              setInventoryNumber,
+              russianName,
+              setRussianName,
+              latinName,
+              setLatinName,
+              sectorType,
+              setSectorType,
+
+              familyId,
+              setFamilyId,
+              genus,
+              setGenus,
+              species,
+              setSpecies,
+              cultivar,
+              setCultivar,
+              form: formValue,
+              setForm,
+              synonyms,
+              setSynonyms,
+
+              locationType,
+              setLocationType,
+              latitude,
+              setLatitude,
+              longitude,
+              setLongitude,
+              mapId,
+              setMapId,
+              mapX,
+              setMapX,
+              mapY, 
+              setMapY,
+
+              plantingYear,
+              setPlantingYear,
+              hasHerbarium,
+              setHasHerbarium,
+              naturalRange,
+              setNaturalRange,
+              sampleOrigin,
+              setSampleOrigin,
+              economicUse,
+              setEconomicUse,
+              ecologyAndBiology,
+              setEcologyAndBiology,
+              conservationStatus,
+              setConservationStatus,
+
+              errors,
+            }}
+          />
+        )}
 
         {/* Загрузка изображений */}
         <ImageUploader

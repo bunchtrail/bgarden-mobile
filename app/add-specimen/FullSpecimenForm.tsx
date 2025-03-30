@@ -8,7 +8,7 @@ import { LocationTypeSelector } from './LocationTypeSelector';
 import { styles } from './styles';
 import { SectorType, LocationType } from '@/types';
 
-interface FullSpecimenFormProps {
+interface FormData {
   // Базовая
   inventoryNumber: string;
   setInventoryNumber: (value: string) => void;
@@ -66,59 +66,42 @@ interface FullSpecimenFormProps {
   errors: Record<string, string>;
 }
 
-export function FullSpecimenForm({
-  inventoryNumber,
-  setInventoryNumber,
-  russianName,
-  setRussianName,
-  latinName,
-  setLatinName,
-  sectorType,
-  setSectorType,
+interface FullSpecimenFormProps {
+  form: FormData;
+}
 
-  familyId,
-  setFamilyId,
-  genus,
-  setGenus,
-  species,
-  setSpecies,
-  cultivar,
-  setCultivar,
-  form,
-  setForm,
-  synonyms,
-  setSynonyms,
+export function FullSpecimenForm({ form }: FullSpecimenFormProps) {
+  const {
+    inventoryNumber, setInventoryNumber,
+    russianName, setRussianName,
+    latinName, setLatinName,
+    sectorType, setSectorType,
 
-  locationType,
-  setLocationType,
-  latitude,
-  setLatitude,
-  longitude,
-  setLongitude,
-  mapId,
-  setMapId,
-  mapX,
-  setMapX,
-  mapY,
-  setMapY,
+    familyId, setFamilyId,
+    genus, setGenus,
+    species, setSpecies,
+    cultivar, setCultivar,
+    form: formValue, setForm,
+    synonyms, setSynonyms,
 
-  plantingYear,
-  setPlantingYear,
-  hasHerbarium,
-  setHasHerbarium,
-  naturalRange,
-  setNaturalRange,
-  sampleOrigin,
-  setSampleOrigin,
-  economicUse,
-  setEconomicUse,
-  ecologyAndBiology,
-  setEcologyAndBiology,
-  conservationStatus,
-  setConservationStatus,
+    locationType, setLocationType,
+    latitude, setLatitude,
+    longitude, setLongitude,
+    mapId, setMapId,
+    mapX, setMapX,
+    mapY, setMapY,
 
-  errors,
-}: FullSpecimenFormProps) {
+    plantingYear, setPlantingYear,
+    hasHerbarium, setHasHerbarium,
+    naturalRange, setNaturalRange,
+    sampleOrigin, setSampleOrigin,
+    economicUse, setEconomicUse,
+    ecologyAndBiology, setEcologyAndBiology,
+    conservationStatus, setConservationStatus,
+
+    errors,
+  } = form;
+
   return (
     <View>
       {/* Базовая информация */}
@@ -198,7 +181,7 @@ export function FullSpecimenForm({
 
         <Input
           label="Форма"
-          value={form}
+          value={formValue}
           onChangeText={setForm}
           placeholder="Введите форму (опционально)"
           leftIcon={<Ionicons name="git-branch" size={20} color="#673AB7" />}
