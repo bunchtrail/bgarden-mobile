@@ -12,9 +12,16 @@ export function SectorButtons() {
     
     // Прямая навигация на страницу добавления образца (без вложенности в табы)
     try {
+      // Убедимся, что значение sector передается правильно
+      const params = { 
+        mode: 'simple', 
+        sector: sectorType // Явно определяем параметр sector
+      };
+      console.log(`[Навигация] Передаваемые параметры:`, params);
+      
       router.push({
-        pathname: "/add-specimen", // Прямой путь к странице
-        params: { mode: 'simple', sector: sectorType }
+        pathname: "/add-specimen/AddSpecimenScreen", // Прямой путь к странице
+        params: params
       });
     } catch (err) {
       console.error("[Навигация] Ошибка при переходе:", err);
