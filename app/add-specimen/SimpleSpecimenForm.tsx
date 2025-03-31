@@ -9,8 +9,16 @@ import {
 } from './components';
 
 
-// Импортируем новый Dropdown
+// Импортируем новый Dropdown и типы для него
 import { Dropdown } from '@/components/ui/Dropdown';
+import { DropdownItem } from '@/components/ui/Dropdown/types';
+
+// Совместимый тип для семейства в контексте выпадающего списка
+type FamilyDropdownItem = {
+  id: string | number;
+  name: string;
+  description?: string;
+}
 
 interface SpecimenFormData {
   // Базовые поля
@@ -78,55 +86,64 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
     getCurrentLocation();
   }, [getCurrentLocation]); // Добавляем getCurrentLocation в зависимости, если ESLint ругается
 
+  // Преобразуем семейства в формат, подходящий для Dropdown
+  const familyItems: FamilyDropdownItem[] = families.map(family => ({
+    id: family.id.toString(),
+    name: family.name,
+    description: family.description
+  }));
+
   // Новый обработчик выбора для универсального Dropdown
-  const handleFamilySelect = useCallback((selectedFamily: Family) => {
-    // selectedFamily теперь имеет тип Family (согласно DropdownItem)
+  const handleFamilySelect = useCallback((selectedFamily: DropdownItem) => {
     setFamilyId(selectedFamily.id.toString());
-    // setFamilyName больше не нужен, имя будет браться из selectedFamily.name внутри Dropdown
   }, [setFamilyId]);
 
-
-
   return (
-    <View style={styles.formContainer}>
-      {/* Базовая информация */}
-      <BasicInfoSection
-        inventoryNumber={inventoryNumber}
-        setInventoryNumber={setInventoryNumber}
-        russianName={russianName}
-        setRussianName={setRussianName}
-        latinName={latinName}
-        setLatinName={setLatinName}
-        // Передаем сам компонент Dropdown вместо пропсов для него
-        familyDropdownComponent={(
-          <Dropdown<Family>
-            items={families} // Передаем список семейств
-            selectedValue={familyId} // Передаем текущий ID
-            onSelect={handleFamilySelect} // Передаем новый обработчик
-            label="Семейство" // Заголовок поля
-            placeholder="Выберите семейство растения" // Плейсхолдер
-            leftIconName="leaf-outline" // Иконка
-            error={errors?.familyId} // Ошибка
-            noDataMessage="Семейства не найдены"
-          />
-        )}
-        errors={errors}
-      />
+    <View style={[styles.formContainer, { zIndex: 1 }]}>
+      {/* Базовая информация - добавляем повышенный z-index */}
+      <View style={{ zIndex: 3 }}>
+        <BasicInfoSection
+          inventoryNumber={inventoryNumber}
+          setInventoryNumber={setInventoryNumber}
+          russianName={russianName}
+          setRussianName={setRussianName}
+          latinName={latinName}
+          setLatinName={setLatinName}
+          // Передаем сам компонент Dropdown вместо пропсов для него
+          familyDropdownComponent={(
+            <Dropdown
+              items={familyItems}
+              selectedValue={familyId}
+              onSelect={handleFamilySelect}
+              label="Семейство"
+              placeholder="Выберите семейство растения"
+              leftIconName="leaf-outline"
+              error={errors?.familyId}
+              noDataMessage="Семейства не найдены"
+            />
+          )}
+          errors={errors}
+        />
+      </View>
       
-      {/* Секция локации */}
-      <LocationSection
-        latitude={latitude}
-        longitude={longitude}
-        getCurrentLocation={getCurrentLocation}
-        errors={errors}
-      />
+      {/* Секция локации - понижаем z-index */}
+      <View style={{ zIndex: 2 }}>
+        <LocationSection
+          latitude={latitude}
+          longitude={longitude}
+          getCurrentLocation={getCurrentLocation}
+          errors={errors}
+        />
+      </View>
       
-      {/* Дополнительная информация */}
-      <NotesSection
-        description={description}
-        setDescription={setDescription}
-        errors={errors}
-      />
+      {/* Дополнительная информация - понижаем z-index */}
+      <View style={{ zIndex: 1 }}>
+        <NotesSection
+          description={description}
+          setDescription={setDescription}
+          errors={errors}
+        />
+      </View>
     </View>
   );
 });

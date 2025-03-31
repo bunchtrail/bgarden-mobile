@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Dimensions, View } from 'react-native';
+import { Dimensions, View, ScrollView, findNodeHandle } from 'react-native';
 
 interface DropdownPosition {
   top: number;
@@ -17,10 +17,11 @@ export const useDropdownPosition = (componentRef: React.RefObject<View>) => {
   // Измерение положения компонента для корректного размещения выпадающего списка
   const measurePosition = useCallback(() => {
     if (componentRef.current) {
-      componentRef.current.measureInWindow((x: number, y: number, width: number, height: number) => {
+      // Используем measure вместо measureInWindow для более точного позиционирования
+      componentRef.current.measure((fx, fy, width, height, px, py) => {
         setDropdownPosition({
-          top: y + height,
-          left: x,
+          top: height, // Позиционируем прямо под элементом
+          left: 0,     // Используем 0, так как мы внутри родительского контейнера
           width: width
         });
       });

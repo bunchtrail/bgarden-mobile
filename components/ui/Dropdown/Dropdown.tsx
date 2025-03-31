@@ -81,11 +81,10 @@ export const Dropdown = memo(function DropdownComponent<T extends DropdownItem>(
         style={[
           styles.appleDropdown,
           {
-            position: 'absolute',
-            top: dropdownPosition.top, // Используем рассчитанную позицию
-            left: dropdownPosition.left,
-            width: dropdownPosition.width,
-            zIndex: 1000,
+            width: "100%",
+            marginTop: 4,
+            zIndex: 9999,
+            elevation: 5,
             opacity: dropdownAnimation,
             transform: [{
               scale: dropdownAnimation.interpolate({
@@ -140,12 +139,12 @@ export const Dropdown = memo(function DropdownComponent<T extends DropdownItem>(
   };
 
   return (
-    <View style={[styles.fieldContainer, { position: 'relative', zIndex: dropdownVisible ? 100 : 1 }]}>
+    <View style={[styles.fieldContainer, { position: 'relative', zIndex: dropdownVisible ? 9999 : 1 }]}>
       {label && <Text style={styles.fieldLabel}>{label}</Text>}
       <View
         ref={inputRef}
         collapsable={false} // Важно для корректных измерений
-        style={{ position: 'relative' }}
+        style={{ position: 'relative', zIndex: dropdownVisible ? 9999 : 1 }}
       >
         <TouchableOpacity
           style={[
@@ -174,8 +173,7 @@ export const Dropdown = memo(function DropdownComponent<T extends DropdownItem>(
           />
         </TouchableOpacity>
 
-        {/* Выпадающий список рендерится через Portal или в корневом View для корректного отображения поверх других элементов */} 
-        {/* Пока оставим так, но в будущем можно улучшить, используя Portal */} 
+        {/* Выпадающий список рендерится теперь внутри родительского контейнера */}
         {renderDropdown()}
       </View>
 

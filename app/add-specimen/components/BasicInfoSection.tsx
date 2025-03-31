@@ -25,7 +25,7 @@ export const BasicInfoSection = memo(function BasicInfoSectionComponent({
 }: BasicInfoSectionProps) {
   
   return (
-    <View style={styles.sectionContainer}>
+    <View style={[styles.sectionContainer, { zIndex: 10 }]}>
       <Text style={styles.sectionTitle}>Основная информация</Text>
       <FormField
         label="Инвентарный номер"
@@ -37,7 +37,9 @@ export const BasicInfoSection = memo(function BasicInfoSectionComponent({
       />
       
       {/* Семейство - теперь просто рендерим переданный компонент */} 
-      {familyDropdownComponent}
+      <View style={{ zIndex: 2 }}>
+        {familyDropdownComponent}
+      </View>
       
       {/* Названия растения */}
       <FormField
