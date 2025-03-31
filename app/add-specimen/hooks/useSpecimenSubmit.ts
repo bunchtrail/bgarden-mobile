@@ -1,76 +1,167 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
-import { LocationType } from '@/types';
+import { LocationType, SectorType } from '@/types';
+import { plantsApi } from '@/modules/plants/services';
 
-interface UseSpecimenSubmitProps {
-  form: any; // Тип формы можно определить точнее
-  validateForm: () => boolean;
+interface SpecimenFormData {
+  inventoryNumber: string;
+  russianName: string;
+  latinName: string;
+  familyId: string;
+  description: string;
+  locationType: LocationType;
+  latitude: string;
+  longitude: string;
+  mapId: string;
+  mapX: string;
+  mapY: string;
+  sectorType: SectorType;
 }
 
-export const useSpecimenSubmit = ({ form, validateForm }: UseSpecimenSubmitProps) => {
-  const {
-    inventoryNumber, sectorType, russianName, latinName, familyId,
-    genus, species, description, category, 
-    locationType, latitude, longitude, mapId, mapX, mapY,
-    images, setLoading
-  } = form;
+interface UseSpecimenSubmit {
+  submitSpecimen: () => Promise<void>;
+  loading: boolean;
+  errors: Record<string, string>;
+  setErrors: (errors: Record<string, string>) => void;
+}
 
-  const handleSubmit = useCallback(async () => {
-    console.log('[AddSpecimenScreen] Запуск обработчика отправки формы');
+export function useSpecimenSubmit(formData: SpecimenFormData, setLoading: (loading: boolean) => void): UseSpecimenSubmit {
+  const { 
+    inventoryNumber, 
+    russianName, 
+    latinName, 
+    familyId, 
+    description,
+    locationType,
+    latitude,
+    longitude,
+    mapId,
+    mapX,
+    mapY,
+    sectorType
+  } = formData;
+  
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // Валидация
-    if (!validateForm()) {
-      console.log('[AddSpecimenScreen] Форма не прошла валидацию, отправка отменена');
-      return;
+  const validateForm = useCallback(() => {
+    const errors: Record<string, string> = {};
+
+    if (!inventoryNumber) {
+      errors.inventoryNumber = 'Необходимо указать инвентарный номер';
     }
 
-    setLoading(true);
-    console.log('[AddSpecimenScreen] Начало процесса сохранения образца');
+    if (!familyId) {
+      errors.familyId = 'Необходимо выбрать семейство';
+    }
 
+    if (!russianName && !latinName) {
+      errors.russianName = 'Укажите хотя бы одно название растения';
+      errors.latinName = 'Укажите хотя бы одно название растения';
+    }
+
+    // Проверка координат в зависимости от типа локации
+    if (locationType === LocationType.Geographic) {
+      if (!latitude || !longitude) {
+        errors.latitude = 'Необходимо указать координаты';
+      }
+    } else if (locationType === LocationType.SchematicMap) {
+      if (!mapId || !mapX || !mapY) {
+        errors.latitude = 'Необходимо указать координаты на карте';
+      }
+    }
+
+    return errors;
+  }, [inventoryNumber, familyId, russianName, latinName, locationType, latitude, longitude, mapId, mapX, mapY]);
+
+  const submitSpecimen = useCallback(async () => {
+    // Валидация перед отправкой
+    const validationErrors = validateForm();
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    
+    // Сброс ошибок
+    setErrors({});
+    
     try {
-      const specimenData: Record<string, string | number | boolean | undefined> = {
+      setLoading(true);
+      
+      // Подготовка данных о координатах в зависимости от типа локации
+      const locationData = locationType === LocationType.Geographic 
+        ? {
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            locationType
+          }
+        : {
+            mapId: parseInt(mapId, 10),
+            mapX: parseFloat(mapX),
+            mapY: parseFloat(mapY),
+            locationType
+          };
+      
+      // Формирование данных для отправки
+      const specimenData = {
         inventoryNumber,
-        sectorType,
         russianName: russianName || undefined,
         latinName: latinName || undefined,
         familyId: parseInt(familyId, 10),
-        genus: genus || undefined,
-        species: species || undefined,
         description: description || undefined,
-        category: category || undefined,
-        locationType,
+        sectorType,
+        ...locationData
       };
-
-      // Если указаны координаты
-      if (locationType === LocationType.Geographic && latitude && longitude) {
-        specimenData.latitude = parseFloat(latitude);
-        specimenData.longitude = parseFloat(longitude);
-      } else if (locationType === LocationType.SchematicMap && mapId && mapX && mapY) {
-        specimenData.mapId = parseInt(mapId, 10);
-        specimenData.mapX = parseFloat(mapX);
-        specimenData.mapY = parseFloat(mapY);
-      }
-
-      // Здесь будет вызов API для сохранения образца
-      // plantsApi.addSpecimen(specimenData);
       
-      console.log('[AddSpecimenScreen] Образец успешно сохранен');
-      Alert.alert('Успешно', 'Образец растения успешно добавлен в базу данных', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      console.log('[SpecimenSubmit] Отправка данных:', specimenData);
+      
+      // Отправка на сервер
+      const response = await plantsApi.createSpecimen(specimenData);
+      
+      if (response.error) {
+        Alert.alert('Ошибка', `Не удалось сохранить растение: ${response.error}`);
+        console.error('[SpecimenSubmit] Ошибка сохранения:', response.error);
+        return;
+      }
+      
+      if (response.data) {
+        console.log('[SpecimenSubmit] Растение сохранено с ID:', response.data.id);
+        Alert.alert('Успешно', 'Растение успешно добавлено', [
+          { 
+            text: 'OK', 
+            onPress: () => router.push('/') 
+          }
+        ]);
+      }
     } catch (error) {
-      console.error('[AddSpecimenScreen] Ошибка при добавлении образца:', error);
-      Alert.alert('Ошибка', 'Произошла ошибка при добавлении образца растения');
+      console.error('[SpecimenSubmit] Ошибка:', error);
+      Alert.alert('Ошибка', 'Произошла ошибка при сохранении растения');
     } finally {
-      console.log('[AddSpecimenScreen] Завершение процесса сохранения');
       setLoading(false);
     }
   }, [
-    validateForm, setLoading, inventoryNumber, sectorType, russianName, 
-    latinName, familyId, genus, species, description, category,
-    locationType, latitude, longitude, mapId, mapX, mapY, images,
+    inventoryNumber, 
+    russianName, 
+    latinName, 
+    familyId, 
+    description, 
+    sectorType, 
+    locationType,
+    latitude,
+    longitude,
+    mapId,
+    mapX,
+    mapY,
+    setLoading, 
+    validateForm, 
+    setErrors
   ]);
 
-  return { handleSubmit };
-}; 
+  return {
+    submitSpecimen,
+    loading: false,
+    errors,
+    setErrors,
+  };
+} 

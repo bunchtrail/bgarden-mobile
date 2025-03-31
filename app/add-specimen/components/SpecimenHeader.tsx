@@ -8,10 +8,10 @@ import { Colors } from '@/constants/Colors';
 
 interface SpecimenHeaderProps {
   sectorType: SectorType;
-  onCancel: () => void;
+  onBack: () => void;
 }
 
-export function SpecimenHeader({ sectorType, onCancel }: SpecimenHeaderProps) {
+export function SpecimenHeader({ sectorType, onBack }: SpecimenHeaderProps) {
   // Получаем имя сектора для отображения в заголовке
   const sectorName = getSectorName(sectorType);
   
@@ -19,7 +19,7 @@ export function SpecimenHeader({ sectorType, onCancel }: SpecimenHeaderProps) {
     <View style={styles.headerContainer}>
       <TouchableOpacity 
         style={styles.backButton} 
-        onPress={onCancel}
+        onPress={onBack}
         hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }}
       >
         <Ionicons name="arrow-back" size={24} color={Colors.light.primary} />

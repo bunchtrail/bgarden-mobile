@@ -18,12 +18,12 @@ export function useSpecimenFormState() {
   const [sectorType, setSectorType] = useState<SectorType>(SectorType.Dendrology);
 
   // Местоположение
-  const [locationType, setLocationType] = useState<LocationType>(LocationType.None);
+  const [locationType, setLocationType] = useState<LocationType>(LocationType.SchematicMap);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
-  const [mapId, setMapId] = useState('');
-  const [mapX, setMapX] = useState('');
-  const [mapY, setMapY] = useState('');
+  const [mapId, setMapId] = useState('1'); // Устанавливаем ID карты по умолчанию
+  const [mapX, setMapX] = useState('50'); // Устанавливаем координату X по умолчанию
+  const [mapY, setMapY] = useState('50'); // Устанавливаем координату Y по умолчанию
 
   // Базовая таксономия
   const [familyId, setFamilyId] = useState('1');
@@ -84,9 +84,15 @@ export function useSpecimenFormState() {
 
   // Функция для получения текущих координат
   const getCurrentLocation = useCallback(async () => {
-    // Если координаты уже есть, не запрашиваем их снова
+    // Если координаты уже есть и тип локации географический, не запрашиваем их снова
     if (latitude && longitude && locationType === LocationType.Geographic) {
       console.log(`[Location] Используем существующие координаты: ${latitude}, ${longitude}`);
+      return;
+    }
+
+    // Если тип локации схематический, не запрашиваем географические координаты
+    if (locationType === LocationType.SchematicMap) {
+      console.log(`[Location] Используем схематические координаты: mapId=${mapId}, x=${mapX}, y=${mapY}`);
       return;
     }
 
@@ -121,7 +127,7 @@ export function useSpecimenFormState() {
     } catch (error) {
       console.error('[Location] Ошибка при получении координат:', error);
     }
-  }, [latitude, longitude, locationType]);
+  }, [latitude, longitude, locationType, mapId, mapX, mapY]);
 
   // Логируем, что смонтировались
   useEffect(() => {

@@ -5,11 +5,11 @@ import { styles } from '../styles';
 
 interface FormButtonsProps {
   onCancel: () => void;
-  onSubmit: () => void;
+  onSave: () => void;
   loading: boolean;
 }
 
-export function FormButtons({ onCancel, onSubmit, loading }: FormButtonsProps) {
+export function FormButtons({ onCancel, onSave, loading }: FormButtonsProps) {
   return (
     <View style={styles.buttonsContainer}>
       <Button
@@ -21,7 +21,7 @@ export function FormButtons({ onCancel, onSubmit, loading }: FormButtonsProps) {
       />
       <Button
         title="Сохранить"
-        onPress={onSubmit}
+        onPress={onSave}
         variant="primary"
         style={styles.button}
         disabled={loading}

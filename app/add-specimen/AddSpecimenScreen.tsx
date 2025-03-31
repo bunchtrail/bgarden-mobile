@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { View, TouchableOpacity, Text, ScrollView, Alert, StatusBar } from 'react-native';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
+import { View, TouchableOpacity, Text, ScrollView, Alert, StatusBar, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useRouter } from 'expo-router';
 
 import { Button } from '@/components/Button';
 import { ImageUploader } from '@/components/plants';
@@ -22,11 +22,12 @@ import { SpecimenHeader } from './components/SpecimenHeader';
 import { FormButtons } from './components/FormButtons';
 
 export default function AddSpecimenScreen() {
+  const router = useRouter();
   console.log('[AddSpecimenScreen] Рендеринг экрана добавления образца');
   logWithTimestamp('[AddSpecimenScreen] START RENDER');
 
-  // Достаём все переменные стейта и функции из нашего хука
-  const form = useSpecimenFormState();
+  // Получаем состояние формы из хука
+  const formState = useSpecimenFormState();
   const {
     mode,
     isSimpleMode = true,
@@ -74,31 +75,40 @@ export default function AddSpecimenScreen() {
     setErrors,
     getCurrentLocation,
     families,
-  } = form;
+  } = formState;
 
   console.log(`[AddSpecimenScreen] Параметры: mode=${mode}`);
   console.log(`[AddSpecimenScreen] Режим формы: упрощенный`);
 
-  // Хук для валидации
-  const { validateForm } = useSpecimenFormValidation({
-    isSimpleMode: true,
-    inventoryNumber,
-    russianName,
-    latinName,
-    familyId,
-    description,
-    category,
-    setErrors,
-  });
-
-  // Используем хук для отправки формы
-  const { handleSubmit } = useSpecimenSubmit({ form, validateForm });
-
-  // Кнопка "Отмена"
-  const handleCancel = useCallback(() => {
-    console.log('[AddSpecimenScreen] Нажата кнопка Отмена, возвращаемся назад');
+  // Получаем валидатор формы
+  const { validateForm } = useSpecimenFormValidation(formState);
+  
+  // Обработчик отправки формы
+  const { submitSpecimen } = useSpecimenSubmit(
+    {
+      inventoryNumber: formState.inventoryNumber,
+      russianName: formState.russianName,
+      latinName: formState.latinName,
+      familyId: formState.familyId,
+      description: formState.description,
+      locationType: formState.locationType,
+      latitude: formState.latitude,
+      longitude: formState.longitude,
+      mapId: formState.mapId,
+      mapX: formState.mapX,
+      mapY: formState.mapY,
+      sectorType: formState.sectorType
+    }, 
+    setLoading
+  );
+  
+  const handleSubmit = useCallback(() => {
+    submitSpecimen();
+  }, [submitSpecimen]);
+  
+  const handleBack = useCallback(() => {
     router.back();
-  }, []);
+  }, [router]);
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -116,6 +126,12 @@ export default function AddSpecimenScreen() {
     setLatitude,
     longitude,
     setLongitude,
+    mapId,
+    setMapId,
+    mapX,
+    setMapX,
+    mapY,
+    setMapY,
     sectorType,
     setSectorType,
     familyId,
@@ -132,31 +148,53 @@ export default function AddSpecimenScreen() {
   }), [
     inventoryNumber, russianName, latinName, 
     locationType, latitude, longitude, 
+    mapId, mapX, mapY,
     sectorType, familyId, familyName, 
     description, errors, getCurrentLocation, families,
     dropdownVisible
   ]);
 
+  // Если загрузка - показываем индикатор
+  if (!families.length) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          <View style={styles.header}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Добавление экземпляра</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={handleBack}
+            hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }}
+          >
+            <Ionicons name="arrow-back" size={24} color={Colors.light.primary} />
+          </TouchableOpacity>
+        </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.light.primary} />
+          <Text style={{ marginTop: 20, textAlign: 'center' }}>
+            Загрузка данных...
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.light.background} />
       
-      {/* Шапка */}
-      <SpecimenHeader 
-        sectorType={sectorType}
-        onCancel={handleCancel}
-      />
-
-      {/* Контейнер со скроллом */}
-      <ScrollView
-        style={styles.content}
+      {/* Заголовок */}
+      <SpecimenHeader onBack={handleBack} sectorType={sectorType} />
+      
+      {/* Основной контент */}
+      <ScrollView 
+        style={styles.content} 
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Используем только простую форму */}
         <SimpleSpecimenForm form={formProps} />
-
+        
         {/* Загрузка изображений */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Фотографии</Text>
@@ -169,10 +207,10 @@ export default function AddSpecimenScreen() {
           />
         </View>
 
-        {/* Кнопки */}
-        <FormButtons 
-          onCancel={handleCancel}
-          onSubmit={handleSubmit}
+        {/* Кнопки действий */}
+        <FormButtons
+          onSave={handleSubmit}
+          onCancel={handleBack}
           loading={loading}
         />
       </ScrollView>

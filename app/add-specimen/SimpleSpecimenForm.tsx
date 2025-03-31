@@ -36,6 +36,12 @@ interface SpecimenFormData {
   setLatitude: (value: string) => void;
   longitude: string;
   setLongitude: (value: string) => void;
+  mapId: string;
+  setMapId: (value: string) => void;
+  mapX: string;
+  setMapX: (value: string) => void;
+  mapY: string;
+  setMapY: (value: string) => void;
 
   // Сектор
   sectorType: SectorType;
@@ -71,6 +77,10 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
     latinName, setLatinName,
     latitude, setLatitude,
     longitude, setLongitude,
+    locationType, setLocationType,
+    mapId, setMapId,
+    mapX, setMapX,
+    mapY, setMapY,
     familyId, setFamilyId,
     description, setDescription,
     getCurrentLocation,
@@ -131,6 +141,11 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
         <LocationSection
           latitude={latitude}
           longitude={longitude}
+          mapId={mapId}
+          mapX={mapX}
+          mapY={mapY}
+          locationType={locationType}
+          setLocationType={setLocationType}
           getCurrentLocation={getCurrentLocation}
           errors={errors}
         />
