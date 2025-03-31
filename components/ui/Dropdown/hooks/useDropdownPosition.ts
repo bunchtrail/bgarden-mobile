@@ -49,4 +49,5 @@ export const useDropdownPosition = (componentRef: React.RefObject<View>) => {
   };
 };
 
-export default useDropdownPosition; 
+// Больше не нужен дефолтный экспорт, так как используем именованный
+// export default useDropdownPosition; 

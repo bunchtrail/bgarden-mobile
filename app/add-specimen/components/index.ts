@@ -4,4 +4,4 @@ export { LocationSection } from './LocationSection';
 export { NotesSection } from './NotesSection';
 export { FormButtons } from './FormButtons';
 export { SpecimenHeader } from './SpecimenHeader';
-export { default as FamilyDropdown } from './FamilyDropdown'; 
+// export { default as FamilyDropdown } from './FamilyDropdown'; // Удалено 

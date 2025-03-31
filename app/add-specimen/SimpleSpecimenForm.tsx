@@ -1,15 +1,16 @@
 import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
-import { View, Animated } from 'react-native';
+import { View } from 'react-native';
 import { styles } from './styles';
 import { Family, SectorType, LocationType } from '@/types';
 import { 
   BasicInfoSection, 
   LocationSection, 
   NotesSection,
-  FormField,
-  FamilyDropdown 
 } from './components';
-import { useAnimation, useDropdownPosition } from './hooks';
+
+
+// Импортируем новый Dropdown
+import { Dropdown } from '@/components/ui/Dropdown';
 
 interface SpecimenFormData {
   // Базовые поля
@@ -35,8 +36,6 @@ interface SpecimenFormData {
   // Семейство
   familyId: string;
   setFamilyId: (value: string) => void;
-  familyName: string;
-  setFamilyName: (value: string) => void;
 
   // Заметки
   description: string;
@@ -65,65 +64,28 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
     latitude, setLatitude,
     longitude, setLongitude,
     familyId, setFamilyId,
-    familyName, setFamilyName,
     description, setDescription,
     getCurrentLocation,
     families,
     errors
   } = form;
   
-  // Используем кастомные хуки для управления выпадающим списком и анимацией
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-  const familyInputRef = useRef<View>(null);
   
-  // Используем хуки и сохраняем ссылки на них через useRef
-  const animationManager = useAnimation();
-  const dropdownAnimation = animationManager.animation;
-  const animationRef = useRef(animationManager);
-  
-  const positionManager = useDropdownPosition(familyInputRef);
-  const dropdownPosition = positionManager.dropdownPosition;
-  const positionRef = useRef(positionManager);
-  
-  // Обновляем ссылки при каждом рендере
-  useEffect(() => {
-    animationRef.current = animationManager;
-    positionRef.current = positionManager;
-  });
-  
-  // Используем isFirstRender через useRef для правильного отслеживания первого рендера
-  const isFirstRender = useRef(true);
 
-  // Обработка открытия/закрытия выпадающего списка
+  // useEffect для получения координат оставляем
   useEffect(() => {
-    if (dropdownVisible) {
-      animationRef.current.animateOpen();
-      positionRef.current.measurePosition();
-    } else {
-      animationRef.current.animateClose();
-    }
-  }, [dropdownVisible]); // Удаляем animationManager и positionManager из зависимостей
-  
-  // Получаем координаты только при первом монтировании компонента
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      console.log('[SimpleSpecimenForm] Первый рендер - получаем координаты');
-      getCurrentLocation();
-    }
-  }, []);  // Удаляем getCurrentLocation из зависимостей, т.к. он используется только один раз
+    // console.log('[SimpleSpecimenForm] Первый рендер - получаем координаты');
+    getCurrentLocation();
+  }, [getCurrentLocation]); // Добавляем getCurrentLocation в зависимости, если ESLint ругается
 
-  // Обработчики для выпадающего списка
-  const handleFamilySelect = useCallback((family: Family) => {
-    setFamilyId(family.id.toString());
-    setFamilyName(family.name);
-    setDropdownVisible(false);
-  }, [setFamilyId, setFamilyName]);
+  // Новый обработчик выбора для универсального Dropdown
+  const handleFamilySelect = useCallback((selectedFamily: Family) => {
+    // selectedFamily теперь имеет тип Family (согласно DropdownItem)
+    setFamilyId(selectedFamily.id.toString());
+    // setFamilyName больше не нужен, имя будет браться из selectedFamily.name внутри Dropdown
+  }, [setFamilyId]);
 
-  const toggleFamilyDropdown = useCallback(() => {
-    positionRef.current.measurePosition();
-    setDropdownVisible(prev => !prev);
-  }, []);
+
 
   return (
     <View style={styles.formContainer}>
@@ -135,18 +97,19 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
         setRussianName={setRussianName}
         latinName={latinName}
         setLatinName={setLatinName}
-        familyId={familyId}
-        setFamilyId={setFamilyId}
-        familyName={familyName}
-        setFamilyName={setFamilyName}
-        families={families}
-        dropdownVisible={dropdownVisible}
-        setDropdownVisible={setDropdownVisible}
-        dropdownPosition={dropdownPosition}
-        dropdownAnimation={dropdownAnimation}
-        toggleFamilyDropdown={toggleFamilyDropdown}
-        handleFamilySelect={handleFamilySelect}
-        familyInputRef={familyInputRef}
+        // Передаем сам компонент Dropdown вместо пропсов для него
+        familyDropdownComponent={(
+          <Dropdown<Family>
+            items={families} // Передаем список семейств
+            selectedValue={familyId} // Передаем текущий ID
+            onSelect={handleFamilySelect} // Передаем новый обработчик
+            label="Семейство" // Заголовок поля
+            placeholder="Выберите семейство растения" // Плейсхолдер
+            leftIconName="leaf-outline" // Иконка
+            error={errors?.familyId} // Ошибка
+            noDataMessage="Семейства не найдены"
+          />
+        )}
         errors={errors}
       />
       
