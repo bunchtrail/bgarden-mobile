@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { SectorType, LocationType } from '@/types';
+import { SectorType, LocationType, Family } from '@/types';
 import { logWithTimestamp } from '../utils/logWithTimestamp';
 import * as Location from 'expo-location';
+import { plantsApi } from '@/modules/plants/services';
 
 export function useSpecimenFormState() {
   // Получаем параметры URL
@@ -38,6 +39,7 @@ export function useSpecimenFormState() {
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [families, setFamilies] = useState<Family[]>([]);
 
   // Обработка параметра 'sector' при маунте/обновлении
   useEffect(() => {
@@ -57,6 +59,28 @@ export function useSpecimenFormState() {
       }
     }
   }, [sector]);
+
+  // Загрузка семейств при монтировании компонента
+  useEffect(() => {
+    const loadFamilies = async () => {
+      try {
+        setLoading(true);
+        const response = await plantsApi.getFamilies();
+        if (response.data) {
+          setFamilies(response.data);
+          console.log(`[FormState] Загружено ${response.data.length} семейств`);
+        } else if (response.error) {
+          console.error('[FormState] Ошибка загрузки семейств:', response.error);
+        }
+      } catch (error) {
+        console.error('[FormState] Ошибка при загрузке семейств:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadFamilies();
+  }, []);
 
   // Функция для получения текущих координат
   const getCurrentLocation = useCallback(async () => {
@@ -139,6 +163,7 @@ export function useSpecimenFormState() {
     images, setImages,
     loading, setLoading,
     errors, setErrors,
+    families,
     
     // Функция для получения геолокации
     getCurrentLocation,

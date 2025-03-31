@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { View, TouchableOpacity, Text, ScrollView, Alert } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, TouchableOpacity, Text, ScrollView, Alert, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
@@ -13,11 +13,13 @@ import { useSpecimenSubmit } from './hooks/useSpecimenSubmit';
 import { styles } from './styles';
 import { plantsApi } from '@/modules/plants/services';
 import { LocationType } from '@/types';
+import { Colors } from '@/constants/Colors';
 
 import { SimpleSpecimenForm } from './SimpleSpecimenForm';
 import { logWithTimestamp } from './utils/logWithTimestamp';
 import { getSectorName } from './utils/sectorUtils';
 import { SpecimenHeader } from './components/SpecimenHeader';
+import { FormButtons } from './components/FormButtons';
 
 export default function AddSpecimenScreen() {
   console.log('[AddSpecimenScreen] Рендеринг экрана добавления образца');
@@ -71,6 +73,7 @@ export default function AddSpecimenScreen() {
     errors,
     setErrors,
     getCurrentLocation,
+    families,
   } = form;
 
   console.log(`[AddSpecimenScreen] Параметры: mode=${mode}`);
@@ -97,6 +100,8 @@ export default function AddSpecimenScreen() {
     router.back();
   }, []);
 
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+
   // Мемоизируем объект формы для SimpleSpecimenForm
   const formProps = useMemo(() => ({
     inventoryNumber,
@@ -120,16 +125,22 @@ export default function AddSpecimenScreen() {
     description,
     setDescription,
     getCurrentLocation,
+    families,
     errors,
+    dropdownVisible,
+    setDropdownVisible,
   }), [
     inventoryNumber, russianName, latinName, 
     locationType, latitude, longitude, 
     sectorType, familyId, familyName, 
-    description, errors, getCurrentLocation
+    description, errors, getCurrentLocation, families,
+    dropdownVisible
   ]);
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.background} />
+      
       {/* Шапка */}
       <SpecimenHeader 
         sectorType={sectorType}
@@ -141,37 +152,29 @@ export default function AddSpecimenScreen() {
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Используем только простую форму */}
         <SimpleSpecimenForm form={formProps} />
 
         {/* Загрузка изображений */}
-        <ImageUploader
-          value={images}
-          onChange={setImages}
-          onError={(error) => Alert.alert('Ошибка', error)}
-          maxImages={5}
-          loading={loading}
-        />
-
-        {/* Кнопки */}
-        <View style={styles.buttonsContainer}>
-          <Button
-            title="Отмена"
-            onPress={handleCancel}
-            variant="secondary"
-            style={styles.button}
-            disabled={loading}
-          />
-          <Button
-            title="Сохранить"
-            onPress={handleSubmit}
-            variant="primary"
-            style={styles.button}
-            disabled={loading}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Фотографии</Text>
+          <ImageUploader
+            value={images}
+            onChange={setImages}
+            onError={(error) => Alert.alert('Ошибка', error)}
+            maxImages={5}
             loading={loading}
           />
         </View>
+
+        {/* Кнопки */}
+        <FormButtons 
+          onCancel={handleCancel}
+          onSubmit={handleSubmit}
+          loading={loading}
+        />
       </ScrollView>
     </View>
   );

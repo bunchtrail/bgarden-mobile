@@ -136,7 +136,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       <ScrollView 
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.imagePreviewContainer}
+        contentContainerStyle={[
+          styles.imagePreviewContainer,
+          selectedImages.length === 0 && { flex: 1, width: '100%' }
+        ]}
       >
         {selectedImages.map((uri, index) => (
           <View key={`${uri}-${index}`} style={styles.imageContainer}>
@@ -174,6 +177,7 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: '#F5F5F5',
     borderRadius: 8,
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
@@ -236,7 +240,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEEEEE',
     borderRadius: 8,
     minHeight: 150,
-    minWidth: 200,
+    width: '100%',
+    alignSelf: 'stretch',
   },
   noImagesText: {
     fontSize: 16,

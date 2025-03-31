@@ -1,26 +1,40 @@
 import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Header } from '@/components/Header';
-import { getSectorName } from '../utils/sectorUtils';
 import { styles } from '../styles';
+import { SectorType } from '@/types';
+import { getSectorName } from '../utils/sectorUtils';
+import { Colors } from '@/constants/Colors';
 
 interface SpecimenHeaderProps {
-  sectorType: number;
+  sectorType: SectorType;
   onCancel: () => void;
 }
 
 export function SpecimenHeader({ sectorType, onCancel }: SpecimenHeaderProps) {
+  // Получаем имя сектора для отображения в заголовке
+  const sectorName = getSectorName(sectorType);
+  
   return (
     <View style={styles.headerContainer}>
-      <TouchableOpacity onPress={onCancel} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="black" />
+      <TouchableOpacity 
+        style={styles.backButton} 
+        onPress={onCancel}
+        hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }}
+      >
+        <Ionicons name="arrow-back" size={24} color={Colors.light.primary} />
       </TouchableOpacity>
-      <Header
-        title={`Добавление растения: ${getSectorName(sectorType)}`}
-        titleColor="black"
-        style={styles.header}
-      />
+      
+      <View style={styles.header}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold', color: Colors.light.text }}>
+          Добавление растения
+        </Text>
+        {sectorType !== undefined && (
+          <Text style={{ fontSize: 14, color: Colors.light.primary, marginTop: 4 }}>
+            Сектор: {sectorName}
+          </Text>
+        )}
+      </View>
     </View>
   );
 } 

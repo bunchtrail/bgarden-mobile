@@ -122,7 +122,7 @@ export const plantsApi = {
 
   // Получение списка семейств растений
   getFamilies: async () => {
-    return plantsHttpClient.get<Family[]>('/api/Families');
+    return plantsHttpClient.get<Family[]>('/api/Family');
   },
   
   // Получение списка экспозиций (участков ботанического сада)
