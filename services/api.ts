@@ -2,13 +2,21 @@ import HttpClient from './HttpClient';
 import { Platform } from 'react-native';
 import { authApi } from '../modules/auth/services/authApi';
 import { plantsApi } from '../modules/plants/services/plantsApi';
+import Constants from 'expo-constants';
 
-// Базовый URL API с учетом платформы
-const API_BASE_URL = Platform.select({
-  ios: 'http://192.168.0.11:7254', // IP компьютера в беспроводной сети
-  android: 'http://10.0.2.2:7254', // Специальный IP для эмулятора Android
-  default: 'http://localhost:7254',
-});
+// Получаем настройки из Expo Constants
+const expoPrevHost = Constants?.manifest?.extra?.host;
+const expoHost = Constants?.expoConfig?.extra?.host;
+const isTunnel = (expoPrevHost === 'tunnel' || expoHost === 'tunnel');
+
+// Базовый URL API с учетом платформы и режима туннеля
+const API_BASE_URL = isTunnel 
+  ? 'https://your-api-public-url.com' // Замените на публичный URL вашего API
+  : Platform.select({
+      ios: 'http://192.168.0.11:7254', // IP компьютера в беспроводной сети
+      android: 'http://10.0.2.2:7254', // Специальный IP для эмулятора Android
+      default: 'http://localhost:7254',
+    });
 
 // Типы для работы с API
 export interface User {

@@ -48,3 +48,21 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Запуск приложения
+
+### Локальная разработка
+```bash
+npm start
+# или
+npm run ios
+npm run android
+```
+
+### Запуск через туннель (без локальной сети)
+Для запуска приложения через интернет (без использования локальной сети):
+```bash
+npm run start:tunnel
+```
+
+Это создаст туннель с помощью ngrok и сгенерирует QR-код, который можно отсканировать через приложение Expo Go на вашем устройстве.
