@@ -103,8 +103,13 @@ export default function AddSpecimenScreen() {
   );
   
   const handleSubmit = useCallback(() => {
-    submitSpecimen();
-  }, [submitSpecimen]);
+    if (validateForm()) {
+      submitSpecimen();
+    } else {
+      console.log('[AddSpecimenScreen] Форма не прошла валидацию.');
+      Alert.alert('Ошибка валидации', 'Пожалуйста, проверьте правильность заполнения полей.');
+    }
+  }, [validateForm, submitSpecimen]);
   
   const handleBack = useCallback(() => {
     router.back();

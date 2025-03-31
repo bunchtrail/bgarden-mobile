@@ -14,6 +14,7 @@ interface ValidationForm {
 export const useSpecimenFormValidation = (form: ValidationForm) => {
   const {
     russianName,
+    familyId,
     description,
     category,
     setErrors
@@ -29,6 +30,11 @@ export const useSpecimenFormValidation = (form: ValidationForm) => {
       isValid = false;
     }
 
+    if (!familyId) {
+      formErrors.familyId = 'Необходимо выбрать семейство';
+      isValid = false;
+    }
+
     if (!description) {
       formErrors.description = 'Необходимо ввести описание';
       isValid = false;
@@ -41,7 +47,7 @@ export const useSpecimenFormValidation = (form: ValidationForm) => {
 
     setErrors(formErrors);
     return isValid;
-  }, [russianName, description, category, setErrors]);
+  }, [russianName, familyId, description, category, setErrors]);
 
   return { validateForm };
 };

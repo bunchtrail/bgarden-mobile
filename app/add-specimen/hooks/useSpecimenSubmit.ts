@@ -44,46 +44,8 @@ export function useSpecimenSubmit(formData: SpecimenFormData, setLoading: (loadi
   
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validateForm = useCallback(() => {
-    const errors: Record<string, string> = {};
-
-    if (!inventoryNumber) {
-      errors.inventoryNumber = 'Необходимо указать инвентарный номер';
-    }
-
-    if (!familyId) {
-      errors.familyId = 'Необходимо выбрать семейство';
-    }
-
-    if (!russianName && !latinName) {
-      errors.russianName = 'Укажите хотя бы одно название растения';
-      errors.latinName = 'Укажите хотя бы одно название растения';
-    }
-
-    // Проверка координат в зависимости от типа локации
-    if (locationType === LocationType.Geographic) {
-      if (!latitude || !longitude) {
-        errors.latitude = 'Необходимо указать координаты';
-      }
-    } else if (locationType === LocationType.SchematicMap) {
-      if (!mapId || !mapX || !mapY) {
-        errors.latitude = 'Необходимо указать координаты на карте';
-      }
-    }
-
-    return errors;
-  }, [inventoryNumber, familyId, russianName, latinName, locationType, latitude, longitude, mapId, mapX, mapY]);
-
   const submitSpecimen = useCallback(async () => {
-    // Валидация перед отправкой
-    const validationErrors = validateForm();
-    
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    
-    // Сброс ошибок
+    // Сброс ошибок (оставляем, может быть полезно)
     setErrors({});
     
     try {
@@ -154,7 +116,6 @@ export function useSpecimenSubmit(formData: SpecimenFormData, setLoading: (loadi
     mapX,
     mapY,
     setLoading, 
-    validateForm, 
     setErrors
   ]);
 
