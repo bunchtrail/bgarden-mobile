@@ -11,9 +11,7 @@ interface UseSpecimenSubmitProps {
 export const useSpecimenSubmit = ({ form, validateForm }: UseSpecimenSubmitProps) => {
   const {
     inventoryNumber, sectorType, russianName, latinName, familyId,
-    genus, species, cultivar, form: formValue, synonyms,
-    plantingYear, hasHerbarium, expositionId, naturalRange,
-    sampleOrigin, economicUse, ecologyAndBiology, conservationStatus,
+    genus, species, description, category, 
     locationType, latitude, longitude, mapId, mapX, mapY,
     images, setLoading
   } = form;
@@ -39,17 +37,8 @@ export const useSpecimenSubmit = ({ form, validateForm }: UseSpecimenSubmitProps
         familyId: parseInt(familyId, 10),
         genus: genus || undefined,
         species: species || undefined,
-        cultivar: cultivar || undefined,
-        form: formValue || undefined,
-        synonyms: synonyms || undefined,
-        plantingYear: plantingYear ? parseInt(plantingYear, 10) : undefined,
-        hasHerbarium,
-        expositionId: expositionId ? parseInt(expositionId, 10) : undefined,
-        naturalRange: naturalRange || undefined,
-        sampleOrigin: sampleOrigin || undefined,
-        economicUse: economicUse || undefined,
-        ecologyAndBiology: ecologyAndBiology || undefined,
-        conservationStatus: conservationStatus || undefined,
+        description: description || undefined,
+        category: category || undefined,
         locationType,
       };
 
@@ -79,10 +68,8 @@ export const useSpecimenSubmit = ({ form, validateForm }: UseSpecimenSubmitProps
     }
   }, [
     validateForm, setLoading, inventoryNumber, sectorType, russianName, 
-    latinName, familyId, genus, species, cultivar, formValue, synonyms,
-    plantingYear, hasHerbarium, expositionId, naturalRange, sampleOrigin,
-    economicUse, ecologyAndBiology, conservationStatus, locationType,
-    latitude, longitude, mapId, mapX, mapY, images,
+    latinName, familyId, genus, species, description, category,
+    locationType, latitude, longitude, mapId, mapX, mapY, images,
   ]);
 
   return { handleSubmit };

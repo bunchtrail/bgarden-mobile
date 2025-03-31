@@ -23,6 +23,9 @@ export default function TabLayout() {
   const tabBarBackground =
     colorScheme === 'dark' ? 'rgba(21, 23, 24, 0.85)' : 'rgba(255, 255, 255, 0.85)';
   const router = useRouter();
+  
+  // Предварительно определяем наличие доступа к экрану добавления
+  const hasAddAccess = userRole === UserRoles.Administrator || userRole === UserRoles.Employee;
 
   return (
     <Tabs
@@ -70,43 +73,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="plant-details"
+        name="explore"
         options={{
-          title: 'Растение',
-          headerTitle: 'Информация о растении',
-          tabBarButton: () => null, // Скрываем из таб-бара
+          title: 'Обзор',
+          headerTitle: 'Обзор сада',
+          tabBarIcon: ({ color }) => <TabBarIcon name="compass" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="plant-edit"
-        options={{
-          title: 'Редактирование',
-          headerTitle: 'Редактирование растения',
-          tabBarButton: () => null, // Скрываем из таб-бара
-        }}
-      />
-      {(userRole === UserRoles.Administrator || userRole === UserRoles.Employee) && (
-        <Tabs.Screen
-          name="add"
-          options={{
-            title: 'Добавить',
-            tabBarIcon: ({ color }) => <TabBarIcon name="add-circle" color={color} />,
-            headerShown: false,
-          }}
-          listeners={({ navigation }) => ({
-            tabPress: (e) => {
-              // Предотвращаем навигацию по умолчанию
-              e.preventDefault();
-              // Перенаправляем напрямую на страницу добавления растения вне табов
-              router.push({
-                pathname: '/add-specimen',
-                params: { mode: 'full' }
-              });
-              console.log('[Навигация] Переход на /add-specimen из вкладки добавления');
-            },
-          })}
-        />
-      )}
     </Tabs>
   );
 }

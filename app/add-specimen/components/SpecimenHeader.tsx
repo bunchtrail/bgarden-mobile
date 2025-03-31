@@ -6,23 +6,18 @@ import { getSectorName } from '../utils/sectorUtils';
 import { styles } from '../styles';
 
 interface SpecimenHeaderProps {
-  isSimpleMode: boolean;
   sectorType: number;
   onCancel: () => void;
 }
 
-export function SpecimenHeader({ isSimpleMode, sectorType, onCancel }: SpecimenHeaderProps) {
+export function SpecimenHeader({ sectorType, onCancel }: SpecimenHeaderProps) {
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={onCancel} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
       <Header
-        title={
-          isSimpleMode
-            ? `Добавление растения: ${getSectorName(sectorType)}`
-            : 'Добавление образца растения'
-        }
+        title={`Добавление растения: ${getSectorName(sectorType)}`}
         titleColor="black"
         style={styles.header}
       />

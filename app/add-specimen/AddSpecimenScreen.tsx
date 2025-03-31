@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, TouchableOpacity, Text, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -15,8 +15,9 @@ import { plantsApi } from '@/modules/plants/services';
 import { LocationType } from '@/types';
 
 import { SimpleSpecimenForm } from './SimpleSpecimenForm';
-import { FullSpecimenForm } from './FullSpecimenForm';
 import { logWithTimestamp } from './utils/logWithTimestamp';
+import { getSectorName } from './utils/sectorUtils';
+import { SpecimenHeader } from './components/SpecimenHeader';
 
 export default function AddSpecimenScreen() {
   console.log('[AddSpecimenScreen] Рендеринг экрана добавления образца');
@@ -26,7 +27,7 @@ export default function AddSpecimenScreen() {
   const form = useSpecimenFormState();
   const {
     mode,
-    isSimpleMode,
+    isSimpleMode = true,
     inventoryNumber,
     setInventoryNumber,
     russianName,
@@ -55,30 +56,6 @@ export default function AddSpecimenScreen() {
     setFamilyId,
     familyName,
     setFamilyName,
-    cultivar,
-    setCultivar,
-    form: formValue,
-    setForm,
-    synonyms,
-    setSynonyms,
-    plantingYear,
-    setPlantingYear,
-    hasHerbarium,
-    setHasHerbarium,
-    expositionId,
-    setExpositionId,
-    expositionName,
-    setExpositionName,
-    naturalRange,
-    setNaturalRange,
-    sampleOrigin,
-    setSampleOrigin,
-    economicUse,
-    setEconomicUse,
-    ecologyAndBiology,
-    setEcologyAndBiology,
-    conservationStatus,
-    setConservationStatus,
     description,
     setDescription,
     category,
@@ -93,14 +70,15 @@ export default function AddSpecimenScreen() {
     setLoading,
     errors,
     setErrors,
+    getCurrentLocation,
   } = form;
 
   console.log(`[AddSpecimenScreen] Параметры: mode=${mode}`);
-  console.log(`[AddSpecimenScreen] Режим формы: ${isSimpleMode ? 'упрощенный' : 'полный'}`);
+  console.log(`[AddSpecimenScreen] Режим формы: упрощенный`);
 
   // Хук для валидации
   const { validateForm } = useSpecimenFormValidation({
-    isSimpleMode,
+    isSimpleMode: true,
     inventoryNumber,
     russianName,
     latinName,
@@ -114,42 +92,49 @@ export default function AddSpecimenScreen() {
   const { handleSubmit } = useSpecimenSubmit({ form, validateForm });
 
   // Кнопка "Отмена"
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     console.log('[AddSpecimenScreen] Нажата кнопка Отмена, возвращаемся назад');
     router.back();
-  };
+  }, []);
 
-  // Вспомогательная функция для заголовка в "простом" режиме
-  const getSectorName = (st: number): string => {
-    switch (st) {
-      case 0:
-        return 'Дендрология';
-      case 1:
-        return 'Флора';
-      case 2:
-        return 'Цветоводство';
-      default:
-        return 'Не указан';
-    }
-  };
+  // Мемоизируем объект формы для SimpleSpecimenForm
+  const formProps = useMemo(() => ({
+    inventoryNumber,
+    setInventoryNumber,
+    russianName,
+    setRussianName,
+    latinName,
+    setLatinName,
+    locationType,
+    setLocationType,
+    latitude,
+    setLatitude,
+    longitude,
+    setLongitude,
+    sectorType,
+    setSectorType,
+    familyId,
+    setFamilyId,
+    familyName,
+    setFamilyName,
+    description,
+    setDescription,
+    getCurrentLocation,
+    errors,
+  }), [
+    inventoryNumber, russianName, latinName, 
+    locationType, latitude, longitude, 
+    sectorType, familyId, familyName, 
+    description, errors, getCurrentLocation
+  ]);
 
   return (
     <View style={styles.container}>
       {/* Шапка */}
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={handleCancel} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Header
-          title={
-            isSimpleMode
-              ? `Добавление растения: ${getSectorName(sectorType)}`
-              : 'Добавление образца растения'
-          }
-          titleColor="black"
-          style={styles.header}
-        />
-      </View>
+      <SpecimenHeader 
+        sectorType={sectorType}
+        onCancel={handleCancel}
+      />
 
       {/* Контейнер со скроллом */}
       <ScrollView
@@ -157,82 +142,8 @@ export default function AddSpecimenScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Ветка для простой формы */}
-        {isSimpleMode ? (
-          <SimpleSpecimenForm
-            form={{
-              russianName,
-              setRussianName,
-              latinName,
-              setLatinName,
-              description,
-              setDescription,
-              category,
-              setCategory,
-              location,
-              setLocation,
-              careInstructions,
-              setCareInstructions,
-              errors,
-            }}
-          />
-        ) : (
-          <FullSpecimenForm
-            form={{
-              inventoryNumber,
-              setInventoryNumber,
-              russianName,
-              setRussianName,
-              latinName,
-              setLatinName,
-              sectorType,
-              setSectorType,
-
-              familyId,
-              setFamilyId,
-              genus,
-              setGenus,
-              species,
-              setSpecies,
-              cultivar,
-              setCultivar,
-              form: formValue,
-              setForm,
-              synonyms,
-              setSynonyms,
-
-              locationType,
-              setLocationType,
-              latitude,
-              setLatitude,
-              longitude,
-              setLongitude,
-              mapId,
-              setMapId,
-              mapX,
-              setMapX,
-              mapY, 
-              setMapY,
-
-              plantingYear,
-              setPlantingYear,
-              hasHerbarium,
-              setHasHerbarium,
-              naturalRange,
-              setNaturalRange,
-              sampleOrigin,
-              setSampleOrigin,
-              economicUse,
-              setEconomicUse,
-              ecologyAndBiology,
-              setEcologyAndBiology,
-              conservationStatus,
-              setConservationStatus,
-
-              errors,
-            }}
-          />
-        )}
+        {/* Используем только простую форму */}
+        <SimpleSpecimenForm form={formProps} />
 
         {/* Загрузка изображений */}
         <ImageUploader

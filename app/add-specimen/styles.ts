@@ -99,8 +99,8 @@ export const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 8,
+    fontWeight: 'bold',
+    marginBottom: 6,
     color: '#333',
   },
   textInput: {
@@ -119,5 +119,56 @@ export const styles = StyleSheet.create({
     color: '#e53935',
     fontSize: 14,
     marginTop: 4,
+  },
+  locationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  locationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+  },
+  locationButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#007BFF',
+    marginLeft: 4,
+  },
+  coordinatesContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    padding: 12,
+  },
+  coordinateField: {
+    flex: 1,
+  },
+  coordinateLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+  },
+  coordinateValue: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  leftIcon: {
+    position: 'absolute',
+    left: 10,
+    zIndex: 1,
+  },
+  inputWithIcon: {
+    paddingLeft: 40,
   },
 });

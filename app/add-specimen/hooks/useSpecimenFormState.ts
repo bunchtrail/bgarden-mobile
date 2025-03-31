@@ -1,19 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { SectorType, LocationType } from '@/types';
 import { logWithTimestamp } from '../utils/logWithTimestamp';
-
-type ModeType = 'simple' | 'full';
+import * as Location from 'expo-location';
 
 export function useSpecimenFormState() {
   // Получаем параметры URL
-  const { mode = 'full', sector = '' } = useLocalSearchParams<{ mode?: ModeType; sector?: string }>();
-
-  // Определяем упрощённый или полный режим
-  const isSimpleMode = mode === 'simple';
+  const { sector = '' } = useLocalSearchParams<{ sector?: string }>();
 
   // Базовая информация
-  const [inventoryNumber, setInventoryNumber] = useState(isSimpleMode ? `INV-${Date.now()}` : '');
+  const [inventoryNumber, setInventoryNumber] = useState(`INV-${Date.now()}`);
   const [russianName, setRussianName] = useState('');
   const [latinName, setLatinName] = useState('');
   const [genus, setGenus] = useState('');
@@ -28,23 +24,9 @@ export function useSpecimenFormState() {
   const [mapX, setMapX] = useState('');
   const [mapY, setMapY] = useState('');
 
-  // Таксономия
+  // Базовая таксономия
   const [familyId, setFamilyId] = useState('1');
   const [familyName, setFamilyName] = useState('');
-  const [cultivar, setCultivar] = useState('');
-  const [form, setForm] = useState('');
-  const [synonyms, setSynonyms] = useState('');
-
-  // Доп. информация
-  const [plantingYear, setPlantingYear] = useState('');
-  const [hasHerbarium, setHasHerbarium] = useState(false);
-  const [expositionId, setExpositionId] = useState('');
-  const [expositionName, setExpositionName] = useState('');
-  const [naturalRange, setNaturalRange] = useState('');
-  const [sampleOrigin, setSampleOrigin] = useState('');
-  const [economicUse, setEconomicUse] = useState('');
-  const [ecologyAndBiology, setEcologyAndBiology] = useState('');
-  const [conservationStatus, setConservationStatus] = useState('');
 
   // Упрощённый режим
   const [description, setDescription] = useState('');
@@ -76,6 +58,47 @@ export function useSpecimenFormState() {
     }
   }, [sector]);
 
+  // Функция для получения текущих координат
+  const getCurrentLocation = useCallback(async () => {
+    // Если координаты уже есть, не запрашиваем их снова
+    if (latitude && longitude && locationType === LocationType.Geographic) {
+      console.log(`[Location] Используем существующие координаты: ${latitude}, ${longitude}`);
+      return;
+    }
+
+    try {
+      // Запрашиваем разрешение на доступ к геолокации
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      
+      if (status !== 'granted') {
+        console.log('[Location] Разрешение на геолокацию не предоставлено');
+        return;
+      }
+      
+      // Устанавливаем тип локации как географические координаты
+      setLocationType(LocationType.Geographic);
+      
+      // Получаем текущие координаты
+      const location = await Location.getCurrentPositionAsync({});
+      
+      // Устанавливаем координаты только если они отличаются от текущих
+      const newLatitude = location.coords.latitude.toString();
+      const newLongitude = location.coords.longitude.toString();
+      
+      if (newLatitude !== latitude) {
+        setLatitude(newLatitude);
+      }
+      
+      if (newLongitude !== longitude) {
+        setLongitude(newLongitude);
+      }
+      
+      console.log(`[Location] Получены координаты: ${location.coords.latitude}, ${location.coords.longitude}`);
+    } catch (error) {
+      console.error('[Location] Ошибка при получении координат:', error);
+    }
+  }, [latitude, longitude, locationType]);
+
   // Логируем, что смонтировались
   useEffect(() => {
     logWithTimestamp('[AddSpecimenScreen] Компонент смонтирован');
@@ -86,9 +109,9 @@ export function useSpecimenFormState() {
 
   return {
     // Параметры
-    mode,
+    mode: 'simple',
     sector,
-    isSimpleMode,
+    isSimpleMode: true,
 
     // Стейт
     inventoryNumber, setInventoryNumber,
@@ -107,19 +130,6 @@ export function useSpecimenFormState() {
 
     familyId, setFamilyId,
     familyName, setFamilyName,
-    cultivar, setCultivar,
-    form, setForm,
-    synonyms, setSynonyms,
-
-    plantingYear, setPlantingYear,
-    hasHerbarium, setHasHerbarium,
-    expositionId, setExpositionId,
-    expositionName, setExpositionName,
-    naturalRange, setNaturalRange,
-    sampleOrigin, setSampleOrigin,
-    economicUse, setEconomicUse,
-    ecologyAndBiology, setEcologyAndBiology,
-    conservationStatus, setConservationStatus,
 
     description, setDescription,
     category, setCategory,
@@ -129,5 +139,8 @@ export function useSpecimenFormState() {
     images, setImages,
     loading, setLoading,
     errors, setErrors,
+    
+    // Функция для получения геолокации
+    getCurrentLocation,
   };
 }
