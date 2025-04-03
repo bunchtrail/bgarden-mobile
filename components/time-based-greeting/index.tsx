@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { ThemedView } from '../ThemedView';
 import { useAuth } from '../../modules/auth/context/AuthContext';
@@ -24,10 +24,11 @@ interface UserGreetingProps {
   lightColor?: string;
   darkColor?: string;
   showUserInfo?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
 const UserGreeting: React.FC<UserGreetingProps> = React.memo(
-  ({ lightColor, darkColor, showUserInfo = false }) => {
+  ({ lightColor, darkColor, showUserInfo = false, style }) => {
     const { user } = useAuth();
     const primaryColor = useThemeColor({}, 'primary');
     const cardColor = useThemeColor({}, 'card');
@@ -55,7 +56,7 @@ const UserGreeting: React.FC<UserGreetingProps> = React.memo(
     const displayName = userData.fullName || userData.username || 'Гость';
     
     return (
-      <ThemedView style={styles.container} lightColor={cardColor} darkColor={cardColor}>
+      <ThemedView style={[styles.container, style]} lightColor={cardColor} darkColor={cardColor}>
         <View style={styles.header}>
           <View style={styles.leftContent}>
             <ThemedText 
@@ -103,7 +104,6 @@ UserGreeting.displayName = 'UserGreeting';
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
     padding: 16,
     borderRadius: 12,
     elevation: 2,

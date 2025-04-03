@@ -30,35 +30,53 @@ export function SectorButtons() {
   };
   
   return (
+    // Используем `flexDirection: 'row'` и `flexWrap: 'wrap'` для сетки
     <View style={styles.sectorsContainer}>
-      <Button
-        title="Дендрология"
-        onPress={() => handleNavigate('dendrology')}
-        style={styles.sectorButton}
-        variant="primary"
-      />
-      <Button
-        title="Флора"
-        onPress={() => handleNavigate('flora')}
-        style={styles.sectorButton}
-        variant="primary"
-      />
-      <Button
-        title="Цветоводство"
-        onPress={() => handleNavigate('flowers')}
-        style={styles.sectorButton}
-        variant="primary"
-      />
+      <View style={styles.buttonWrapper}> 
+        <Button
+          title="Дендрология"
+          onPress={() => handleNavigate('dendrology')}
+          style={styles.sectorButton}
+          variant="primary"
+        />
+      </View>
+      <View style={styles.buttonWrapper}>
+        <Button
+          title="Флора"
+          onPress={() => handleNavigate('flora')}
+          style={styles.sectorButton}
+          variant="primary"
+        />
+      </View>
+      <View style={styles.buttonWrapper}>
+        <Button
+          title="Цветоводство"
+          onPress={() => handleNavigate('flowers')}
+          style={styles.sectorButton}
+          variant="primary"
+        />
+      </View>
+      {/* Добавьте сюда другие кнопки секторов при необходимости */}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   sectorsContainer: {
-    gap: 16,
-    marginTop: 24,
+    flexDirection: 'row', // Располагаем кнопки в ряд
+    flexWrap: 'wrap', // Переносим на следующую строку, если не влезают
+    justifyContent: 'space-between', // Распределяем пространство между колонками
+    gap: 16, // Пространство между рядами и колонками (вертикальное и горизонтальное)
+    // Убираем marginTop, так как он теперь управляется из HomePage
+    // marginTop: 24, 
+  },
+  // Добавляем обертку для каждой кнопки, чтобы задать ширину
+  buttonWrapper: {
+    width: '48%', // Примерно половина ширины с учетом gap
   },
   sectorButton: {
-    marginBottom: 8,
+    // Убираем marginBottom, gap в контейнере теперь отвечает за отступы
+    // marginBottom: 8,
+    width: '100%', // Кнопка занимает всю ширину обертки
   },
 }); 
