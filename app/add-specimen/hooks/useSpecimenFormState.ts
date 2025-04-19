@@ -70,7 +70,6 @@ export function useSpecimenFormState() {
         const response = await plantsApi.getFamilies();
         if (response.data) {
           setFamilies(response.data);
-          console.log(`[FormState] Загружено ${response.data.length} семейств`);
           if (response.data.length > 0) {
             setFamilyName(response.data[0].name);
           }
@@ -95,7 +94,6 @@ export function useSpecimenFormState() {
         const response = await plantsApi.getExpositions();
         if (response.data) {
           setExpositions(response.data);
-          console.log(`[FormState] Загружено ${response.data.length} экспозиций`);
         } else if (response.error) {
           console.error('[FormState] Ошибка загрузки экспозиций:', response.error);
         }
@@ -113,13 +111,11 @@ export function useSpecimenFormState() {
   const getCurrentLocation = useCallback(async () => {
     // Если координаты уже есть и тип локации географический, не запрашиваем их снова
     if (latitude && longitude && locationType === LocationType.Geographic) {
-      console.log(`[Location] Используем существующие координаты: ${latitude}, ${longitude}`);
       return;
     }
 
     // Если тип локации схематический, не запрашиваем географические координаты
     if (locationType === LocationType.SchematicMap) {
-      console.log(`[Location] Используем схематические координаты: mapId=${mapId}, x=${mapX}, y=${mapY}`);
       return;
     }
 
@@ -128,7 +124,6 @@ export function useSpecimenFormState() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       
       if (status !== 'granted') {
-        console.log('[Location] Разрешение на геолокацию не предоставлено');
         return;
       }
       
@@ -149,8 +144,6 @@ export function useSpecimenFormState() {
       if (newLongitude !== longitude) {
         setLongitude(newLongitude);
       }
-      
-      console.log(`[Location] Получены координаты: ${location.coords.latitude}, ${location.coords.longitude}`);
     } catch (error) {
       console.error('[Location] Ошибка при получении координат:', error);
     }
@@ -158,9 +151,7 @@ export function useSpecimenFormState() {
 
   // Логируем, что смонтировались
   useEffect(() => {
-    logWithTimestamp('[AddSpecimenScreen] Компонент смонтирован');
     return () => {
-      logWithTimestamp('[AddSpecimenScreen] Компонент размонтирован');
     };
   }, []);
 

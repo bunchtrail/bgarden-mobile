@@ -7,8 +7,8 @@ export function SectorButtons() {
   const { router } = useAppNavigation();
   
   const handleNavigate = (sectorType: string) => {
-    console.log(`[Навигация] Нажата кнопка сектора: ${sectorType}`);
-    console.log(`[Навигация] Прямой переход на: /add-specimen с параметрами mode=simple, sector=${sectorType}`);
+    // console.log(`[Навигация] Нажата кнопка сектора: ${sectorType}`);
+    // console.log(`[Навигация] Прямой переход на: /add-specimen с параметрами mode=simple, sector=${sectorType}`);
     
     // Прямая навигация на страницу добавления образца (без вложенности в табы)
     try {
@@ -17,14 +17,14 @@ export function SectorButtons() {
         mode: 'simple', 
         sector: sectorType // Явно определяем параметр sector
       };
-      console.log(`[Навигация] Передаваемые параметры:`, params);
+      // console.log(`[Навигация] Передаваемые параметры:`, params);
       
       router.push({
         pathname: "/add-specimen/AddSpecimenScreen", // Прямой путь к странице
         params: params
       });
     } catch (err) {
-      console.error("[Навигация] Ошибка при переходе:", err);
+      // console.error("[Навигация] Ошибка при переходе:", err);
       Alert.alert("Ошибка навигации", "Не удалось перейти на страницу добавления растения");
     }
   };

@@ -23,8 +23,6 @@ import { FormButtons } from './components/FormButtons';
 
 export default function AddSpecimenScreen() {
   const router = useRouter();
-  console.log('[AddSpecimenScreen] Рендеринг экрана добавления образца');
-  logWithTimestamp('[AddSpecimenScreen] START RENDER');
 
   // Получаем состояние формы из хука
   const formState = useSpecimenFormState();
@@ -80,9 +78,6 @@ export default function AddSpecimenScreen() {
     setExpositionId,
   } = formState;
 
-  console.log(`[AddSpecimenScreen] Параметры: mode=${mode}`);
-  console.log(`[AddSpecimenScreen] Режим формы: упрощенный`);
-
   // Получаем валидатор формы
   const { validateForm } = useSpecimenFormValidation(formState);
   
@@ -110,7 +105,6 @@ export default function AddSpecimenScreen() {
     if (validateForm()) {
       submitSpecimen();
     } else {
-      console.log('[AddSpecimenScreen] Форма не прошла валидацию.');
       Alert.alert('Ошибка валидации', 'Пожалуйста, проверьте правильность заполнения полей.');
     }
   }, [validateForm, submitSpecimen]);

@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 
 import { useAuth } from '../auth/context/AuthContext';
@@ -42,48 +42,49 @@ interface NavigationProviderProps {
   children: ReactNode;
 }
 
+const getRouteType = (segments: string[]): 'auth' | 'protected' | 'public' | null => {
+  if (!segments || segments.length === 0) return null;
+  const firstSegment = segments[0];
+  if (firstSegment === '(auth)') return 'auth';
+  if (firstSegment === '(tabs)') return 'protected';
+  return 'public';
+};
+
 export function NavigationProvider({ children }: NavigationProviderProps) {
-  const { user, isLoading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
+  const { user, isLoading } = useAuth();
 
-  // Определение текущего типа маршрута
-  const getCurrentRouteType = (): RouteType | null => {
-    if (!segments || !segments.length) return null;
+  // Храним предыдущие сегменты, чтобы избежать лишних редиректов
+  const [prevSegments, setPrevSegments] = useState<string[] | null>(null);
 
-    const firstSegment = segments[0];
-    return segmentToRouteType[firstSegment as string] || RouteType.PUBLIC;
-  };
-  
-  // Логирование текущего маршрута при изменении сегментов
   useEffect(() => {
-    console.log('[Навигация] Текущий маршрут:', segments.join('/'));
-    console.log('[Навигация] Сегменты маршрута:', segments);
-    
-    const routeType = getCurrentRouteType();
-    console.log(`[Навигация] Тип маршрута: ${routeType}`);
-  }, [segments]);
+    if (isLoading) return; // Не выполняем логику, пока идет загрузка аутентификации
 
-  // Логика редиректа при изменении состояния аутентификации или URL
-  useEffect(() => {
-    if (isLoading) return;
-
-    const currentRouteType = getCurrentRouteType();
-    const isRootPath = !segments || segments.join('') === '';
-
-    // Пользователь не залогинен и пытается попасть на защищённый маршрут
-    if (!user && currentRouteType === RouteType.PROTECTED) {
-      console.log('[Навигация] Редирект неавторизованного пользователя с защищенного маршрута на страницу входа');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      router.replace(ROUTES.LOGIN.path as any);
+    // Сравниваем текущие сегменты с предыдущими
+    if (prevSegments && prevSegments.join('/') === segments.join('/')) {
+      return; // Сегменты не изменились, выходим
     }
-    // Пользователь залогинен, но на странице авторизации или на корневом пути
-    else if (user && (currentRouteType === RouteType.AUTH || isRootPath)) {
-      console.log('[Навигация] Редирект авторизованного пользователя на домашнюю страницу');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      router.replace(ROUTES.HOME.path as any);
+
+    const routeType = getRouteType(segments);
+    // console.log('[Навигация] Текущий маршрут:', segments.join('/'));
+    // console.log('[Навигация] Сегменты маршрута:', segments);
+    // console.log(`[Навигация] Тип маршрута: ${routeType}`);
+
+    // Логика редиректа
+    if (routeType === 'protected' && !user) {
+      // console.log('[Навигация] Редирект неавторизованного пользователя с защищенного маршрута на страницу входа');
+      router.replace('/login');
+      setPrevSegments(segments); // Обновляем предыдущие сегменты
+    } else if (routeType === 'auth' && user) {
+      // console.log('[Навигация] Редирект авторизованного пользователя на домашнюю страницу');
+      router.replace('/(tabs)');
+      setPrevSegments(segments); // Обновляем предыдущие сегменты
+    } else {
+      // Если редирект не нужен, просто обновляем предыдущие сегменты
+      setPrevSegments(segments);
     }
-  }, [user, segments, isLoading]);
+  }, [segments, user, isLoading, router, prevSegments]);
 
   return <>{children}</>;
 }
