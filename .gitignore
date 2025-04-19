@@ -49,7 +49,7 @@ app-example
 # Логи
 logs
 *.log
-
+SpaceMono-Regular.ttf
 # Тестовые отчеты
 coverage/
 .jest/

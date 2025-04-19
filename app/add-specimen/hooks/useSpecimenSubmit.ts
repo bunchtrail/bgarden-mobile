@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
-import { LocationType, SectorType } from '@/types';
+import { LocationType, SectorType, Exposition } from '@/types';
 import { plantsApi } from '@/modules/plants/services';
 
 interface SpecimenFormData {
@@ -9,6 +9,7 @@ interface SpecimenFormData {
   russianName: string;
   latinName: string;
   familyId: string;
+  expositionId: string;
   description: string;
   locationType: LocationType;
   latitude: string;
@@ -32,6 +33,7 @@ export function useSpecimenSubmit(formData: SpecimenFormData, setLoading: (loadi
     russianName, 
     latinName, 
     familyId, 
+    expositionId,
     description,
     locationType,
     latitude,
@@ -73,6 +75,7 @@ export function useSpecimenSubmit(formData: SpecimenFormData, setLoading: (loadi
         familyId: parseInt(familyId, 10),
         description: description || undefined,
         sectorType,
+        expositionId: expositionId ? parseInt(expositionId, 10) : undefined,
         ...locationData
       };
       
@@ -107,6 +110,7 @@ export function useSpecimenSubmit(formData: SpecimenFormData, setLoading: (loadi
     russianName, 
     latinName, 
     familyId, 
+    expositionId,
     description, 
     sectorType, 
     locationType,

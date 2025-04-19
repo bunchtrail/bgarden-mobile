@@ -75,6 +75,9 @@ export default function AddSpecimenScreen() {
     setErrors,
     getCurrentLocation,
     families,
+    expositions,
+    expositionId,
+    setExpositionId,
   } = formState;
 
   console.log(`[AddSpecimenScreen] Параметры: mode=${mode}`);
@@ -97,7 +100,8 @@ export default function AddSpecimenScreen() {
       mapId: formState.mapId,
       mapX: formState.mapX,
       mapY: formState.mapY,
-      sectorType: formState.sectorType
+      sectorType: formState.sectorType,
+      expositionId: formState.expositionId
     }, 
     setLoading
   );
@@ -147,6 +151,9 @@ export default function AddSpecimenScreen() {
     setDescription,
     getCurrentLocation,
     families,
+    expositions,
+    expositionId,
+    setExpositionId,
     errors,
     dropdownVisible,
     setDropdownVisible,
@@ -156,11 +163,12 @@ export default function AddSpecimenScreen() {
     mapId, mapX, mapY,
     sectorType, familyId, familyName, 
     description, errors, getCurrentLocation, families,
+    expositions, expositionId,
     dropdownVisible
   ]);
 
   // Если загрузка - показываем индикатор
-  if (!families.length) {
+  if (loading || !families.length || !expositions.length) {
     return (
       <View style={styles.container}>
         <View style={styles.headerContainer}>

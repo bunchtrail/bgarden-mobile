@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { SectorType, LocationType, Family } from '@/types';
+import { SectorType, LocationType, Family, Exposition } from '@/types';
 import { logWithTimestamp } from '../utils/logWithTimestamp';
 import * as Location from 'expo-location';
 import { plantsApi } from '@/modules/plants/services';
@@ -28,6 +28,7 @@ export function useSpecimenFormState() {
   // Базовая таксономия
   const [familyId, setFamilyId] = useState('1');
   const [familyName, setFamilyName] = useState('');
+  const [expositionId, setExpositionId] = useState<string>('1'); // Устанавливаем ID экспозиции по умолчанию
 
   // Упрощённый режим
   const [description, setDescription] = useState('');
@@ -40,6 +41,7 @@ export function useSpecimenFormState() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [families, setFamilies] = useState<Family[]>([]);
+  const [expositions, setExpositions] = useState<Exposition[]>([]);
 
   // Обработка параметра 'sector' при маунте/обновлении
   useEffect(() => {
@@ -69,6 +71,9 @@ export function useSpecimenFormState() {
         if (response.data) {
           setFamilies(response.data);
           console.log(`[FormState] Загружено ${response.data.length} семейств`);
+          if (response.data.length > 0) {
+            setFamilyName(response.data[0].name);
+          }
         } else if (response.error) {
           console.error('[FormState] Ошибка загрузки семейств:', response.error);
         }
@@ -80,6 +85,28 @@ export function useSpecimenFormState() {
     };
     
     loadFamilies();
+  }, []);
+
+  // Загрузка экспозиций при монтировании компонента
+  useEffect(() => {
+    const loadExpositions = async () => {
+      try {
+        setLoading(true);
+        const response = await plantsApi.getExpositions();
+        if (response.data) {
+          setExpositions(response.data);
+          console.log(`[FormState] Загружено ${response.data.length} экспозиций`);
+        } else if (response.error) {
+          console.error('[FormState] Ошибка загрузки экспозиций:', response.error);
+        }
+      } catch (error) {
+        console.error('[FormState] Ошибка при загрузке экспозиций:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadExpositions();
   }, []);
 
   // Функция для получения текущих координат
@@ -160,6 +187,7 @@ export function useSpecimenFormState() {
 
     familyId, setFamilyId,
     familyName, setFamilyName,
+    expositionId, setExpositionId,
 
     description, setDescription,
     category, setCategory,
@@ -170,6 +198,7 @@ export function useSpecimenFormState() {
     loading, setLoading,
     errors, setErrors,
     families,
+    expositions,
     
     // Функция для получения геолокации
     getCurrentLocation,

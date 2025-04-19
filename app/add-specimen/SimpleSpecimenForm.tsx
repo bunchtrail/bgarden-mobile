@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
 import { View } from 'react-native';
 import { styles } from './styles';
-import { Family, SectorType, LocationType } from '@/types';
+import { Family, SectorType, LocationType, Exposition } from '@/types';
 import { 
   BasicInfoSection, 
   LocationSection, 
@@ -15,6 +15,13 @@ import { DropdownItem } from '@/components/ui/Dropdown/types';
 
 // Совместимый тип для семейства в контексте выпадающего списка
 type FamilyDropdownItem = {
+  id: string | number;
+  name: string;
+  description?: string;
+}
+
+// Тип для экспозиции в контексте Dropdown
+type ExpositionDropdownItem = {
   id: string | number;
   name: string;
   description?: string;
@@ -51,6 +58,10 @@ interface SpecimenFormData {
   familyId: string;
   setFamilyId: (value: string) => void;
 
+  // Добавляем поля для экспозиции
+  expositionId: string;
+  setExpositionId: (value: string) => void;
+
   // Заметки
   description: string;
   setDescription: (value: string) => void;
@@ -60,6 +71,9 @@ interface SpecimenFormData {
   
   // Данные семейств
   families: Family[];
+  
+  // Добавляем данные экспозиций
+  expositions: Exposition[];
   
   // Ошибки
   errors: Record<string, string>;
@@ -82,9 +96,11 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
     mapX, setMapX,
     mapY, setMapY,
     familyId, setFamilyId,
+    expositionId, setExpositionId,
     description, setDescription,
     getCurrentLocation,
     families,
+    expositions,
     errors
   } = form;
   
@@ -103,15 +119,27 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
     description: family.description
   }));
 
+  // Преобразуем экспозиции в формат, подходящий для Dropdown
+  const expositionItems: ExpositionDropdownItem[] = expositions.map(expo => ({
+    id: expo.id.toString(),
+    name: expo.name,
+    description: expo.description
+  }));
+
   // Новый обработчик выбора для универсального Dropdown
   const handleFamilySelect = useCallback((selectedFamily: DropdownItem) => {
     setFamilyId(selectedFamily.id.toString());
   }, [setFamilyId]);
 
+  // Обработчик выбора экспозиции
+  const handleExpositionSelect = useCallback((selectedExposition: DropdownItem) => {
+    setExpositionId(selectedExposition.id.toString());
+  }, [setExpositionId]);
+
   return (
-    <View style={[styles.formContainer, { zIndex: 1 }]}>
-      {/* Базовая информация - добавляем повышенный z-index */}
-      <View style={{ zIndex: 3 }}>
+    <View style={styles.formContainer}>
+      {/* Базовая информация - используем стиль zIndex */}
+      <View style={styles.zIndexHigh}>
         <BasicInfoSection
           inventoryNumber={inventoryNumber}
           setInventoryNumber={setInventoryNumber}
@@ -132,12 +160,24 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
               noDataMessage="Семейства не найдены"
             />
           )}
+          expositionDropdownComponent={(
+            <Dropdown
+              items={expositionItems}
+              selectedValue={expositionId}
+              onSelect={handleExpositionSelect}
+              label="Экспозиция"
+              placeholder="Выберите экспозицию"
+              leftIconName="map-outline"
+              error={errors?.expositionId}
+              noDataMessage="Экспозиции не найдены"
+            />
+          )}
           errors={errors}
         />
       </View>
       
-      {/* Секция локации - понижаем z-index */}
-      <View style={{ zIndex: 2 }}>
+      {/* Секция локации - используем стиль zIndex */}
+      <View style={styles.zIndexMedium}>
         <LocationSection
           latitude={latitude}
           longitude={longitude}
@@ -151,8 +191,8 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
         />
       </View>
       
-      {/* Дополнительная информация - понижаем z-index */}
-      <View style={{ zIndex: 1 }}>
+      {/* Дополнительная информация - используем стиль zIndex */}
+      <View style={styles.zIndexLow}>
         <NotesSection
           description={description}
           setDescription={setDescription}

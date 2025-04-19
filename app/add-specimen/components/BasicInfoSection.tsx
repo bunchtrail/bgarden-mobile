@@ -13,6 +13,7 @@ interface BasicInfoSectionProps {
   latinName: string;
   setLatinName: (value: string) => void;
   familyDropdownComponent: React.ReactNode;
+  expositionDropdownComponent: React.ReactNode;
   errors: Record<string, string>;
 }
 
@@ -21,6 +22,7 @@ export const BasicInfoSection = memo(function BasicInfoSectionComponent({
   russianName, setRussianName,
   latinName, setLatinName,
   familyDropdownComponent,
+  expositionDropdownComponent,
   errors
 }: BasicInfoSectionProps) {
   
@@ -39,6 +41,11 @@ export const BasicInfoSection = memo(function BasicInfoSectionComponent({
       {/* Семейство - теперь просто рендерим переданный компонент */} 
       <View style={{ zIndex: 2 }}>
         {familyDropdownComponent}
+      </View>
+      
+      {/* Добавляем рендер Dropdown для экспозиции */} 
+      <View style={{ zIndex: 1 }}>
+        {expositionDropdownComponent}
       </View>
       
       {/* Названия растения */}

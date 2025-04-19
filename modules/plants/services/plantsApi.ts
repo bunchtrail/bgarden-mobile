@@ -127,6 +127,6 @@ export const plantsApi = {
   
   // Получение списка экспозиций (участков ботанического сада)
   getExpositions: async () => {
-    return plantsHttpClient.get<Exposition[]>('/api/Expositions');
+    return plantsHttpClient.get<Exposition[]>('/api/Exposition');
   },
 }; 

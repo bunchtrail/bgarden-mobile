@@ -13,6 +13,31 @@ const INPUT_HEIGHT = Math.max(44, 48 * scale);
 const BORDER_RADIUS = 12 * scale;
 const PADDING = 16 * scale;
 
+// Общие стили теней
+const shadowStyle = Platform.select({
+  ios: {
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowColor: '#000',
+  },
+  android: {
+    elevation: 1,
+  },
+});
+
+const headerShadowStyle = Platform.select({
+  ios: {
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    shadowColor: '#000',
+  },
+  android: {
+    elevation: 2,
+  },
+});
+
 // Интерфейс для типа hitSlop
 interface BackButtonStyle extends ViewStyle {
   hitSlop?: {
@@ -42,17 +67,7 @@ export const styles = StyleSheet.create({
     borderBottomColor: Colors.light.border,
     paddingBottom: 10 * scale,
     zIndex: 10,
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        shadowColor: '#000',
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+    ...headerShadowStyle,
   },
   header: {
     flex: 1,
@@ -60,6 +75,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
+    borderRadius: BORDER_RADIUS,
+    padding: PADDING,
+    ...shadowStyle,
   },
   backButton: {
     padding: 10,
@@ -88,23 +106,15 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light.card,
     borderRadius: BORDER_RADIUS,
     padding: PADDING,
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        shadowColor: '#000',
-      },
-      android: {
-        elevation: 1,
-      },
-    }),
+    ...shadowStyle,
   },
   sectionTitle: {
     fontSize: 18 * scale,
     fontWeight: 'bold',
     marginBottom: 12 * scale,
     color: Colors.light.text,
+    height: INPUT_HEIGHT,
+    ...shadowStyle,
   },
   checkboxContainer: {
     marginVertical: 10 * scale,
@@ -184,20 +194,11 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     color: Colors.light.text,
     height: INPUT_HEIGHT,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-      },
-      android: {
-        elevation: 1,
-      },
-    }),
+    ...shadowStyle,
   },
   errorInput: {
     borderColor: '#e53935',
+    marginTop: isSmallDevice ? 8 * scale : 0,
   },
   errorText: {
     color: '#e53935',
@@ -399,6 +400,10 @@ export const styles = StyleSheet.create({
     bottom: -1000,
     zIndex: -1,
   },
+  // Стили для управления zIndex секций в SimpleSpecimenForm
+  zIndexHigh: { zIndex: 3 },
+  zIndexMedium: { zIndex: 2 },
+  zIndexLow: { zIndex: 1 },
 });
 
 // Функция для получения стилей при смене ориентации экрана
