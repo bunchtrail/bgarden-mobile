@@ -1,10 +1,14 @@
 import React from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import { useAppNavigation } from '@/modules/navigation';
-import { Button } from '@/components/Button';
+import { Card } from '@/components/ui/Card';
+import { IconSymbol } from '@/components/ui/IconSymbol.ios';
+import { ThemedText } from '@/components/ThemedText';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export function SectorButtons() {
   const { router } = useAppNavigation();
+  const iconColor = useThemeColor({}, 'icon');
   
   const handleNavigate = (sectorType: string) => {
     // console.log(`[Навигация] Нажата кнопка сектора: ${sectorType}`);
@@ -29,54 +33,89 @@ export function SectorButtons() {
     }
   };
   
+  // Структура данных для кнопок-карточек
+  const sectors = [
+    // Возвращаем поле icon
+    { name: 'Дендрология', type: 'dendrology', icon: 'tree.fill' as any }, 
+    { name: 'Флора', type: 'flora', icon: 'leaf' as any }, 
+    { name: 'Цветоводство', type: 'flowers', icon: 'flower' as any }
+    // Добавьте сюда другие секторы при необходимости
+  ];
+  
   return (
     // Используем `flexDirection: 'row'` и `flexWrap: 'wrap'` для сетки
     <View style={styles.sectorsContainer}>
-      <View style={styles.buttonWrapper}> 
-        <Button
-          title="Дендрология"
-          onPress={() => handleNavigate('dendrology')}
-          style={styles.sectorButton}
-          variant="primary"
-        />
-      </View>
-      <View style={styles.buttonWrapper}>
-        <Button
-          title="Флора"
-          onPress={() => handleNavigate('flora')}
-          style={styles.sectorButton}
-          variant="primary"
-        />
-      </View>
-      <View style={styles.buttonWrapper}>
-        <Button
-          title="Цветоводство"
-          onPress={() => handleNavigate('flowers')}
-          style={styles.sectorButton}
-          variant="primary"
-        />
-      </View>
-      {/* Добавьте сюда другие кнопки секторов при необходимости */}
+      {sectors.map((sector) => (
+        // Обертка для каждой карточки (задает ширину)
+        <View key={sector.type} style={styles.cardWrapper}> 
+          <Card 
+            onPress={() => handleNavigate(sector.type)}
+            style={styles.cardContent} // Убираем внутренний padding по умолчанию, чтобы управлять контентом
+            variant="elevated" // Используем вариант с тенью для лучшего выделения
+          >
+            <View style={styles.innerContent}>
+              {/* Убираем placeholder */}
+              {/* <View style={styles.iconPlaceholder}>
+                <ThemedText style={styles.iconPlaceholderText}>
+                  {sector.name.charAt(0)}
+                </ThemedText>
+              </View> */}
+              {/* Раскомментируем IconSymbol */}
+              <IconSymbol 
+                name={sector.icon} // Теперь используем правильные имена
+                size={32} 
+                color={iconColor} 
+                style={styles.icon} // Используем правильное имя стиля
+              /> 
+              <ThemedText style={styles.cardText}>{sector.name}</ThemedText>
+            </View>
+          </Card>
+        </View>
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   sectorsContainer: {
-    flexDirection: 'row', // Располагаем кнопки в ряд
-    flexWrap: 'wrap', // Переносим на следующую строку, если не влезают
-    justifyContent: 'space-between', // Распределяем пространство между колонками
-    gap: 16, // Пространство между рядами и колонками (вертикальное и горизонтальное)
-    // Убираем marginTop, так как он теперь управляется из HomePage
-    // marginTop: 24, 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    // justifyContent: 'space-between', // Убрано для одной колонки
+    gap: 16,
   },
-  // Добавляем обертку для каждой кнопки, чтобы задать ширину
-  buttonWrapper: {
-    width: '48%', // Примерно половина ширины с учетом gap
+  cardWrapper: {
+    width: '100%',
   },
-  sectorButton: {
-    // Убираем marginBottom, gap в контейнере теперь отвечает за отступы
-    // marginBottom: 8,
-    width: '100%', // Кнопка занимает всю ширину обертки
+  cardContent: {
+    padding: 0, 
+    marginVertical: 0, 
+  },
+  innerContent: {
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    paddingVertical: 20, 
+    paddingHorizontal: 10, 
+    minHeight: 100, 
+  },
+  iconPlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(128, 128, 128, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8, 
+  },
+  iconPlaceholderText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'rgba(0, 0, 0, 0.6)',
+  },
+  cardText: {
+    textAlign: 'center', 
+    fontSize: 14, 
+  },
+  icon: {
+    marginBottom: 8,
   },
 }); 
