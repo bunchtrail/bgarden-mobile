@@ -139,7 +139,7 @@ class HttpClient {
   private async request<T>(
     endpoint: string,
     method: string,
-    data?: RequestBody,
+    data?: RequestBody | FormData,
     options?: RequestOptions
   ): Promise<HttpResponse<T>> {
     const isConnected = await this.checkNetworkConnectivity();
@@ -153,7 +153,24 @@ class HttpClient {
     }
 
     const url = `${this.baseUrl}${endpoint}`;
-    const headers = await this.getHeaders(options);
+    let headers = await this.getHeaders(options);
+    let body: string | FormData | undefined;
+
+    if (data instanceof FormData) {
+      body = data;
+      const { 'Content-Type': contentType, ...restHeaders } = headers;
+      headers = restHeaders;
+      console.log('[HttpClient] Отправка FormData...', { url, method });
+    } else if (data) {
+      body = JSON.stringify(data);
+      if (!headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+      }
+      console.log('[HttpClient] Отправка JSON...', { url, method, headers, body });
+    } else {
+      body = undefined;
+      console.log('[HttpClient] Запрос без тела...', { url, method, headers });
+    }
 
     if (Platform.OS !== 'web' && __DEV__) {
       // Удален console.log
@@ -169,7 +186,7 @@ class HttpClient {
       const response = await fetch(url, {
         method,
         headers,
-        body: data ? JSON.stringify(data) : undefined,
+        body: body,
         signal: controller.signal,
       });
 

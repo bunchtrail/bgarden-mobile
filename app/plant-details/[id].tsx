@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, View, TouchableOpacity, ActivityIndicator, Alert, Platform } from 'react-native';
+import { ScrollView, View, TouchableOpacity, ActivityIndicator, Alert, Platform, Switch } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -46,6 +46,27 @@ export default function PlantDetails() {
   // Состояние для отслеживания процесса выбора/загрузки
   const [isPickingOrUploading, setIsPickingOrUploading] = useState(false);
 
+  // --- Новая функция для подтверждения и запуска загрузки ---
+  const uploadConfirmed = useCallback(async (uri: string, isMain: boolean) => {
+    setIsPickingOrUploading(true);
+    try {
+      // Передаем isMain в uploadNewImage
+      const success = await uploadNewImage(uri, isMain); 
+      if (success) {
+        Alert.alert('Успех', 'Изображение успешно загружено.');
+      } else {
+        // Ошибка уже логируется в uploadNewImage
+        Alert.alert('Ошибка', 'Не удалось загрузить изображение. Проверьте логи для деталей.'); 
+      }
+    } catch (error) {
+        console.error("Критическая ошибка при вызове uploadNewImage:", error);
+        Alert.alert('Ошибка', 'Произошла критическая ошибка при загрузке.');
+    } finally {
+      setIsPickingOrUploading(false);
+    }
+  }, [uploadNewImage]);
+  // --- Конец новой функции ---
+
   // Обработчик выбора изображения в галерее, который обновит индекс в карусели
   const onGalleryImageSelect = useCallback((imageUrl: string, index: number) => {
     handleImageSelect(imageUrl, index); // Обновляем индекс в хуке
@@ -54,13 +75,9 @@ export default function PlantDetails() {
 
   // Обработчик нажатия на кнопку "Добавить фото"
   const handleAddPhotoPress = useCallback(async () => {
-    // TODO: Реализовать логику выбора и загрузки фото
-    // console.log('Нажата кнопка "Добавить фото"');
-    // alert('Функционал добавления фото в разработке.');
-    // // Здесь будет вызов функции из хука usePlantImages, например:
-    // // handleAddNewImage(); 
-    
-    setIsPickingOrUploading(true);
+    console.log('[handleAddPhotoPress] Кнопка "Добавить фото" нажата.'); 
+    // Не блокируем кнопку сразу, блокировка будет перед фактической загрузкой
+    // setIsPickingOrUploading(true); 
     
     // 1. Запрос разрешений
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -82,26 +99,42 @@ export default function PlantDetails() {
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const imageUri = result.assets[0].uri;
         
-        // 3. Загрузка изображения
-        const success = await uploadNewImage(imageUri);
-        if (success) {
-          // showToast('success', 'Изображение успешно загружено.');
-          Alert.alert('Успех', 'Изображение успешно загружено.');
-        } else {
-          // showToast('error', 'Не удалось загрузить изображение.');
-          Alert.alert('Ошибка', 'Не удалось загрузить изображение.');
-        }
+        // 3. СПРАШИВАЕМ пользователя, делать ли фото главным
+        Alert.alert(
+          'Сделать главным?',
+          'Сделать это изображение главным для растения?',
+          [
+            {
+              text: 'Нет',
+              onPress: () => uploadConfirmed(imageUri, false), // Вызываем uploadConfirmed с isMain = false
+              style: 'default',
+            },
+            {
+              text: 'Да',
+              onPress: () => uploadConfirmed(imageUri, true), // Вызываем uploadConfirmed с isMain = true
+              style: 'default',
+            },
+            {
+              text: 'Отмена',
+              style: 'cancel',
+              onPress: () => console.log('Выбор главного фото отменен')
+            },
+          ],
+          { cancelable: true }
+        );
+
       } else {
         // Пользователь отменил выбор
-        // showToast('info', 'Выбор изображения отменен.');
+        console.log('Выбор изображения отменен пользователем.');
       }
     } catch (error) {
         console.error("Ошибка при выборе или обработке изображения:", error);
         Alert.alert('Ошибка', 'Произошла ошибка при обработке изображения.');
-    } finally {
-      setIsPickingOrUploading(false);
-    }
-  }, [uploadNewImage]);
+        // Снимаем блокировку, если была ошибка до загрузки
+        // setIsPickingOrUploading(false); 
+    } 
+    // finally убран, т.к. setIsPickingOrUploading управляется в uploadConfirmed
+  }, [uploadConfirmed]); // Добавлена зависимость uploadConfirmed
 
   // Обработчик смены индекса в карусели
   const onCarouselIndexChange = useCallback((index: number) => {

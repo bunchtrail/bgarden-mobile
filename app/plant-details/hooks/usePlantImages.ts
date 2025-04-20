@@ -50,16 +50,23 @@ export const usePlantImages = (plantId: number) => {
   }, [allImages, imageSrc]);
 
   // Функция для загрузки нового изображения
-  const uploadNewImage = useCallback(async (imageUri: string): Promise<boolean> => {
+  const uploadNewImage = useCallback(async (imageUri: string, isMain: boolean): Promise<boolean> => {
     if (!plantId) {
       console.error("uploadNewImage: plantId is invalid", plantId);
       return false;
     }
+    
+    // ---> Логирование перед загрузкой <---
+    console.log(`[uploadNewImage] Попытка загрузки для plantId: ${plantId}`);
+    console.log(`[uploadNewImage] Используемый imageUri: ${imageUri}`);
+    console.log(`[uploadNewImage] Значение isMain: ${isMain}`);
+    // ---> Конец логирования <---
+    
     setIsUploading(true);
     try {
       // Используем batchUpload для одного изображения
       // false - не устанавливать как основное по умолчанию
-      const result = await imageService.batchUpload(plantId, [imageUri], false);
+      const result = await imageService.batchUpload(plantId, [imageUri], isMain);
       if (result && result.successCount > 0) {
         // Успешно загружено, обновляем данные
         await fetchSpecimenImage();

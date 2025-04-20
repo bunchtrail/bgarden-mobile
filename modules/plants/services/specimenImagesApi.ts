@@ -199,10 +199,10 @@ export const specimenImagesApi = {
       const formData = new FormData();
       
       // Добавляем ID образца
-      formData.append('specimenId', specimenId.toString());
+      formData.append('SpecimenId', specimenId.toString());
       
       // Добавляем флаг основного изображения
-      formData.append('isMain', isMain.toString());
+      formData.append('IsMain', isMain.toString());
       
       // Добавляем файлы изображений
       imageUris.forEach((imageUri, index) => {
@@ -219,7 +219,7 @@ export const specimenImagesApi = {
                         'application/octet-stream';
         
         // Добавляем файл в formData
-        formData.append('files', {
+        formData.append('Files', {
           uri: imageUri,
           name: fileName,
           type: mimeType,
@@ -230,11 +230,7 @@ export const specimenImagesApi = {
       const response = await specimenImagesHttpClient.post<BatchSpecimenImageResult>(
         url,
         formData as unknown as Record<string, unknown>,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          }
-        }
+        {}
       );
       
       logResponse('POST', url, response);
@@ -244,11 +240,7 @@ export const specimenImagesApi = {
         const newResponse = await specimenImagesHttpClient.post<BatchSpecimenImageResult>(
           url,
           formData as unknown as Record<string, unknown>,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            }
-          }
+          {}
         );
         logResponse('POST (retry)', url, newResponse);
         return newResponse;
