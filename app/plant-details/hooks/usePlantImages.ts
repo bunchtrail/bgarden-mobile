@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSpecimenImage, useGalleryImages } from '@/modules/plants/hooks';
+import { useSpecimenImagesService } from '@/modules/plants/hooks/useSpecimenImagesService';
 
 // Хук для работы с изображениями
 export const usePlantImages = (plantId: number) => {
@@ -7,6 +8,10 @@ export const usePlantImages = (plantId: number) => {
   const [allImageUrls, setAllImageUrls] = useState<string[]>([]);
   const [galleryLoaded, setGalleryLoaded] = useState(false);
   const [forceUpdateKey, setForceUpdateKey] = useState(0); // Для принудительного обновления после действий с изображениями
+  const [isUploading, setIsUploading] = useState(false); // Состояние загрузки нового изображения
+
+  // Сервис для работы с изображениями
+  const imageService = useSpecimenImagesService();
 
   const { 
     imageSrc, 
@@ -44,6 +49,42 @@ export const usePlantImages = (plantId: number) => {
     }
   }, [allImages, imageSrc]);
 
+  // Функция для загрузки нового изображения
+  const uploadNewImage = useCallback(async (imageUri: string): Promise<boolean> => {
+    if (!plantId) {
+      console.error("uploadNewImage: plantId is invalid", plantId);
+      return false;
+    }
+    setIsUploading(true);
+    try {
+      // Используем batchUpload для одного изображения
+      // false - не устанавливать как основное по умолчанию
+      const result = await imageService.batchUpload(plantId, [imageUri], false);
+      if (result && result.successCount > 0) {
+        // Успешно загружено, обновляем данные
+        await fetchSpecimenImage();
+        await reloadGalleryImages();
+        setForceUpdateKey(prevKey => prevKey + 1);
+        setIsUploading(false);
+        return true;
+      } else {
+        console.error("Ошибка загрузки изображения:", result?.errorMessages);
+        // Добавим логирование всего объекта result
+        console.log("Полный результат batchUpload (ошибка):", JSON.stringify(result, null, 2)); 
+        // TODO: Показать сообщение об ошибке пользователю
+        setIsUploading(false);
+        return false;
+      }
+    } catch (err) {
+      console.error("Критическая ошибка при загрузке изображения:", err);
+       // Добавим логирование всего объекта ошибки
+      console.log("Детали ошибки в catch:", JSON.stringify(err, null, 2)); 
+      // TODO: Показать сообщение об ошибке пользователю
+      setIsUploading(false);
+      return false;
+    }
+  }, [plantId, imageService, fetchSpecimenImage, reloadGalleryImages]);
+
   // Обработчик выбора изображения в галерее (вызывается из ImageGallery)
   const handleImageSelect = useCallback((imageUrl: string, index: number) => {
     setCurrentImageIndex(index);
@@ -79,17 +120,20 @@ export const usePlantImages = (plantId: number) => {
     }
   }, [fetchSpecimenImage, reloadGalleryImages, currentImageIndex]);
 
-  const isLoading = mainImageLoading || (galleryLoading && !galleryLoaded);
+  // Объединяем состояния загрузки
+  const isLoading = mainImageLoading || (galleryLoading && !galleryLoaded) || isUploading;
 
   return {
     allImageUrls,
     currentImageIndex,
     setCurrentImageIndex, // Передаем для управления извне (например, каруселью)
     galleryLoaded,
-    isLoading,
+    isLoading, // Общее состояние загрузки (включая upload)
+    isUploading, // Отдельное состояние загрузки для кнопки
     handleImageSelect, 
     handleMainImageChange,
     handleImageDeleted,
+    uploadNewImage, // Добавляем новую функцию
     forceUpdateKey // Может понадобиться для key в ScrollView
   };
 }; 

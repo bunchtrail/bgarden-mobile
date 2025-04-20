@@ -1,9 +1,10 @@
-import React, { useCallback } from 'react';
-import { ScrollView, View, TouchableOpacity } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ScrollView, View, TouchableOpacity, ActivityIndicator, Alert, Platform } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { UserRole } from '@/types';
+import * as ImagePicker from 'expo-image-picker';
 import {
   LoadingErrorHandler,
   ImageCarousel,
@@ -14,6 +15,8 @@ import {
 } from './components';
 import { usePlantDetails, usePlantImages } from './hooks';
 import { styles } from './components/styles'; // Импортируем общие стили
+import { Button } from '@/components/Button'; // Импортируем компонент Button
+import { Ionicons } from '@expo/vector-icons'; // Импортируем иконки
 
 export default function PlantDetails() {
   const { id } = useLocalSearchParams();
@@ -32,17 +35,73 @@ export default function PlantDetails() {
     handleImageSelect, 
     handleMainImageChange,
     handleImageDeleted,
+    uploadNewImage,
+    isUploading,
     forceUpdateKey // Используем для обновления ScrollView
   } = usePlantImages(plantId);
   
   // Заглушка для роли пользователя (TODO: Заменить на реальную)
-  const userRole: UserRole = UserRole.Client;
+  const userRole = UserRole.Employee as UserRole; // Исправлено на Employee
+  
+  // Состояние для отслеживания процесса выбора/загрузки
+  const [isPickingOrUploading, setIsPickingOrUploading] = useState(false);
 
   // Обработчик выбора изображения в галерее, который обновит индекс в карусели
   const onGalleryImageSelect = useCallback((imageUrl: string, index: number) => {
     handleImageSelect(imageUrl, index); // Обновляем индекс в хуке
     // Карусель сама обновится через useEffect по initialIndex
   }, [handleImageSelect]);
+
+  // Обработчик нажатия на кнопку "Добавить фото"
+  const handleAddPhotoPress = useCallback(async () => {
+    // TODO: Реализовать логику выбора и загрузки фото
+    // console.log('Нажата кнопка "Добавить фото"');
+    // alert('Функционал добавления фото в разработке.');
+    // // Здесь будет вызов функции из хука usePlantImages, например:
+    // // handleAddNewImage(); 
+    
+    setIsPickingOrUploading(true);
+    
+    // 1. Запрос разрешений
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Требуется разрешение', 'Пожалуйста, предоставьте доступ к галерее в настройках устройства.');
+      setIsPickingOrUploading(false);
+      return;
+    }
+    
+    // 2. Выбор изображения
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true, // Можно разрешить простое редактирование (кадрирование)
+        aspect: [4, 3], // Соотношение сторон для редактора
+        quality: 0.8, // Качество изображения (0-1)
+      });
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const imageUri = result.assets[0].uri;
+        
+        // 3. Загрузка изображения
+        const success = await uploadNewImage(imageUri);
+        if (success) {
+          // showToast('success', 'Изображение успешно загружено.');
+          Alert.alert('Успех', 'Изображение успешно загружено.');
+        } else {
+          // showToast('error', 'Не удалось загрузить изображение.');
+          Alert.alert('Ошибка', 'Не удалось загрузить изображение.');
+        }
+      } else {
+        // Пользователь отменил выбор
+        // showToast('info', 'Выбор изображения отменен.');
+      }
+    } catch (error) {
+        console.error("Ошибка при выборе или обработке изображения:", error);
+        Alert.alert('Ошибка', 'Произошла ошибка при обработке изображения.');
+    } finally {
+      setIsPickingOrUploading(false);
+    }
+  }, [uploadNewImage]);
 
   // Обработчик смены индекса в карусели
   const onCarouselIndexChange = useCallback((index: number) => {
@@ -120,8 +179,21 @@ export default function PlantDetails() {
             />
         )}
 
-        {/* Контейнер для текстовой информации */} 
+        {/* Контейнер для текстовой информации и кнопки */} 
         <View style={styles.detailsContainer}>
+        
+          {/* Кнопка "Добавить фото" (только для авторизованных) */}
+          {/* TODO: Уточнить роли, которым доступно добавление */}
+          {userRole !== UserRole.Client && plantId > 0 && (
+             <Button 
+              title="Добавить фото" 
+              onPress={handleAddPhotoPress} 
+              disabled={isPickingOrUploading} // Блокируем кнопку во время процесса
+              loading={isPickingOrUploading} // Показываем индикатор
+              style={{ marginBottom: 15 }} // Добавим отступ снизу
+            />
+          )}
+
           {/* Компоненты с информацией о растении */} 
           <PlantBasicInfo plant={plant} />
           <PlantLocation plant={plant} />

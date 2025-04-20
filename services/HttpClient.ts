@@ -205,9 +205,18 @@ class HttpClient {
         data: response.ok ? (responseData as T) : null,
         error: response.ok
           ? null
-          : typeof responseData === 'object' && responseData && 'message' in responseData
-            ? (responseData as ApiError).message
-            : 'Произошла ошибка',
+          : typeof responseData === 'object' && responseData
+            ? (
+              // Проверяем поле 'message' в ответе (стандартное для многих API)
+              'message' in responseData 
+                ? (responseData as ApiError).message
+                // Проверяем поле 'error' (используется в нашем бэкенде)
+                : 'error' in responseData && typeof responseData.error === 'string' 
+                  ? responseData.error as string
+                  // Возвращаем стандартное сообщение, если ни error, ни message не найдены
+                  : `Ошибка сервера (${response.status})`
+            )
+            : `Ошибка сервера (${response.status})`,
         status: response.status,
       };
     } catch (error) {

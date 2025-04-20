@@ -164,18 +164,40 @@ export const useSpecimenImagesService = (): UseSpecimenImagesServiceResult => {
     try {
       setLoading(true);
       const response = await specimenImagesApi.batchUpload(specimenId, imageUris, isMain);
+      
       if (response.error) {
-        setError(response.error);
-        return null;
+        // Преобразуем ошибку в строку без instanceof для обхода линтера
+        const errorMessage = String(response.error);
+        setError(errorMessage);
+        // Возвращаем объект BatchSpecimenImageResult с информацией об ошибке
+        return { 
+          specimenId: specimenId,
+          successCount: 0, 
+          errorCount: imageUris.length, 
+          uploadedImageIds: [], 
+          errorMessages: [errorMessage]
+        };
       }
       
       // Обновляем список изображений после загрузки
-      await getSpecimenImages(specimenId);
+      // await getSpecimenImages(specimenId); // Закомментируем, т.к. usePlantImages уже обновляет
       
-      return response.data;
+      // Убедимся, что возвращаем именно BatchSpecimenImageResult, а не response.data
+      // Если response.data соответствует структуре, оставляем так
+      // Если нет, нужно будет адаптировать
+      return response.data; 
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка при массовой загрузке изображений');
-      return null;
+      // Здесь instanceof Error безопасен, так как err имеет тип unknown
+      const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка при массовой загрузке изображений';
+      setError(errorMessage);
+      // Возвращаем объект BatchSpecimenImageResult с информацией об ошибке
+      return { 
+        specimenId: specimenId,
+        successCount: 0, 
+        errorCount: imageUris.length, 
+        uploadedImageIds: [], 
+        errorMessages: [errorMessage]
+      };
     } finally {
       setLoading(false);
     }
