@@ -10,6 +10,7 @@ import { SCREEN_DIMENSIONS, logScreenDimensions } from '@/app/constants/layoutCo
 import { useViewabilityTracking } from '@/hooks/plants';
 import { FilterBar, PlantsList } from '@/components/plants';
 import { usePlantsContext } from '@/modules/plants/context/PlantsContext';
+import { EmptyState } from '@/components/common/EmptyState';
 
 export default function CatalogScreen() {
   const router = useRouter();
@@ -98,10 +99,7 @@ export default function CatalogScreen() {
             <FilterBar userRole={userRole} onFilter={handleFilter} />
           </View>
           
-          <View style={styles.emptyContainer}>
-            <ThemedText style={styles.emptyText}>
-              Растения не найдены
-            </ThemedText>
+          <EmptyState message="Растения не найдены">
             <TouchableOpacity 
               style={styles.retryButton} 
               onPress={handleRetry}
@@ -109,7 +107,7 @@ export default function CatalogScreen() {
             >
               <Text style={styles.retryButtonText}>Обновить каталог</Text>
             </TouchableOpacity>
-          </View>
+          </EmptyState>
         </ThemedView>
       </SafeAreaView>
     );
@@ -212,14 +210,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 18,
-    color: '#555',
-    marginBottom: 20,
-  }
 }); 

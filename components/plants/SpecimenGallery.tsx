@@ -18,6 +18,7 @@ import { SpecimenImage } from '@/types';
 import { useGalleryImages } from '@/modules/plants/hooks';
 import ImageUploader from './ImageUploader';
 import { LongPress } from '@/components/ui/LongPress';
+import { EmptyState } from '@/components/common/EmptyState';
 
 interface SpecimenGalleryProps {
   specimenId: number;
@@ -245,16 +246,15 @@ const SpecimenGallery: React.FC<SpecimenGalleryProps> = ({
           extraData={selectedImageIndex} // Обновляем при изменении индекса
         />
       ) : (
-        <View style={styles.emptyContainer}>
+        <EmptyState message="У этого образца пока нет изображений">
           <Ionicons name="images-outline" size={48} color="#AAAAAA" />
-          <Text style={styles.emptyText}>У этого образца пока нет изображений</Text>
           <TouchableOpacity 
             style={styles.uploadButton} 
             onPress={handleOpenUploadModal}
           >
             <Text style={styles.uploadButtonText}>Загрузить изображения</Text>
           </TouchableOpacity>
-        </View>
+        </EmptyState>
       )}
 
       {/* Модальное окно загрузки изображений */}
@@ -430,18 +430,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#666',
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  emptyText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-  },
   uploadButton: {
     marginTop: 20,
     backgroundColor: '#0066CC',
@@ -459,9 +447,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffeeee',
     borderRadius: 6,
     marginHorizontal: 15,
-  },
-  errorText: {
-    color: '#C00',
   },
   modalContainer: {
     flex: 1,
