@@ -73,7 +73,7 @@ export default function PlantDetails() {
     // 2. Выбор изображения
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true, // Можно разрешить простое редактирование (кадрирование)
         aspect: [4, 3], // Соотношение сторон для редактора
         quality: 0.8, // Качество изображения (0-1)
