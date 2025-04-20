@@ -20,7 +20,7 @@ export function SectorButtons() {
       // console.log(`[Навигация] Передаваемые параметры:`, params);
       
       router.push({
-        pathname: "/add-specimen/AddSpecimenScreen", // Прямой путь к странице
+        pathname: "/(add-specimen)", // Прямой путь к странице с группой маршрутов
         params: params
       });
     } catch (err) {
