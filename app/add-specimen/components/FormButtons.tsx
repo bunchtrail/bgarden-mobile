@@ -30,3 +30,5 @@ export function FormButtons({ onCancel, onSave, loading }: FormButtonsProps) {
     </View>
   );
 } 
+
+export default FormButtons;

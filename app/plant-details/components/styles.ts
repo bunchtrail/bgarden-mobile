@@ -223,4 +223,6 @@ export const styles = StyleSheet.create({
     height: '100%', // Занимает всю высоту imageContainer
     width: screenWidth, // Явно указываем ширину
   },
-}); 
+});
+
+export default styles; 

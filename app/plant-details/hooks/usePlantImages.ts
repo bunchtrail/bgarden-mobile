@@ -136,4 +136,6 @@ export const usePlantImages = (plantId: number) => {
     uploadNewImage, // Добавляем новую функцию
     forceUpdateKey // Может понадобиться для key в ScrollView
   };
-}; 
+};
+
+export default usePlantImages; 

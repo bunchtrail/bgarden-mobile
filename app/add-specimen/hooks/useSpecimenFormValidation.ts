@@ -110,3 +110,5 @@ export const useSpecimenFormValidation = (form: ValidationForm) => {
 
   return { validateForm };
 };
+
+export default useSpecimenFormValidation;

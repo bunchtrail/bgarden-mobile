@@ -116,3 +116,5 @@ export const LocationSection = memo(function LocationSectionComponent({
     </View>
   );
 }); 
+
+export default LocationSection;

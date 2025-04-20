@@ -42,4 +42,6 @@ export const usePlantDetails = (plantId: number) => {
   }, [loadPlantDetails]); // Зависимость от loadPlantDetails
 
   return { plant, loading, error, loadPlantDetails };
-}; 
+};
+
+export default usePlantDetails; 

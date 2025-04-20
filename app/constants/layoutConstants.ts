@@ -39,4 +39,15 @@ export const logScreenDimensions = () => {
   if (dimensionsString !== lastDimensionsLog) {
     lastDimensionsLog = dimensionsString;
   }
+};
+
+export default {
+  TAB_BAR_HEIGHT,
+  HEADER_HEIGHT,
+  FILTER_BAR_HEIGHT,
+  BOTTOM_MARGIN,
+  SAFETY_MARGIN,
+  FIXED_CARD_HEIGHT,
+  SCREEN_DIMENSIONS,
+  logScreenDimensions
 }; 

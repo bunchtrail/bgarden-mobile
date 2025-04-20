@@ -195,3 +195,5 @@ export function useSpecimenFormState() {
     getCurrentLocation,
   };
 }
+
+export default useSpecimenFormState;

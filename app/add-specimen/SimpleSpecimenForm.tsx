@@ -202,3 +202,5 @@ export const SimpleSpecimenForm = memo(function SimpleSpecimenFormComponent({ fo
     </View>
   );
 });
+
+export default SimpleSpecimenForm;

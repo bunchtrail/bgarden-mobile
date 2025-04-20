@@ -158,4 +158,6 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
       />
     </View>
   );
-}; 
+};
+
+export default ImageGallery; 

@@ -4,3 +4,4 @@ export function logWithTimestamp(message: string) {
     console.log(`[${timestamp}] ${message}`);
   }
   
+export default logWithTimestamp;

@@ -11,3 +11,5 @@ export const getSectorName = (sectorType: number): string => {
       return 'Не указан';
   }
 }; 
+
+export default getSectorName;

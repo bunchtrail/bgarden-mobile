@@ -40,4 +40,6 @@ export const PlantAdditionalInfo: React.FC<PlantAdditionalInfoProps> = ({ plant 
       )}
     </>
   );
-}; 
+};
+
+export default PlantAdditionalInfo; 

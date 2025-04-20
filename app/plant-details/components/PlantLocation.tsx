@@ -57,4 +57,6 @@ export const PlantLocation: React.FC<PlantLocationProps> = ({ plant }) => {
       <DetailRow label="Кем заполнено" value={plant.filledBy}/>
     </View>
   );
-}; 
+};
+
+export default PlantLocation; 

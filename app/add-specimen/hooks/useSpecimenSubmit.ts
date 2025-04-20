@@ -130,3 +130,5 @@ export function useSpecimenSubmit(formData: SpecimenFormData, setLoading: (loadi
     setErrors,
   };
 } 
+
+export default useSpecimenSubmit;

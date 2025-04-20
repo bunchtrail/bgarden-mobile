@@ -423,3 +423,4 @@ export const getOrientationStyles = (isLandscape: boolean) => {
   return {};
 };
 
+export default styles;

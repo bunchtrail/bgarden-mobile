@@ -12,4 +12,6 @@ export const getSectorTypeName = (type: number): string => {
     default:
       return 'Неизвестно';
   }
-}; 
+};
+
+export default { getSectorTypeName }; 

@@ -35,4 +35,6 @@ export const PlantBasicInfo: React.FC<PlantBasicInfoProps> = ({ plant }) => {
       </View>
     </>
   );
-}; 
+};
+
+export default PlantBasicInfo; 

@@ -183,4 +183,6 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
       )}
     </View>
   );
-}; 
+};
+
+export default ImageCarousel; 

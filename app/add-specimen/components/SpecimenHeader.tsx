@@ -38,3 +38,5 @@ export function SpecimenHeader({ sectorType, onBack }: SpecimenHeaderProps) {
     </View>
   );
 } 
+
+export default SpecimenHeader;

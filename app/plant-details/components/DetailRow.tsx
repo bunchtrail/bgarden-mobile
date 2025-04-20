@@ -21,4 +21,6 @@ export const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => {
       <ThemedText style={styles.detailValue}>{String(value)}</ThemedText>
     </View>
   );
-}; 
+};
+
+export default DetailRow; 

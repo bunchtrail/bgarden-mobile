@@ -69,3 +69,5 @@ export const BasicInfoSection = memo(function BasicInfoSectionComponent({
     </View>
   );
 }); 
+
+export default BasicInfoSection;

@@ -35,3 +35,5 @@ export const NotesSection = memo(function NotesSectionComponent({
     </View>
   );
 }); 
+
+export default NotesSection;

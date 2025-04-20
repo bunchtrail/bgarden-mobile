@@ -51,4 +51,6 @@ export const LoadingErrorHandler: React.FC<LoadingErrorHandlerProps> = ({
   }
 
   return <>{children}</>; // Используем React.Fragment или <></>
-}; 
+};
+
+export default LoadingErrorHandler; 
