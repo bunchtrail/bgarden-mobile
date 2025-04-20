@@ -1,16 +1,22 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles';
 import { Colors } from '@/constants/Colors';
 import { LocationType } from '@/types';
+import FormField from './FormField';
 
 interface LocationSectionProps {
   latitude: string;
   longitude: string;
   mapId?: string;
+  setMapId?: (id: string) => void;
   mapX?: string;
+  setMapX?: (x: string) => void;
   mapY?: string;
+  setMapY?: (y: string) => void;
+  regionId?: string;
+  setRegionId?: (id: string) => void;
   locationType: LocationType;
   setLocationType?: (type: LocationType) => void;
   getCurrentLocation: () => Promise<void>;
@@ -21,13 +27,20 @@ export const LocationSection = memo(function LocationSectionComponent({
   latitude,
   longitude,
   mapId = "1",
+  setMapId,
   mapX = "50",
+  setMapX,
   mapY = "50",
+  setMapY,
+  regionId,
+  setRegionId,
   locationType = LocationType.SchematicMap,
   setLocationType,
   getCurrentLocation,
   errors
 }: LocationSectionProps) {
+  
+  const [showAdvanced, setShowAdvanced] = useState(false);
   
   // Функция переключения типа координат
   const toggleLocationType = () => {
@@ -94,25 +107,73 @@ export const LocationSection = memo(function LocationSectionComponent({
         )}
         
         {/* Схематические координаты */}
-        {locationType === LocationType.SchematicMap && (
+        {locationType === LocationType.SchematicMap && setMapId && setMapX && setMapY && (
           <View style={styles.coordinatesContainer}>
-            <View style={[styles.coordinateField, { marginRight: 8, flex: 0.7 }]}>
-              <Text style={styles.coordinateLabel}>ID карты:</Text>
-              <Text style={styles.coordinateValue}>{mapId || '1'}</Text>
+            <View style={[styles.coordinateField, { marginRight: 8, flex: 1 }]}>
+              <FormField
+                label="ID карты"
+                value={mapId}
+                onChangeText={setMapId}
+                error={errors?.mapId}
+                placeholder="ID"
+                keyboardType="numeric"
+              />
             </View>
-            <View style={[styles.coordinateField, { marginRight: 8, flex: 0.7 }]}>
-              <Text style={styles.coordinateLabel}>X:</Text>
-              <Text style={styles.coordinateValue}>{mapX || '50'}</Text>
+            <View style={[styles.coordinateField, { marginRight: 8, flex: 1 }]}>
+              <FormField
+                label="X"
+                value={mapX}
+                onChangeText={setMapX}
+                error={errors?.mapX}
+                placeholder="X"
+                keyboardType="numeric"
+              />
             </View>
-            <View style={[styles.coordinateField, { flex: 0.7 }]}>
-              <Text style={styles.coordinateLabel}>Y:</Text>
-              <Text style={styles.coordinateValue}>{mapY || '50'}</Text>
+            <View style={[styles.coordinateField, { flex: 1 }]}>
+               <FormField
+                label="Y"
+                value={mapY}
+                onChangeText={setMapY}
+                error={errors?.mapY}
+                placeholder="Y"
+                keyboardType="numeric"
+              />
             </View>
           </View>
         )}
         
         {errors?.latitude && <Text style={styles.errorText}>{errors.latitude}</Text>}
       </View>
+
+      {/* Кнопка Дополнительно */} 
+      <TouchableOpacity 
+        style={styles.advancedButton} 
+        onPress={() => setShowAdvanced(!showAdvanced)}
+      >
+        <Text style={styles.advancedButtonText}>
+          {showAdvanced ? 'Скрыть дополнительные поля' : 'Показать дополнительные поля'}
+        </Text>
+        <Ionicons 
+          name={showAdvanced ? "chevron-up-outline" : "chevron-down-outline"} 
+          size={20} 
+          color={Colors.light.primary} 
+        />
+      </TouchableOpacity>
+
+      {/* Дополнительные поля */} 
+      {showAdvanced && setRegionId && (
+        <View style={{ marginTop: 15 }}>
+          <FormField
+            label="Регион (ID)"
+            value={regionId || ''}
+            onChangeText={setRegionId}
+            error={errors?.regionId}
+            placeholder="Введите ID региона (опционально)"
+            keyboardType="numeric"
+            leftIcon={<Ionicons name="map-outline" size={20} color={Colors.light.primary} />}
+          />
+        </View>
+      )}
     </View>
   );
 }); 

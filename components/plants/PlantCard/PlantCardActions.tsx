@@ -70,13 +70,12 @@ const PlantCardActions: React.FC<PlantCardActionsProps> = ({ userRole }) => {
 
 const styles = StyleSheet.create({
   actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
-    marginBottom: 30,
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   actionButton: {
     alignItems: 'center',
+    marginBottom: 10,
   },
   actionText: {
     color: 'white',

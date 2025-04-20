@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { SectorType, LocationType, Family, Exposition } from '@/types';
-import { logWithTimestamp } from '../utils/logWithTimestamp';
+import { logWithTimestamp } from '../_utils/logWithTimestamp';
 import * as Location from 'expo-location';
 import { plantsApi } from '@/modules/plants/services';
 
@@ -16,25 +16,47 @@ export function useSpecimenFormState() {
   const [genus, setGenus] = useState('');
   const [species, setSpecies] = useState('');
   const [sectorType, setSectorType] = useState<SectorType>(SectorType.Dendrology);
+  const [cultivar, setCultivar] = useState('');
+  const [form, setForm] = useState('');
+  const [synonyms, setSynonyms] = useState('');
+  const [determinedBy, setDeterminedBy] = useState('');
+  const [plantingYear, setPlantingYear] = useState('');
+  const [sampleOrigin, setSampleOrigin] = useState('');
+  const [naturalRange, setNaturalRange] = useState('');
+  const [ecologyAndBiology, setEcologyAndBiology] = useState('');
+  const [economicUse, setEconomicUse] = useState('');
+  const [conservationStatus, setConservationStatus] = useState('');
+  const [hasHerbarium, setHasHerbarium] = useState(false);
+  const [duplicatesInfo, setDuplicatesInfo] = useState('');
+  const [originalBreeder, setOriginalBreeder] = useState('');
+  const [originalYear, setOriginalYear] = useState('');
+  const [country, setCountry] = useState('');
 
   // Местоположение
   const [locationType, setLocationType] = useState<LocationType>(LocationType.SchematicMap);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
-  const [mapId, setMapId] = useState('1'); // Устанавливаем ID карты по умолчанию
-  const [mapX, setMapX] = useState('50'); // Устанавливаем координату X по умолчанию
-  const [mapY, setMapY] = useState('50'); // Устанавливаем координату Y по умолчанию
+  const [mapId, setMapId] = useState('1');
+  const [mapX, setMapX] = useState('50');
+  const [mapY, setMapY] = useState('50');
+  const [regionId, setRegionId] = useState<string | undefined>(undefined);
 
   // Базовая таксономия
   const [familyId, setFamilyId] = useState('1');
   const [familyName, setFamilyName] = useState('');
-  const [expositionId, setExpositionId] = useState<string>('1'); // Устанавливаем ID экспозиции по умолчанию
+  const [expositionId, setExpositionId] = useState<string>('1');
 
   // Упрощённый режим
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [location, setLocation] = useState('');
   const [careInstructions, setCareInstructions] = useState('');
+
+  // Поле Notes из Specimen
+  const [notes, setNotes] = useState('');
+
+  // Информация о заполнении
+  const [filledBy, setFilledBy] = useState('');
 
   // Прочее
   const [images, setImages] = useState<string[]>([]);
@@ -157,9 +179,9 @@ export function useSpecimenFormState() {
 
   return {
     // Параметры
-    mode: 'simple',
+    mode: 'full',
     sector,
-    isSimpleMode: true,
+    isSimpleMode: false,
 
     // Стейт
     inventoryNumber, setInventoryNumber,
@@ -168,6 +190,21 @@ export function useSpecimenFormState() {
     genus, setGenus,
     species, setSpecies,
     sectorType, setSectorType,
+    cultivar, setCultivar,
+    form, setForm,
+    synonyms, setSynonyms,
+    determinedBy, setDeterminedBy,
+    plantingYear, setPlantingYear,
+    sampleOrigin, setSampleOrigin,
+    naturalRange, setNaturalRange,
+    ecologyAndBiology, setEcologyAndBiology,
+    economicUse, setEconomicUse,
+    conservationStatus, setConservationStatus,
+    hasHerbarium, setHasHerbarium,
+    duplicatesInfo, setDuplicatesInfo,
+    originalBreeder, setOriginalBreeder,
+    originalYear, setOriginalYear,
+    country, setCountry,
 
     locationType, setLocationType,
     latitude, setLatitude,
@@ -175,6 +212,7 @@ export function useSpecimenFormState() {
     mapId, setMapId,
     mapX, setMapX,
     mapY, setMapY,
+    regionId, setRegionId,
 
     familyId, setFamilyId,
     familyName, setFamilyName,
@@ -184,6 +222,10 @@ export function useSpecimenFormState() {
     category, setCategory,
     location, setLocation,
     careInstructions, setCareInstructions,
+
+    notes, setNotes,
+
+    filledBy, setFilledBy,
 
     images, setImages,
     loading, setLoading,

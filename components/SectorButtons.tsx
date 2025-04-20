@@ -38,7 +38,7 @@ export function SectorButtons() {
     // Возвращаем поле icon
     { name: 'Дендрология', type: 'dendrology', icon: 'tree.fill' as any }, 
     { name: 'Флора', type: 'flora', icon: 'leaf' as any }, 
-    { name: 'Цветоводство', type: 'flowers', icon: 'flower' as any }
+    { name: 'Цветоводство', type: 'flowers', icon: 'camera.macro' as any }
     // Добавьте сюда другие секторы при необходимости
   ];
   

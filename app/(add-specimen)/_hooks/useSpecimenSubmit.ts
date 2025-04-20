@@ -1,23 +1,42 @@
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
-import { LocationType, SectorType, Exposition } from '@/types';
+import { LocationType, SectorType, Exposition, Family } from '@/types';
 import { plantsApi, specimenImagesApi } from '@/modules/plants/services';
 
 interface SpecimenFormData {
   inventoryNumber: string;
   russianName: string;
   latinName: string;
-  familyId: string;
-  expositionId: string;
-  description: string;
+  genus: string;
+  species: string;
+  cultivar: string;
+  form: string;
+  synonyms: string;
+  determinedBy: string;
+  plantingYear: string;
+  sampleOrigin: string;
+  naturalRange: string;
+  ecologyAndBiology: string;
+  economicUse: string;
+  conservationStatus: string;
+  hasHerbarium: boolean;
+  duplicatesInfo: string;
+  originalBreeder: string;
+  originalYear: string;
+  country: string;
   locationType: LocationType;
   latitude: string;
   longitude: string;
   mapId: string;
   mapX: string;
   mapY: string;
+  regionId?: string;
   sectorType: SectorType;
+  familyId: string;
+  expositionId: string;
+  notes: string;
+  filledBy: string;
 }
 
 interface UseSpecimenSubmitProps {
@@ -42,16 +61,35 @@ export function useSpecimenSubmit({
     inventoryNumber, 
     russianName, 
     latinName, 
-    familyId, 
-    expositionId,
-    description,
+    genus,
+    species,
+    cultivar,
+    form: plantForm,
+    synonyms,
+    determinedBy,
+    plantingYear,
+    sampleOrigin,
+    naturalRange,
+    ecologyAndBiology,
+    economicUse,
+    conservationStatus,
+    hasHerbarium,
+    duplicatesInfo,
+    originalBreeder,
+    originalYear,
+    country,
     locationType,
     latitude,
     longitude,
     mapId,
     mapX,
     mapY,
-    sectorType
+    regionId,
+    sectorType,
+    familyId, 
+    expositionId,
+    notes,
+    filledBy,
   } = formData;
   
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -66,25 +104,49 @@ export function useSpecimenSubmit({
       
       const locationData = locationType === LocationType.Geographic 
         ? {
-            latitude: parseFloat(latitude),
-            longitude: parseFloat(longitude),
-            locationType
+            latitude: latitude ? parseFloat(latitude) : undefined,
+            longitude: longitude ? parseFloat(longitude) : undefined,
+            locationType,
+            mapId: undefined,
+            mapX: undefined,
+            mapY: undefined,
           }
         : {
-            mapId: parseInt(mapId, 10),
-            mapX: parseFloat(mapX),
-            mapY: parseFloat(mapY),
-            locationType
+            mapId: mapId ? parseInt(mapId, 10) : undefined,
+            mapX: mapX ? parseFloat(mapX) : undefined,
+            mapY: mapY ? parseFloat(mapY) : undefined,
+            locationType,
+            latitude: undefined,
+            longitude: undefined,
           };
       
       const specimenData = {
         inventoryNumber,
         russianName: russianName || undefined,
         latinName: latinName || undefined,
+        genus: genus || undefined,
+        species: species || undefined,
+        cultivar: cultivar || undefined,
+        form: plantForm || undefined,
+        synonyms: synonyms || undefined,
+        determinedBy: determinedBy || undefined,
+        plantingYear: plantingYear ? parseInt(plantingYear, 10) : undefined,
+        sampleOrigin: sampleOrigin || undefined,
+        naturalRange: naturalRange || undefined,
+        ecologyAndBiology: ecologyAndBiology || undefined,
+        economicUse: economicUse || undefined,
+        conservationStatus: conservationStatus || undefined,
+        hasHerbarium,
+        duplicatesInfo: duplicatesInfo || undefined,
+        originalBreeder: originalBreeder || undefined,
+        originalYear: originalYear ? parseInt(originalYear, 10) : undefined,
+        country: country || undefined,
         familyId: parseInt(familyId, 10),
-        description: description || undefined,
-        sectorType,
         expositionId: expositionId ? parseInt(expositionId, 10) : undefined,
+        notes: notes || undefined,
+        filledBy: filledBy || undefined,
+        sectorType,
+        regionId: regionId ? parseInt(regionId, 10) : undefined,
         ...locationData
       };
       
@@ -149,22 +211,12 @@ export function useSpecimenSubmit({
       setLoading(false);
     }
   }, [
-    inventoryNumber, 
-    russianName, 
-    latinName, 
-    familyId, 
-    expositionId,
-    description, 
-    sectorType, 
-    locationType,
-    latitude,
-    longitude,
-    mapId,
-    mapX,
-    mapY,
-    setLoading, 
-    setErrors,
-    images
+    inventoryNumber, russianName, latinName, genus, species, cultivar, plantForm, 
+    synonyms, determinedBy, plantingYear, sampleOrigin, naturalRange, ecologyAndBiology, 
+    economicUse, conservationStatus, hasHerbarium, duplicatesInfo, originalBreeder, 
+    originalYear, country, locationType, latitude, longitude, mapId, mapX, mapY, 
+    regionId, sectorType, familyId, expositionId, notes, filledBy, 
+    setLoading, setErrors, images
   ]);
 
   return {

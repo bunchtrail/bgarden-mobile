@@ -403,7 +403,24 @@ export const styles = StyleSheet.create({
   // Стили для управления zIndex секций в SimpleSpecimenForm
   zIndexHigh: { zIndex: 3 },
   zIndexMedium: { zIndex: 2 },
-  zIndexLow: { zIndex: 1 },
+  zIndexLow: {
+    zIndex: 0, // Стиль для понижения zIndex, если нужно
+  },
+  // Добавляем стили для кнопки "Дополнительно"
+  advancedButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    marginTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.border,
+  },
+  advancedButtonText: {
+    color: Colors.light.primary,
+    fontSize: 16,
+    fontWeight: '500',
+  },
 });
 
 // Функция для получения стилей при смене ориентации экрана

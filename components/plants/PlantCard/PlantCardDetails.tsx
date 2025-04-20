@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Specimen, UserRole, SectorType } from '@/types';
 import PlantCardDetailRow from './PlantCardDetailRow';
-import PlantCardActions from './PlantCardActions';
 
 interface PlantCardDetailsProps {
   specimen: Specimen;
@@ -51,7 +50,6 @@ const PlantCardDetails: React.FC<PlantCardDetailsProps> = ({ specimen, userRole 
       <PlantCardDetailRow label="Ареал" value={specimen.naturalRange} />
       <PlantCardDetailRow label="Гербарий" value={hasHerbariumText} />
       <PlantCardDetailRow label="Координаты" value={coordinates} />
-      <PlantCardActions userRole={userRole} />
     </View>
   );
 };

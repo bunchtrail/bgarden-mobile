@@ -5,6 +5,7 @@ import { Specimen, UserRole } from '@/types';
 import PlantCardHeader from './PlantCardHeader';
 import PlantCardImage from './PlantCardImage';
 import PlantCardDetails from './PlantCardDetails';
+import PlantCardActions from './PlantCardActions';
 
 const { width } = Dimensions.get('window');
 
@@ -53,7 +54,12 @@ const PlantCard: React.FC<PlantCardProps> = ({
         illustration={specimen.illustration}
       />
       <TouchableOpacity style={styles.infoContainer} onPress={onPress} activeOpacity={0.9}>
-        <PlantCardHeader russianName={specimenName} latinName={latinName} />
+        <View style={styles.headerActionsContainer}>
+          <View style={styles.headerTextContainer}>
+            <PlantCardHeader russianName={specimenName} latinName={latinName} />
+          </View>
+          <PlantCardActions userRole={userRole} />
+        </View>
 
         <TouchableOpacity style={styles.detailsButton} onPress={toggleDetails}>
           <Text style={styles.detailsButtonText}>
@@ -83,6 +89,16 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     padding: 20,
     backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  headerActionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  headerTextContainer: {
+    // This container prevents the header from stretching
+    // No specific flex properties needed, it will take natural width
   },
   detailsButton: {
     flexDirection: 'row',
