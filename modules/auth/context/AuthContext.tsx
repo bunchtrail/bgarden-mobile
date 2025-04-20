@@ -98,6 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Вход в систему
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
+    setIsLoading(true);
     try {
       const response = await authApi.login(credentials);
 
@@ -128,7 +129,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return false;
       }
     } catch (error) {
+      console.error("Ошибка при входе:", error);
+      Alert.alert('Ошибка входа', 'Произошла непредвиденная ошибка');
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 

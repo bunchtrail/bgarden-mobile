@@ -59,32 +59,38 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   const [prevSegments, setPrevSegments] = useState<string[] | null>(null);
 
   useEffect(() => {
-    if (isLoading) return; // Не выполняем логику, пока идет загрузка аутентификации
+    if (isLoading) {
+      // console.log('[Навигация] Ожидание завершения загрузки аутентификации...');
+      return;
+    }
+
+    // Добавляем лог для user и segments при isLoading === false
+    // console.log('[Навигация] Проверка редиректа. isLoading:', isLoading, 'User:', !!user, 'Segments:', segments);
 
     // Сравниваем текущие сегменты с предыдущими
     if (prevSegments && prevSegments.join('/') === segments.join('/')) {
-      return; // Сегменты не изменились, выходим
+      // console.log('[Навигация] Сегменты не изменились, редирект не требуется.');
+      return;
     }
 
     const routeType = getRouteType(segments);
-    // console.log('[Навигация] Текущий маршрут:', segments.join('/'));
-    // console.log('[Навигация] Сегменты маршрута:', segments);
     // console.log(`[Навигация] Тип маршрута: ${routeType}`);
 
     // Логика редиректа
     if (routeType === 'protected' && !user) {
-      // console.log('[Навигация] Редирект неавторизованного пользователя с защищенного маршрута на страницу входа');
+      // console.log('[Навигация] РЕДИРЕКТ: Неавторизованный пользователь на защищенном маршруте -> /login');
       router.replace('/login');
-      setPrevSegments(segments); // Обновляем предыдущие сегменты
+      setPrevSegments(segments); // Обновляем предыдущие сегменты ПОСЛЕ редиректа
     } else if (routeType === 'auth' && user) {
-      // console.log('[Навигация] Редирект авторизованного пользователя на домашнюю страницу');
+      // console.log('[Навигация] РЕДИРЕКТ: Авторизованный пользователь на маршруте аутентификации -> /(tabs)');
       router.replace('/(tabs)');
-      setPrevSegments(segments); // Обновляем предыдущие сегменты
+      setPrevSegments(segments); // Обновляем предыдущие сегменты ПОСЛЕ редиректа
     } else {
-      // Если редирект не нужен, просто обновляем предыдущие сегменты
-      setPrevSegments(segments);
+      // Если редирект не нужен (пользователь уже на правильном типе маршрута)
+      // Не обновляем prevSegments здесь, чтобы разрешить повторную проверку при изменении user/isLoading
+      // console.log('[Навигация] Редирект не требуется.');
     }
-  }, [segments, user, isLoading, router, prevSegments]);
+  }, [segments, user, isLoading, router, prevSegments]); // Добавляем prevSegments в зависимости
 
   return <>{children}</>;
 }
