@@ -12,6 +12,9 @@ import { FilterBar, PlantsList } from '@/components/plants';
 import { usePlantsContext } from '@/modules/plants/context/PlantsContext';
 import { EmptyState } from '@/components/common/EmptyState';
 
+// Приблизительная высота таб-бара (можно уточнить или вынести в константы)
+const TAB_BAR_HEIGHT = 80; 
+
 export default function CatalogScreen() {
   const router = useRouter();
   const { filteredSpecimens, loading, error, userRole, refreshData } = usePlantsContext();
@@ -92,9 +95,6 @@ export default function CatalogScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <ThemedView style={styles.container}>
           <StatusBar style="light" />
-          <ThemedText style={styles.title}>
-            Каталог растений
-          </ThemedText>
           <View>
             <FilterBar userRole={userRole} onFilter={handleFilter} />
           </View>
@@ -117,9 +117,6 @@ export default function CatalogScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
         <StatusBar style="light" />
-        <ThemedText style={styles.title}>
-          Каталог растений
-        </ThemedText>
         <View>
           <FilterBar userRole={userRole} onFilter={handleFilter} />
         </View>
@@ -151,6 +148,7 @@ export default function CatalogScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingBottom: TAB_BAR_HEIGHT,
   },
   title: {
     fontSize: 24,
