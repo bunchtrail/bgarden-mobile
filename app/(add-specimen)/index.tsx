@@ -82,8 +82,8 @@ export default function AddSpecimenScreen() {
   const { validateForm } = useSpecimenFormValidation(formState);
   
   // Обработчик отправки формы
-  const { submitSpecimen } = useSpecimenSubmit(
-    {
+  const { submitSpecimen } = useSpecimenSubmit({
+    formData: {
       inventoryNumber: formState.inventoryNumber,
       russianName: formState.russianName,
       latinName: formState.latinName,
@@ -98,8 +98,9 @@ export default function AddSpecimenScreen() {
       sectorType: formState.sectorType,
       expositionId: formState.expositionId
     }, 
-    setLoading
-  );
+    setLoading: setLoading,
+    images: formState.images
+  });
   
   const handleSubmit = useCallback(() => {
     if (validateForm()) {
