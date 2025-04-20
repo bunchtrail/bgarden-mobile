@@ -3,8 +3,9 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles';
 import { SectorType } from '@/types';
-import { getSectorName } from '../utils/sectorUtils';
+
 import { Colors } from '@/constants/Colors';
+import { getSectorName } from '../_utils/sectorUtils';
 
 interface SpecimenHeaderProps {
   sectorType: SectorType;

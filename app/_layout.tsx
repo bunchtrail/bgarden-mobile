@@ -43,7 +43,7 @@ export default function RootLayout() {
               <Stack.Screen name="+not-found" />
               <Stack.Screen name="storage-test" options={{ headerShown: true }} />
               <Stack.Screen 
-                name="add-specimen" 
+                name="(add-specimen)"
                 options={{ 
                   headerShown: false,
                   presentation: 'modal',

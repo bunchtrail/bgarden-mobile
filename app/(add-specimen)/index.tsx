@@ -7,19 +7,19 @@ import { Button } from '@/components/Button';
 import { ImageUploader } from '@/components/plants';
 import { Header } from '@/components/Header';
 
-import { useSpecimenFormState } from './hooks/useSpecimenFormState';
-import { useSpecimenFormValidation } from './hooks/useSpecimenFormValidation';
-import { useSpecimenSubmit } from './hooks/useSpecimenSubmit';
+import { useSpecimenFormState } from './_hooks/useSpecimenFormState';
+import { useSpecimenFormValidation } from './_hooks/useSpecimenFormValidation';
+import { useSpecimenSubmit } from './_hooks/useSpecimenSubmit';
 import { styles } from './styles';
 import { plantsApi } from '@/modules/plants/services';
 import { LocationType } from '@/types';
 import { Colors } from '@/constants/Colors';
 
 import { SimpleSpecimenForm } from './SimpleSpecimenForm';
-import { logWithTimestamp } from './utils/logWithTimestamp';
-import { getSectorName } from './utils/sectorUtils';
-import { SpecimenHeader } from './components/SpecimenHeader';
-import { FormButtons } from './components/FormButtons';
+import { logWithTimestamp } from './_utils/logWithTimestamp';
+import { getSectorName } from './_utils/sectorUtils';
+import { SpecimenHeader } from './_components/SpecimenHeader';
+import { FormButtons } from './_components/FormButtons';
 
 export default function AddSpecimenScreen() {
   const router = useRouter();

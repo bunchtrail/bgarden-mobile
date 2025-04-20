@@ -6,7 +6,7 @@ import {
   BasicInfoSection, 
   LocationSection, 
   NotesSection,
-} from './components';
+} from './_components';
 
 
 // Импортируем новый Dropdown и типы для него
